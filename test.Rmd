@@ -11,9 +11,9 @@ otpcon <- otp_connect(hostname="localhost", router="auckland", port=8080)
 ```
 
 ```{r}
-routes <- otp_plan(otpcon, fromPlace = c(174.71354, -36.88028), toPlace = c(174.73435, -36.88366), mode=c("TRANSIT", "WALK")) # lon lat pairs
+routes <- otp_plan(otpcon, fromPlace = c(174.71354, -36.88028), toPlace = c(174.73435, -36.88366), mode=c("TRANSIT", "WALK"), date_time=Sys.time()) # lon lat pairs
 tmap_mode("view")          # Set tmap to interactive viewing
-qtm(sf::st_zm(routes))      # Plot the route on a map
+qtm(sf::st_zm(routes), lines.col = 'red')      # Plot the route on a map
 ```
 
 ```{r}
@@ -25,9 +25,9 @@ etaMinutes = as.numeric(min(difftime(routes$endTime, rep(queryTime, length(route
 
 ```{r}
 # map data using sp
-nz = getData('GADM', country="NZ", level=1)
-auckland = nz[nz$NAME_1=="Auckland",]
-plot(auckland)
+#nz = getData('GADM', country="NZ", level=1)
+#auckland = nz[nz$NAME_1=="Auckland",]
+#plot(auckland)
 
 #alternatively using sf and qtm
 nz = st_as_sf(getData('GADM', country="NZ", level=1))
@@ -41,6 +41,11 @@ qtm(auckland)
 grid = auckland %>% st_make_grid(cellsize=0.01, what='centers') %>% st_intersection(auckland)
 st_write(grid, "./grid-1e-2.shp")
 ```
+
+```{r}
+grid = st_read("./grid-1e-2.shp")
+```
+
 
 ```{r}
 # create an envelope around the bounds
@@ -82,8 +87,6 @@ fromPlace = locations[rep(seq(1, nrow(locations)), each  = nrow(locations)),]
 toID = location_ids[rep(seq(1, nrow(location_ids)), times = nrow(location_ids)),]
 fromID = location_ids[rep(seq(1, nrow(location_ids)), each  = nrow(location_ids)),]
 
-# WE MAY NEED LOCATION IDS
-
 eta = function(x){
   t = unlist(x, use.names = FALSE)
   dt = as.numeric(difftime(as.POSIXct(t, origin="1970-01-01"), rep(queryTime, length(t))))
@@ -91,7 +94,7 @@ eta = function(x){
 }
 
 routes = otp_plan(otpcon, fromPlace=fromPlace, toPlace=toPlace, mode=c("TRANSIT", "WALK"), fromID=fromID, toID=toID,
-                  date_time=queryTime, get_geometry=FALSE, ncores=7)
+                  date_time=queryTime, get_geometry=FALSE, ncores=4)
 routes_fltr = routes[, c("fromPlace", "toPlace", "endTime")]
 routes_matrix = tidyr::pivot_wider(routes_fltr, names_from = "toPlace", values_from = "endTime", values_fn=list(endTime=eta))
 # otp_plan will return NA for self-self routes, replace these with 0
@@ -110,10 +113,18 @@ eta_valid = eta_grid %>% filter(eta > -1)
 qtm(eta_valid, dots.col = "eta")
 ```
 
-
 ```{r}
+#debug routes
+origin = 2
+dest = 11
 
+routes <- otp_plan(otpcon, fromPlace = locations[origin,], toPlace = locations[dest,], mode=c("TRANSIT", "WALK"))
+tmap_mode("view")          # Set tmap to interactive viewing
+qtm(eta_valid, dots.col = "eta") + qtm(sf::st_zm(routes))      # Plot the route on a map
 ```
 
+```{r}
+# Mismatch between route times and Sys.time()
+```
 
 
