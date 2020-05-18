@@ -1,0 +1,108 @@
+---
+title: "OpenTripPlanner"
+output: html_notebook
+---
+
+```{r}
+# libraries
+library(lubridate)
+library(opentripplanner)
+library(tmap)
+library(dplyr)
+library(sf)
+```
+
+```{r}
+router = "auckland"
+port = as.numeric("8080")
+geodata = "/data/active/transit_deprivation/data/sample.shp"
+#geodata = "/data/active/transit_deprivation/data/points_akl.shp"
+query = "/data/active/transit_deprivation/query.csv"
+outputdir = "/data/active/transit_deprivation"
+```
+
+```{r}
+mode = c("TRANSIT", "WALK")
+itineraries = 1
+ncores = Sys.getenv("SLURM_CPUS_PER_TASK")
+ncores = if (ncores != "") as.numeric(ncores) else 4
+
+cat(sprintf("router: %s\nport: %d\ngeodata: %s\nquery: %s\nmode: %s\nncores: %d\n", router, port, geodata, query, paste(mode, collapse=", "), ncores))
+```
+
+```{r}
+points = st_read(geodata) # read geodata
+q = read.csv(query) # load query
+otpcon <- otp_connect(hostname="localhost", router=router, port=as.numeric(port)) # establish OTP connection
+```
+
+```{r}
+# build routing parameters (locations are lon, lat pairs)
+toPlace = do.call(rbind, st_geometry(points)) 
+toID = cbind(as.character(points$OBJECTID))
+
+# process each query row
+for (i in 1:nrow(q)){
+  
+  # check if this result has already been generated
+  tstring = gsub("[:-]", "_", q_time)
+  tstring = gsub(" ", "_", tstring)
+  resname = paste(fid, tstring, sep="_")
+  resname = paste(resname, ".csv", sep="")
+  respath = paste(outputdir, resname, sep="/")
+  
+  if (!file.exists(respath)) {
+  
+    fromPlace = matrix(as.matrix(q[i, 2:3]), nrow=nrow(toPlace), ncol=2, byrow=TRUE)
+    fid = as.character(q[i,1])
+    fromID = matrix(fid, nrow=nrow(toPlace), ncol=1, byrow=TRUE)
+    q_time = as.POSIXct(q[i, 4], tz=trimws(as.character(q[i, 5])), format="%Y-%m-%d %H:%M:%OS")
+    
+    # get routes
+    start_time <- proc.time()
+    routes = otp_plan(otpcon, fromPlace=fromPlace, toPlace=toPlace, mode=mode, fromID=fromID, toID=toID,
+                    date_time=q_time, get_geometry=FALSE, ncores=ncores, numItineraries=itineraries)
+    routing_time = proc.time() - start_time
+    
+    # process eta
+    routes$eta = as.numeric(difftime(routes$endTime, rep(q_time, nrow(routes))))
+    
+    # remove duplicates (routes data is repeated for each trip component)
+    result = distinct(routes[, c("fromPlace", "toPlace", "eta")])
+  
+    # add self-self as otp will return error on this
+    result = rbind(result, list(fid, fid, 0))
+    
+    # to allow joins
+    result$fromPlace = as.numeric(result$fromPlace)
+    result$toPlace = as.numeric(result$toPlace)
+    
+    # add query time
+    result$queryTime = rep(q_time, nrow(result))
+    
+    # save result
+    #points_eta = left_join(points, result, by = c(OBJECTID = "toPlace"))
+    write.csv(result[, c("fromPlace", "toPlace", "queryTime", "eta")], respath, row.names=FALSE)
+  } else {
+    print(paste("skipping", resname, "file exists"))
+  }
+}
+```
+
+```{r}
+# plot one of the resulting point sets
+points_eta = left_join(points, result, by = c(OBJECTID = "toPlace"))
+#points_eta$eta[is.na(points_eta$eta)] = 0 # self-self is 0 mins
+tmap_mode("view") 
+qtm(points_eta, dots.col = "eta")
+```
+
+```{r}
+#debug routes
+origin = 1
+dest = 3
+
+routes <- otp_plan(otpcon, fromPlace = fromPlace[1,], toPlace = toPlace[dest,], mode=c("TRANSIT", "WALK"), numItineraries=itineraries, date_time=q_time)
+tmap_mode("view")          # Set tmap to interactive viewing
+qtm(points_eta, dots.col = "eta") + qtm(sf::st_zm(routes))      # Plot the route on a map
+```
