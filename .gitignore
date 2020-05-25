@@ -1,3 +1,20 @@
+# NeSI
+.snapshots/
+data/
+debug.csv
+experiments/
+failed.sh
+job.sh
+local.sh
+logs/
+missing.txt
+otp/graphs/
+otp/otp-1.4.0-shaded.jar
+otp/otp.jar
+queries/
+results/
+
+
 # History files
 .Rhistory
 .Rapp.history
