@@ -1,0 +1,7 @@
+#!/bin/bash
+
+module purge
+module load UDUNITS/2.2.26-gimkl-2017a
+module load R/3.6.2-gimkl-2020a
+module load GDAL/3.0.4-gimkl-2020a
+
