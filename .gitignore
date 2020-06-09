@@ -1,9 +1,8 @@
 # NeSI
 .snapshots/
-data/
 experiments/
-slurm/logs/jobs/*.*
-slurm/logs/otp/*.*
+slurm/data/
+slurm/logs/
 slurm/missing.txt
 slurm/failed.sl
 slurm/otp/graphs/
