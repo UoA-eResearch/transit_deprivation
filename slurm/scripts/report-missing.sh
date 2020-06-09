@@ -1,5 +1,7 @@
 #!/bin/bash -e
 
+# identify which locations/queries failed to produce any results
+
 query_dir=queries
 results_dir=results
 n_time_samples=2

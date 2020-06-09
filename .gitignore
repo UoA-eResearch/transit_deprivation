@@ -2,7 +2,8 @@
 .snapshots/
 data/
 experiments/
-slurm/logs/
+slurm/logs/jobs/*.*
+slurm/logs/otp/*.*
 slurm/missing.txt
 slurm/failed.sl
 slurm/otp/graphs/

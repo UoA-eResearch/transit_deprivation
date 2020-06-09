@@ -1,8 +1,8 @@
 #!/bin/bash -e
 
-template=$1
-missing=$2
-failed=failed.sl
+template=$1 # jobfile to use
+missing=$2 # generated from report-missing.sh
+failed=failed.sl # output jobfile
 
 cp "${template}" "${failed}"
 #./report-missing.sh > missing.txt

@@ -1,5 +1,7 @@
 #!/bin/bash -e
 
+# shows the number of result files associated with each query location
+
 query_dir=queries
 results_dir=results
 n_time_samples=2
