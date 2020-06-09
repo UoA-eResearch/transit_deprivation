@@ -1,18 +1,15 @@
 # NeSI
 .snapshots/
 data/
-debug.csv
 experiments/
-failed.sh
-job.sh
-local.sh
-logs/
-missing.txt
-otp/graphs/
-otp/otp-1.4.0-shaded.jar
-otp/otp.jar
-queries/
-results/
+slurm/logs/
+slurm/missing.txt
+slurm/failed.sl
+slurm/otp/graphs/
+slurm/otp/otp-1.4.0-shaded.jar
+slurm/otp/otp.jar
+slurm/queries/
+slurm/results/
 
 
 # History files
