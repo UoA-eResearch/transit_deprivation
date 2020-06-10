@@ -21,5 +21,15 @@ The project looks at the relationship between accessibility to services via publ
 
 ## Server App
 
-* Load and activate the conda environment file  `conda-env.yml'
-* Then execute `cd app; python app.py`
+* Create the required Python environment e.g. with Anaconda Python: 
+```
+conda env create -f conda-env.yml
+conda activate transit
+```
+Then link the data dir and start the app:
+```bash
+cd app
+ln -s ../data data
+python app.py
+```
+The development server should be running on `localhost:8050`
