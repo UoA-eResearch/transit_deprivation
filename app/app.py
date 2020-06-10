@@ -181,6 +181,7 @@ def route_map(origin, cube, limit, relayoutData):
                         y=0.775,
                         tickmode="linear",
                         dtick=10,
+                        tick0=0,
                         tickfont=dict(color="#000000"),
                         titlefont=dict(color="#000000"),
                         thicknessmode="pixels",
