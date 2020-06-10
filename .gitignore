@@ -1,3 +1,17 @@
+# misc
+dev/
+queries/
+data/
+archive/
+nesi/
+mnt.sh
+
+# python
+.idea/
+.ipynb_checkpoints/
+notebooks/.ipynb_checkpoints/
+app/data
+
 # NeSI
 .snapshots/
 experiments/
