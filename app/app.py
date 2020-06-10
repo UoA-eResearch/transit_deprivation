@@ -84,14 +84,9 @@ def plan(origin, cube, limit):
     # list of accessible location indices
     acc_idx = [i for i, v in enumerate(valid) if v]
 
-    return acc_idx
-
-    # # debugging
-    # result = []
-    # for i, v in enumerate(range(800, 900)):
-    #     if i < limit:
-    #         result.append(v)
-    # return result
+    # mean eta for each accessible location
+    eta = options[acc_idx].mean(axis=1)
+    return acc_idx, eta
 
 def default_map(relayoutData):
 
@@ -142,7 +137,7 @@ def route_map(origin, cube, limit, relayoutData):
         lat, lon = locations_lat[origin], locations_lon[origin]
         zoom = 12
 
-    locations = plan(origin, cube, limit)
+    locations, etas = plan(origin, cube, limit)
 
     data = [
 
@@ -151,8 +146,41 @@ def route_map(origin, cube, limit, relayoutData):
             lat=[locations_lat[i] for i in locations],
             lon=[locations_lon[i] for i in locations],
             mode="markers",
-            hoverinfo="none",
-            marker=dict(size=8, color="#00ffff"),
+            hoverinfo="text",
+            text=[f"{t:.0f}" for t in etas],
+            marker=dict(
+                size=8,
+                color=etas,
+                colorscale=[
+                    [0, "#F4EC15"],
+                    [0.04167, "#DAF017"],
+                    [0.0833, "#BBEC19"],
+                    [0.125, "#9DE81B"],
+                    [0.1667, "#80E41D"],
+                    [0.2083, "#66E01F"],
+                    [0.25, "#4CDC20"],
+                    [0.292, "#34D822"],
+                    [0.333, "#24D249"],
+                    [0.375, "#25D042"],
+                    [0.4167, "#26CC58"],
+                    [0.4583, "#28C86D"],
+                    [0.50, "#29C481"],
+                    [0.54167, "#2AC093"],
+                    [0.5833, "#2BBCA4"],
+                    [1.0, "#613099"],
+                ],
+                colorbar=dict(
+                        title="ETA",
+                        xpad=15,
+                        yanchor="middle",
+                        y=0.775,
+                        nticks=24,
+                        tickfont=dict(color="#000000"),
+                        titlefont=dict(color="#000000"),
+                        thicknessmode="pixels",
+                        len=0.4
+                ),
+            ),
         ),
     ]
 
@@ -275,7 +303,7 @@ def select_point(selectedData, value, relayoutData):
 
 
 if __name__ == "__main__":
-    app.run_server(debug=True)
+    app.run_server(host="0.0.0.0", debug=True)
 
 # save odt, spatial and time indexes
 
