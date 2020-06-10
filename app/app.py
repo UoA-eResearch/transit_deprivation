@@ -15,6 +15,7 @@ import shapefile
 import numpy as np
 import json
 import time
+import pickle
 
 app = dash.Dash(
     __name__, meta_tags=[{"name": "viewport", "content": "width=device-width"}]
@@ -24,34 +25,36 @@ server = app.server
 # Plotly mapbox public token
 mapbox_access_token = "pk.eyJ1IjoicGxvdGx5bWFwYm94IiwiYSI6ImNrOWJqb2F4djBnMjEzbG50amg0dnJieG4ifQ.Zme1-Uzoi75IaFbieBDl3A"
 
-# parameters
-sf_path = "data/points_akl.shp"
-odt_path = "odt.npy"
-data_dir="results"
-tz = timezone("Pacific/Auckland")
+# load data
+t_start = time.time()
 
-# data loading and sanity checking
-
-# shapefile
-points = shapefile.Reader(sf_path)
+# load shapefile
+points = shapefile.Reader("data/points_akl.shp")
 npt = len(points.records())
 print(f"Loaded shapefile with {npt} points")
 
-# odt spatial index
-geoids = sorted([r[0] for r in points.records()])
-loc_idx = {g: i for i, g in enumerate(geoids)}
-assert len(loc_idx) == npt, "Shapefile may contain duplicate identifiers"
+# load precomputed odt
+with open("data/odt.npy", 'rb') as f:
+    print(f"Loading data ...")
+    odt = np.load(f)
+    print(f" -- loaded odt cube with dimensions {odt.shape}")
+
+# load location index
+with open("data/loc_idx.pkl", 'rb') as f:
+    loc_idx = pickle.load(f)
+    print(f" -- loaded location index with dimension {len(loc_idx)}")
+
+# load time index
+with open("data/t_idx.pkl", 'rb') as f:
+    t_idx = pickle.load(f)
+    print(f" -- loaded time index with dimension {len(t_idx)}")
+
+print(f" -- total time: {time.time() - t_start:.3f} s")
 
 # extract lat lon from points
 locations_lon, locations_lat = zip(*[p.points[0] for p in points.shapes()])
 
-with open(odt_path, 'rb') as f:
-    t_start = time.time()
-    print(f"Loading data ...", end="")
-    odt = np.load(f)
-    print(f" {time.time() - t_start:.3f} s")
-
-regions = {"auckland":(-36.8485, 174.7633)} # lat lon
+regions = {"auckland": (-36.8485, 174.7633)} # lat lon
 
 def is_valid(a, threshold=0):
     """
