@@ -84,8 +84,13 @@ def plan(origin, cube, limit):
     # list of accessible location indices
     acc_idx = [i for i, v in enumerate(valid) if v]
 
-    # mean eta for each accessible location
-    eta = options[acc_idx].mean(axis=1)
+    # mask time options
+    t_options = options.copy()
+    t_options[t_options > t_budget] = np.nan
+
+    # mean eta for each accessible location within the time limit
+    eta = np.nanmean(t_options[acc_idx], axis=1)
+
     return acc_idx, eta
 
 def default_map(relayoutData):
