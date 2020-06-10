@@ -19,3 +19,7 @@ The project looks at the relationship between accessibility to services via publ
 * Travel times calculated using [OpenTripPlanner](http://docs.opentripplanner.org/en/latest/Basic-Tutorial/)
 * TODO document setting up OTP, using osmconvert and any other preprocessing steps. For now see this [basic OTP tutorial](http://docs.opentripplanner.org/en/latest/Basic-Tutorial/)
 
+## Server App
+
+* Load and activate the conda environment file  `conda-env.yml'
+* Then execute `cd app; python app.py`
