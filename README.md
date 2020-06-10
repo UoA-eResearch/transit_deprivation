@@ -33,3 +33,5 @@ ln -s ../data data
 python app.py
 ```
 The development server should be running on `localhost:8050`
+
+The development server should not be used in production, but to get it visible on a public network use `app.run_server(host="0.0.0.0")`
