@@ -29,7 +29,7 @@ mapbox_access_token = "pk.eyJ1IjoicGxvdGx5bWFwYm94IiwiYSI6ImNrOWJqb2F4djBnMjEzbG
 t_start = time.time()
 
 # load shapefile
-points = shapefile.Reader("data/points_akl.shp")
+points = shapefile.Reader("data/akl_points.shp")
 npt = len(points.records())
 print(f"Loaded shapefile with {npt} points")
 
@@ -312,7 +312,4 @@ def select_point(selectedData, value, relayoutData):
 if __name__ == "__main__":
     app.run_server(host="0.0.0.0", debug=True)
 
-# save odt, spatial and time indexes
-
-# color code results
 # do not display selected point, instead create another trace with a separate color/maker to highlight selection
