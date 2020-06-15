@@ -4,8 +4,8 @@
 
 query_dir=queries
 results_dir=results
-n_time_samples=36
-missing="${1}"
+n_time_samples=$(cat scripts/gen-queries.sh | grep time_steps | head -n 1 | cut -f2 -d "=")
+missing="missing.txt"
 
 function missing_points {
 	for f in $(cat "${missing}"); do

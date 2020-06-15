@@ -4,7 +4,7 @@
 
 query_dir=queries
 results_dir=results
-n_time_samples=36
+n_time_samples=$(cat scripts/gen-queries.sh | grep time_steps | head -n 1 | cut -f2 -d "=")
 
 function list_missing_queries {
 	for geoid in $(find "${query_dir}" -type f -name "query-*.csv" | xargs -I {} tail -n +2 {} | cut -f1 -d "," | sort | uniq); do
@@ -15,4 +15,4 @@ function list_missing_queries {
 	done
 }
 
-list_missing_queries | sort | uniq
+list_missing_queries | sort | uniq > missing.txt

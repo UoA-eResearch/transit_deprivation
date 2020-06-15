@@ -18,12 +18,15 @@ array_id="${SLURM_ARRAY_TASK_ID}"
 if [ ! -z "${array_id}" ]; then
 	let port=8000+${array_id}
 fi
-query="queries/query-${array_id}.csv"
+
+offset=0
+let query_id=offset+${array_id}
+query="queries/query-${query_id}.csv"
 outdir=results
 echo -e "hostname: ${host}\narray_id: \"${array_id}\"\nport: ${port}\ndata: ${data}\nquery: ${query}\noutdir: ${outdir}"
 
 # start otp in the background
-otp/run.sh "${router}" "${port}" > "logs/otp/otp-${array_id}".log 2>&1 &
+otp/run.sh "${router}" "${port}" > "logs/otp/otp-${query_id}".log 2>&1 &
 
 # wait for otp to load
 sleep 20
