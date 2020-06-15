@@ -2,8 +2,7 @@
 
 # region params
 router=auckland
-#data=data/sample.shp
-data=data/points_akl.shp
+data=data/akl_points.shp
 query=queries/query-84.csv
 
 # common params

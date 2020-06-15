@@ -9,7 +9,7 @@
 
 source src/modules.rc
 
-geodata="data/points_akl.shp"
+geodata="data/akl_points.shp"
 batches=5000
 start_time="2020-06-01 07:00:00"
 timezone="Pacific/Auckland"
