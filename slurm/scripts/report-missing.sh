@@ -4,7 +4,7 @@
 
 query_dir=queries
 results_dir=results
-n_time_samples=2
+n_time_samples=36
 
 function list_missing_queries {
 	for geoid in $(find "${query_dir}" -type f -name "query-*.csv" | xargs -I {} tail -n +2 {} | cut -f1 -d "," | sort | uniq); do

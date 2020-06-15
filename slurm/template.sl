@@ -2,7 +2,7 @@
 
 #SBATCH --job-name    OTP
 #SBATCH --time        02:00:00
-#SBATCH --array       3-1000 # total is 4860
+#SBATCH --array       1-1000
 #SBATCH --mem         10gb
 #SBATCH --output      logs/jobs/job-%A-%a.out 
 #SBATCH --error       logs/jobs/job-%A-%a.err 

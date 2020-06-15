@@ -4,7 +4,7 @@
 
 query_dir=queries
 results_dir=results
-n_time_samples=2
+n_time_samples=36
 missing="${1}"
 
 function missing_points {
