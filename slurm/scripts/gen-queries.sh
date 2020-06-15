@@ -10,11 +10,11 @@
 source src/modules.rc
 
 geodata="data/points_akl.shp"
-batches=1000
-start_time="2020-05-14 09:00:00"
+batches=5000
+start_time="2020-06-01 07:00:00"
 timezone="Pacific/Auckland"
-time_steps=2
-time_delta_minutes=15
+time_steps=36
+time_delta_minutes=10
 outputdir="queries"
 
 if [ ! -d "${outputdir}" ]; then

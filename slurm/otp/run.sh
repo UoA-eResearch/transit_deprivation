@@ -8,7 +8,7 @@ fi
 router="${1}"
 port="${2}"
 let secure_port="${port}"+1000
-root=/nesi/project/uoa03026/otp
+root=/nesi/project/uoa03026/slurm/otp
 
 tmpdir="/tmp"
 if [ ! -z "${TMPDIR}" ]; then
