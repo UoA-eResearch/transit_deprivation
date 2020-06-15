@@ -38,7 +38,7 @@ batch_size = as.integer(n_samples / batches) + 1
 # generate base query dataframe
 q = as.data.frame(do.call(rbind, st_geometry(points)))
 colnames(q)[1:2] = c("lon", "lat")
-q$geoid = points$OBJECTID
+q$geoid = points$DZ2018
 q$timezone = timezone_str
 
 # time samples

@@ -52,7 +52,7 @@ otpcon = otp_connect(hostname="localhost", router=router, port=as.numeric(port))
 # process queries
 # build routing parameters (locations are lon, lat pairs)
 toPlace = do.call(rbind, st_geometry(points)) 
-toID = cbind(as.character(points$OBJECTID))
+toID = cbind(as.character(points$DZ2018))
 
 # process each query row (locations are in lon, lat pairs)
 for (i in 1:nrow(q)){
@@ -69,9 +69,9 @@ for (i in 1:nrow(q)){
   if (!file.exists(respath)) {
     
     # destinations 
-    to_points = points[points$OBJECTID != as.numeric(fid),]
+    to_points = points[points$DZ2018 != as.numeric(fid),]
     to_place = do.call(rbind, st_geometry(to_points)) 
-    to_id = cbind(as.character(to_points$OBJECTID))
+    to_id = cbind(as.character(to_points$DZ2018))
     
     # origins
     from_place = matrix(as.matrix(q[i, 2:3]), nrow=nrow(to_place), ncol=2, byrow=TRUE)
@@ -106,7 +106,7 @@ for (i in 1:nrow(q)){
 	result$queryTime = rep(q_time, nrow(result))
     
     # save result
-	#points_eta = left_join(points, result, by = c(OBJECTID = "toPlace"))
+	#points_eta = left_join(points, result, by = c(DZ2018 = "toPlace"))
 	write.csv(result[, c("fromPlace", "toPlace", "queryTime", "eta")], respath, row.names=FALSE)
 	print(paste("saved results to:", respath))
 
