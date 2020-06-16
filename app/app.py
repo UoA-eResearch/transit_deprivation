@@ -82,7 +82,11 @@ def plan(origin, cube, limit):
     etas = np.nanmean(options[valid_loc], axis=-1)
     acc_idx = [i for i, v in enumerate(valid_loc) if v]
 
-    return acc_idx, etas[etas > 0]
+    # print(f"======================{origin}==============================")
+    # for i in range(len(acc_idx))[:10]:
+    #     print(acc_idx[i], etas[i])
+
+    return acc_idx, etas
 
 def default_map(relayoutData):
 

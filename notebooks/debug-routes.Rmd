@@ -1,0 +1,18 @@
+
+```{r}
+library(opentripplanner)
+library(tmap)
+library(dplyr)
+otpcon <- otp_connect(hostname="localhost", router="auckland", port=8080)
+```
+
+```{r}
+# 7600173,7602076,2020-06-01 08:10:00,1.07097222222222
+q_time = as.POSIXct("2020-06-01 08:10:00", tz=trimws("Pacific/Auckland"), format="%Y-%m-%d %H:%M:%OS")
+routes <- otp_plan(otpcon, fromPlace = c(174.633455580666,-36.9709868467982), toPlace = c(174.809474052945,-36.9792961951113), mode=c("TRANSIT", "WALK"), date_time=q_time) # lon lat pairs
+tmap_mode("view")          # Set tmap to interactive viewing
+qtm(sf::st_zm(routes), lines.col = 'red')      # Plot the route on a map
+```
+```{r}
+routes$eta = as.numeric(difftime(routes$endTime, rep(q_time, nrow(routes)), units="mins"))
+```

@@ -89,7 +89,7 @@ for (i in 1:nrow(q)){
     } else {
 
 	    # process eta
-	    routes$eta = as.numeric(difftime(routes$endTime, rep(q_time, nrow(routes))))
+	    routes$eta = as.numeric(difftime(routes$endTime, rep(q_time, nrow(routes)), units="mins"))
     
 	    # remove duplicates (routes data is repeated for each trip component)
 	    result = distinct(routes[, c("fromPlace", "toPlace", "eta")])
