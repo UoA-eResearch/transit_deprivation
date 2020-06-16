@@ -57,12 +57,12 @@ locations_lon, locations_lat = zip(*[p.points[0] for p in points.shapes()])
 regions = {"auckland": (-36.8485, 174.7633)} # lat lon
 
 def is_valid(a):
-    #valid elements are not nan and > 0
-    v = np.copy(a)
-    v[v < 0] = np.nan
-    return np.logical_not(np.isnan(v))
+    return np.logical_not(np.isnan(a))
+
 
 def plan(origin, cube, limit):
+
+    #print(f"======================{origin}==============================")
 
     options = cube[origin, ...]  # vertical plane through cube
     valid = is_valid(options)
@@ -82,7 +82,7 @@ def plan(origin, cube, limit):
     etas = np.nanmean(options[valid_loc], axis=-1)
     acc_idx = [i for i, v in enumerate(valid_loc) if v]
 
-    # print(f"======================{origin}==============================")
+    #print(f"======================{origin}==============================")
     # for i in range(len(acc_idx))[:10]:
     #     print(acc_idx[i], etas[i])
 
