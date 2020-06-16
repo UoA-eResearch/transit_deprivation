@@ -77,14 +77,12 @@ def plan(origin, cube, limit):
     t_remain[valid] -= options[valid]
     t_remain[t_remain < 0] = 0
 
-    # update valid routes
-    valid = is_valid(t_remain) # not used but necessary if chaining further conditions
-
     # list of accessible locations and etas
-    etas = np.nanmean(t_remain, axis=-1)
-    acc_idx = [i for i, v in enumerate(etas > 0) if v]
+    valid_loc = np.max(t_remain, axis=-1) > 0
+    etas = np.nanmean(options[valid_loc], axis=-1)
+    acc_idx = [i for i, v in enumerate(valid_loc) if v]
 
-    return acc_idx, etas
+    return acc_idx, etas[etas > 0]
 
 def default_map(relayoutData):
 
