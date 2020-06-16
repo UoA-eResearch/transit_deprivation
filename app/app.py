@@ -34,18 +34,18 @@ npt = len(points.records())
 print(f"Loaded shapefile with {npt} points")
 
 # load precomputed odt
-with open("data/odt.npy", 'rb') as f:
+with open("data/akl_odt.npy", 'rb') as f:
     print(f"Loading data ...")
     odt = np.load(f)
     print(f" -- loaded odt cube with dimensions {odt.shape}")
 
 # load location index
-with open("data/loc_idx.pkl", 'rb') as f:
+with open("data/akl_loc_idx.pkl", 'rb') as f:
     loc_idx = pickle.load(f)
     print(f" -- loaded location index with dimension {len(loc_idx)}")
 
 # load time index
-with open("data/t_idx.pkl", 'rb') as f:
+with open("data/akl_t_idx.pkl", 'rb') as f:
     t_idx = pickle.load(f)
     print(f" -- loaded time index with dimension {len(t_idx)}")
 
@@ -56,12 +56,11 @@ locations_lon, locations_lat = zip(*[p.points[0] for p in points.shapes()])
 
 regions = {"auckland": (-36.8485, 174.7633)} # lat lon
 
-def is_valid(a, threshold=0):
-    """
-    a: np.array
-    return mask indicating columns in a that include values > threshold
-    """
-    return a.max(axis=-1) > threshold
+def is_valid(a):
+    #valid elements are not nan and > 0
+    v = np.copy(a)
+    v[v < 0] = np.nan
+    return np.logical_not(np.isnan(v))
 
 def plan(origin, cube, limit):
 
@@ -79,19 +78,13 @@ def plan(origin, cube, limit):
     t_remain[t_remain < 0] = 0
 
     # update valid routes
-    valid = is_valid(t_remain)
+    valid = is_valid(t_remain) # not used but necessary if chaining further conditions
 
-    # list of accessible location indices
-    acc_idx = [i for i, v in enumerate(valid) if v]
+    # list of accessible locations and etas
+    etas = np.nanmean(t_remain, axis=-1)
+    acc_idx = [i for i, v in enumerate(etas > 0) if v]
 
-    # mask time options
-    t_options = options.copy()
-    t_options[t_options > t_budget] = np.nan
-
-    # mean eta for each accessible location within the time limit
-    eta = np.nanmean(t_options[acc_idx], axis=1)
-
-    return acc_idx, eta
+    return acc_idx, etas
 
 def default_map(relayoutData):
 
