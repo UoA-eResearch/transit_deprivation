@@ -2,6 +2,7 @@
 
 #SBATCH --job-name    OTP
 #SBATCH --time        02:00:00
+#SBATCH --account	  uoa03026
 #SBATCH --array       1-1000
 #SBATCH --mem         10gb
 #SBATCH --output      logs/jobs/job-%A-%a.out 
