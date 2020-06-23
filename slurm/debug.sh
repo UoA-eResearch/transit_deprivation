@@ -16,7 +16,7 @@ echo -e "hostname: ${host}\narray_id: \"${array_id}\"\nport: ${port}\ndata: ${da
 otp/run.sh "${router}" "${port}" > "logs/otp/otp-${array_id}".log 2>&1 &
 
 # wait for otp to load
-sleep 20
+sleep 30
 
 # run otp queries
 source src/modules.rc

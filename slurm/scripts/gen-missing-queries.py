@@ -49,10 +49,13 @@ for q in queries:
 
 # sort by location
 missing.sort(key = lambda x: x[0])
+#print("Found {} missing queries".format(len(missing)))
 
 # create new query files with missing queries
 n_files = 1000
 n_queries_per_file = len(missing) // n_files + 1
+#print("Estimating {} queries per file".format(n_queries_per_file))
+
 for i in range(0, n_files):
 	start_idx = i * n_queries_per_file
 	end_idx = start_idx + n_queries_per_file
