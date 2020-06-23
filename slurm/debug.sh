@@ -3,7 +3,7 @@
 # region params
 router=auckland
 data=data/akl_points.shp
-query=queries/query-84.csv
+query=missing_queries/query-1.csv
 
 # common params
 array_id=debug
@@ -16,7 +16,7 @@ echo -e "hostname: ${host}\narray_id: \"${array_id}\"\nport: ${port}\ndata: ${da
 otp/run.sh "${router}" "${port}" > "logs/otp/otp-${array_id}".log 2>&1 &
 
 # wait for otp to load
-sleep 30
+sleep 20
 
 # run otp queries
 source src/modules.rc
