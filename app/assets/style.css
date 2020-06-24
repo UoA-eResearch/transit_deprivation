@@ -429,21 +429,31 @@ a {
   padding: 5px;
 }
 /* Graph Layout ––––––––––––––––––––––––––––––––––––––––––––––––––*/
+
 .div-for-charts{
   display: flex;
   flex-direction: column;
   height: 100vh;
   width: 100%;
 }
-#histogram {
-  flex-grow: 1 
+
+.single-plot{
+    height: 100vh;
+    width:100%;
 }
-#map-graph {
-  flex-grow: 2 
+
+.subplot{
+    flex-grow: 1;
+    width: 100%;
 }
+
+
+/*
 .mapboxgl-canvas, .mapboxgl-map {
   min-width: 100%;
 }
+*/
+
 /* Graph Control Objects ––––––––––––––––––––––––––––––––––––––––––––––––––*/
 .div-user-controls {
   padding-left: 55px;
