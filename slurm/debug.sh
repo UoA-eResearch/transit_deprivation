@@ -3,7 +3,7 @@
 # region params
 router=auckland
 data=data/akl_points.shp
-query=queries/query-84.csv
+query=missing_queries/query-1.csv
 
 # common params
 array_id=debug
