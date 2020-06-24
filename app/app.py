@@ -67,6 +67,12 @@ locations_lon, locations_lat = zip(*[p.points[0] for p in points.shapes()])
 
 regions = {"auckland": (-36.8485, 174.7633)} # lat lon
 
+# ui defaults
+ui_defaults = dict(
+    selection_map_opacity=0.2,
+    selection_map_zoom=12,
+    route_map_opacity=1.0)
+
 def is_valid(a):
     return np.logical_not(np.isnan(a))
 
@@ -96,8 +102,9 @@ def plan(origin, cube, limit):
     return acc_idx, etas
 
 
-def default_map(relayoutData):
+def selection_map(relayoutData):
 
+    opacity = ui_defaults["selection_map_opacity"]
     locations = [f["id"] for f in polys["features"]]
     #loc = [7600033, 7600147]
     #locations = [l for l in loc]
@@ -112,7 +119,7 @@ def default_map(relayoutData):
         zoom = (relayoutData['mapbox.zoom'])
     except:
         lat, lon = regions["auckland"]
-        zoom=12
+        zoom=ui_defaults["selection_map_zoom"]
 
     data = [
 
@@ -132,7 +139,7 @@ def default_map(relayoutData):
             z=values,
             colorscale="Greys",
             showscale=False,
-            marker=dict(opacity=1.0, line=dict(width=1)),
+            marker=dict(opacity=opacity, line=dict(width=1)),
 
         ),
     ]
@@ -154,7 +161,7 @@ def default_map(relayoutData):
     return dict(data=data, layout=layout)
 
 
-def route_map(origin, cube, limit, relayoutData):
+def route_map(origin, cube, time_limit, map_opacity, relayoutData):
 
     # origin is DataZone2018 ID
     # origin_idx is the point array index
@@ -166,9 +173,9 @@ def route_map(origin, cube, limit, relayoutData):
         zoom = (relayoutData['mapbox.zoom'])
     except:
         lat, lon = locations_lat[origin_idx], locations_lon[origin_idx]
-        zoom = 12
+        zoom = ui_defaults["selection_map_zoom"]
 
-    locations, etas = plan(origin_idx, cube, limit)
+    locations, etas = plan(origin_idx, cube, time_limit)
     locations = [idx_loc[l] for l in locations]
     values = etas
 
@@ -202,18 +209,10 @@ def route_map(origin, cube, limit, relayoutData):
                     thicknessmode="pixels",
                     len=0.4
             ),
-            marker=dict(opacity=1.0, line=dict(width=1)),
+            marker=dict(opacity=map_opacity, line=dict(width=1)),
             #selectedpoints=[origin_idx]
         ),
-        # Choroplethmapbox(
-        #     geojson=polys,
-        #     featureidkey="id",
-        #     locations=[origin],
-        #     z=[0],
-        #     colorscale=[[0, "#ffa0a0"], [1, "#ffa0a0"]],
-        #     showscale=False,
-        #     marker=dict(opacity=1.0, line=dict(width=1)),
-        # ),
+
         # Plot of important locations on the map
         # Scattermapbox(
         #     lat=[locations_lat[i] for i in locations],
@@ -312,8 +311,35 @@ app.layout = html.Div(
                                     },
                                     updatemode='mouseup',
                                 ),
-                                html.Div(id="time-limit-value", style={"margin-top": 20})
+                                html.Div(
+                                    style={"margin-top": 10},
+                                    children=[
+                                        html.P(id="time-limit-value")
+                                    ]
+                                ),
                             ],
+                        ),
+                        html.Div(
+                            style={"margin-top": 20},
+                            id="opacity-slider-container",
+                            children = [
+                                html.P(children="Route map opacity"),
+                                dcc.Slider(
+                                    id="map-opacity-slider",
+                                    min=0,
+                                    max=100,
+                                    step=1,
+                                    value=int(ui_defaults["route_map_opacity"] * 100),
+                                    marks={
+                                        str(t): {
+                                            "label": str(t),
+                                            "style": {"color": "#7fafdf"},
+                                        }
+                                        for t in list(range(0, 100, 20)) + [100]
+                                    },
+                                    updatemode='mouseup',
+                                ),
+                            ]
                         ),
 
                     ],
@@ -325,7 +351,7 @@ app.layout = html.Div(
                     children=[
                         dcc.Graph(
                             id="map-graph",
-                            figure=default_map(None)
+                            figure=selection_map(None)
                         )
                     ],
                 ),
@@ -359,21 +385,24 @@ def reset_selectedData(n_clicks):
     ],
     [
         Input("map-graph", "selectedData"),
-        Input("time-limit-slider", "value")
+        Input("time-limit-slider", "value"),
+        Input("map-opacity-slider", "value")
     ],
     [
         State("map-graph", "relayoutData")
     ]
 )
-def select_point(selectedData, value, relayoutData):
+def select_point(selectedData, time_limit, map_opacity, relayoutData):
     #print(selectedData)
+    map_opacity /= 100
+
     if selectedData:
         origin = selectedData["points"][0]["location"]
         #origin_idx = selectedData["points"][0]["pointIndex"]
-        figure = go.Figure(route_map(origin, odt, value, relayoutData))
+        figure = go.Figure(route_map(origin, odt, time_limit, map_opacity, relayoutData))
         selected_text = f"Selected location: {origin}"
     else:
-        figure = go.Figure(default_map(relayoutData))
+        figure = go.Figure(selection_map(relayoutData))
         selected_text = f"Selected location: None"
 
     return selected_text, figure
