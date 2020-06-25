@@ -53,6 +53,7 @@ with open("data/akl_loc_idx.pkl", 'rb') as f:
 with open("data/akl_t_idx.pkl", 'rb') as f:
     t_start = time.time()
     t_idx = pickle.load(f)
+    idx_t = {v: k for k, v in t_idx.items()}  # mapping from t index to travel time
     print(f" -- loaded time index with dimension {len(t_idx)} ({time.time() - t_start:.3f} s)")
 
 print(f" -- total time: {time.time() - t_total_start:.3f} s")
@@ -94,7 +95,7 @@ def plan(origin, cube, limit):
     etas = np.nanmean(options[valid_loc], axis=-1)
     acc_idx = [i for i, v in enumerate(valid_loc) if v]
 
-    return acc_idx, etas
+    return acc_idx, etas, options[valid_loc]
 
 
 def selection_map(relayoutData):
@@ -156,11 +157,7 @@ def selection_map(relayoutData):
     return dict(data=data, layout=layout)
 
 
-def route_map(origin, cube, time_limit, map_opacity, relayoutData):
-
-    # origin is DataZone2018 ID
-    # origin_idx is the point array index
-    origin_idx = loc_idx[origin]
+def route_map(origin_idx, locations, etas, map_opacity, relayoutData):
 
     try:
         lat = (relayoutData['mapbox.center']['lat'])
@@ -170,20 +167,11 @@ def route_map(origin, cube, time_limit, map_opacity, relayoutData):
         lat, lon = locations_lat[origin_idx], locations_lon[origin_idx]
         zoom = ui_defaults["selection_map_zoom"]
 
-    locations, etas = plan(origin_idx, cube, time_limit)
+
     locations = [idx_loc[l] for l in locations]
     values = etas
 
     data = [
-        # Scattermapbox(
-        #     #lat = [locations_lat[origin_idx]],
-        #     #lon = [locations_lon[origin_idx]],
-        #     lat=locations_lat,
-        #     lon=locations_lon,
-        #     mode="markers",
-        #     hoverinfo="none",
-        #     marker=dict(size=8, color="#ffa0a0"),
-        # ),
         Choroplethmapbox(
             geojson=polys,
             featureidkey="id",
@@ -205,7 +193,6 @@ def route_map(origin, cube, time_limit, map_opacity, relayoutData):
                     len=0.4
             ),
             marker=dict(opacity=map_opacity, line=dict(width=1)),
-            #selectedpoints=[origin_idx]
         ),
     ]
 
@@ -226,86 +213,25 @@ def route_map(origin, cube, time_limit, map_opacity, relayoutData):
 
     return dict(data=data, layout=layout)
 
-def route_map_subplots(origin, cube, time_limit, map_opacity, relayoutData):
-    # origin is DataZone2018 ID
-    # origin_idx is the point array index
-    origin_idx = loc_idx[origin]
+def route_heatmap(locations, options):
 
-    try:
-        lat = (relayoutData['mapbox.center']['lat'])
-        lon = (relayoutData['mapbox.center']['lon'])
-        zoom = (relayoutData['mapbox.zoom'])
-    except:
-        lat, lon = locations_lat[origin_idx], locations_lon[origin_idx]
-        zoom = ui_defaults["selection_map_zoom"]
-
-    locations, etas = plan(origin_idx, cube, time_limit)
-    locations = [idx_loc[l] for l in locations]
-    values = etas
-
+    nl, nt = options.shape
+    location_labels = [str(idx_loc[l]) for l in locations]
+    time_labels = [idx_t[t].strftime("%H:%M %p") for t in range(options.shape[1])]
     data = [
-        Choroplethmapbox(
-            geojson=polys,
-            featureidkey="id",
-            locations=locations,
-            z=values,
+        Heatmap(
+            z=np.transpose(options),
+            x=location_labels,
+            y=time_labels,
             colorscale="Viridis",
-            showscale=True,
-            colorbar=dict(
-                title="ETA",
-                xpad=15,
-                yanchor="middle",
-                y=0.775,
-                tickmode="linear",
-                dtick=10,
-                tick0=0,
-                tickfont=dict(color="#000000"),
-                titlefont=dict(color="#000000"),
-                thicknessmode="pixels",
-                len=0.4
-            ),
-            marker=dict(opacity=map_opacity, line=dict(width=1)),
-        ),
-        Heatmap(
-            z=[[1, 20, 30],
-               [20, 1, 60],
-               [30, 60, 1]],
         ),
     ]
 
     layout = dict(
-                map=dict(
-                    mapbox=dict(
-                        layers=[],
-                        accesstoken=mapbox_access_token,
-                        center=dict(lat=lat, lon=lon),
-                        zoom=zoom,
-                        style="carto-positron",
-                    ),
-                    hovermode="closest",
-                    margin=dict(r=0, l=0, t=0, b=0),
-                    dragmode="pan",
-                    clickmode="event"
-                ),
-                heatmap=dict(
-                    title=go.layout.Title(text="Trips")
-                )
-            )
-
-    return dict(data=data, layout=layout)
-
-def route_heatmap(show=False):
-
-    data = [
-        Heatmap(
-            z=[[1, 20, 30],
-               [20, 1, 60],
-               [30, 60, 1]],
-        ),
-    ]
-
-    layout = dict(
-        title=go.layout.Title(text="Trips")
+        title="Journey ETA in minutes",
+        xaxis_title="Location ID",
+        xaxis_type="category",
+        yaxis_title="Travel Time"
     )
 
     return dict(data=data, layout=layout)
@@ -404,59 +330,14 @@ app.layout = html.Div(
                                     children=[
                                         dcc.Graph(
                                             id="heatmap-graph",
-                                            figure=route_heatmap()
+                                            figure={}
                                         )
                                     ]
 
-                                )
+                                ),
                             ]
-                        )
+                        ),
                     ],
-                    # children=[
-                    #     dcc.Loading(
-                    #         type="default",
-                    #         style=dict(height="inherit"),
-                    #         children=[
-                    #             dcc.Graph(
-                    #                 id="map-graph",
-                    #                 figure=selection_map(None)
-                    #             ),
-                    #         ],
-                    #
-                    #     )
-                    #
-                    # ],
-
-
-                    # children=[
-                    #     dcc.Loading(
-                    #         id="plot-loading",
-                    #         type="default",
-                    #         children=[
-                    #             html.Div(
-                    #                 id="map-container",
-                    #                 children=[
-                    #                     dcc.Graph(
-                    #                         id="map-graph",
-                    #                         style=dict(minHeight="100vh"),
-                    #                         figure=selection_map(None)
-                    #                     ),
-                    #                 ],
-                    #             )
-                    #             # html.Div(
-                    #             #     id="heatmap-container",
-                    #             #     hidden=True,
-                    #             #     children=[
-                    #             #         dcc.Graph(
-                    #             #             id="heatmap-graph",
-                    #             #             figure=route_heatmap()
-                    #             #         )
-                    #             #     ]
-                    #             #
-                    #             # )
-                    #         ]
-                    #     )
-                    # ]
                 )
 
             ],
@@ -488,6 +369,7 @@ def reset_selectedData(n_clicks):
         Output("selected-point", "children"),
         Output("map-graph", "figure"),
         Output("map-graph", "className"),
+        Output("heatmap-graph", "figure"),
         Output("heatmap-container", "hidden")
     ],
     [
@@ -500,22 +382,25 @@ def reset_selectedData(n_clicks):
     ]
 )
 def select_point(selectedData, time_limit, map_opacity, relayoutData):
-    #print(selectedData)
-    map_opacity /= 100
 
     if selectedData:
         origin = selectedData["points"][0]["location"]
-        figure = go.Figure(route_map(origin, odt, time_limit, map_opacity, relayoutData))
+        origin_idx = loc_idx[origin]
+        locations, etas, options = plan(origin_idx, odt, time_limit)
+
+        figure = go.Figure(route_map(origin_idx, locations, etas, map_opacity/100, relayoutData))
         selected_text = f"Selected location: {origin}"
         map_class = "subplot"
         heatmap_hidden = False
+        heatmap_figure = go.Figure(route_heatmap(locations, options))
     else:
         figure = go.Figure(selection_map(relayoutData))
         selected_text = f"Selected location: None"
         map_class="single-plot"
+        heatmap_figure = {}
         heatmap_hidden = True
 
-    return selected_text, figure, map_class, heatmap_hidden
+    return selected_text, figure, map_class, heatmap_figure, heatmap_hidden
 
 
 if __name__ == "__main__":
