@@ -30,7 +30,6 @@ points = shapefile.Reader("data/akl_points.shp")
 print(f" -- loaded shapefile with {len(points.records())} points ({time.time() - t_start:.3f} s)")
 
 # load ploy geojson
-#with open("data/sample.geojson") as f:
 with open("data/akl_polygons_id.geojson") as f:
     t_start = time.time()
     polys = json.load(f)
@@ -67,15 +66,14 @@ regions = {"auckland": (-36.8485, 174.7633)} # lat lon
 ui_defaults = dict(
     selection_map_opacity=0.2,
     selection_map_zoom=12,
-    route_map_opacity=1.0)
+    route_map_opacity=1.0,
+    mapbox_style="carto-positron"
+)
 
 def is_valid(a):
     return np.logical_not(np.isnan(a))
 
-
-def plan(origin, cube, limit):
-
-    #print(f"======================{origin}==============================")
+def travel_time_accessibility(origin, cube, limit):
 
     options = cube[origin, ...]  # vertical plane through cube
     valid = is_valid(options)
@@ -90,23 +88,24 @@ def plan(origin, cube, limit):
     t_remain[valid] -= options[valid]
     t_remain[t_remain < 0] = 0
 
-    # list of accessible locations and etas
+    # data dims
+    n_loc, n_t = t_remain.shape
+
+    # mean eta for each location at least one route that meets the constraints
     valid_loc = np.max(t_remain, axis=-1) > 0
     etas = np.nanmean(options[valid_loc], axis=-1)
     acc_idx = [i for i, v in enumerate(valid_loc) if v]
 
-    return acc_idx, etas, options[valid_loc]
+    # proportion of time each destination is accessible from this location within the time limit
+    acc_t_by_loc = np.nansum(t_remain[acc_idx] > 0, axis=1) / n_t
+
+    return acc_idx, etas, acc_t_by_loc
 
 
 def selection_map(relayoutData):
 
     opacity = ui_defaults["selection_map_opacity"]
     locations = [f["id"] for f in polys["features"]]
-    #loc = [7600033, 7600147]
-    #locations = [l for l in loc]
-
-    #values = [f["properties"]["Census_Pop"] for f in polys["features"]]
-    #values = np.array([l in pids for l in locations], dtype=np.int)
     values = [0.75] * len(locations)
 
     try:
@@ -118,16 +117,6 @@ def selection_map(relayoutData):
         zoom=ui_defaults["selection_map_zoom"]
 
     data = [
-
-        # Scattermapbox(
-        #     #lat = [locations_lat[loc_idx[l]] for l in loc],
-        #     #lon = [locations_lon[loc_idx[l]] for l in loc],
-        #     lat=locations_lat,
-        #     lon=locations_lon,
-        #     mode="markers",
-        #     hoverinfo="none",
-        #     marker=dict(size=8, color="#ffa0a0"),
-        # ),
         Choroplethmapbox(
             geojson=polys,
             featureidkey="id",
@@ -135,8 +124,7 @@ def selection_map(relayoutData):
             z=values,
             colorscale="Greys",
             showscale=False,
-            marker=dict(opacity=opacity, line=dict(width=1)),
-
+            marker=dict(opacity=opacity, line=dict(width=0.1)),
         ),
     ]
 
@@ -146,7 +134,7 @@ def selection_map(relayoutData):
             accesstoken=mapbox_access_token,
             center=dict(lat=lat, lon=lon),
             zoom=zoom,
-            style="carto-positron",
+            style=ui_defaults["mapbox_style"]
         ),
         hovermode="closest",
         margin=dict(r=0, l=0, t=0, b=0),
@@ -156,8 +144,7 @@ def selection_map(relayoutData):
 
     return dict(data=data, layout=layout)
 
-
-def route_map(origin_idx, locations, etas, map_opacity, relayoutData):
+def route_map(origin_idx, locations, values, opacity, relayoutData):
 
     try:
         lat = (relayoutData['mapbox.center']['lat'])
@@ -167,9 +154,7 @@ def route_map(origin_idx, locations, etas, map_opacity, relayoutData):
         lat, lon = locations_lat[origin_idx], locations_lon[origin_idx]
         zoom = ui_defaults["selection_map_zoom"]
 
-
     locations = [idx_loc[l] for l in locations]
-    values = etas
 
     data = [
         Choroplethmapbox(
@@ -180,7 +165,7 @@ def route_map(origin_idx, locations, etas, map_opacity, relayoutData):
             colorscale="Viridis",
             showscale=True,
             colorbar=dict(
-                    title="ETA",
+                    title="Mean ETA",
                     xpad=15,
                     yanchor="middle",
                     y=0.775,
@@ -192,7 +177,7 @@ def route_map(origin_idx, locations, etas, map_opacity, relayoutData):
                     thicknessmode="pixels",
                     len=0.4
             ),
-            marker=dict(opacity=map_opacity, line=dict(width=1)),
+            marker=dict(opacity=opacity, line=dict(width=0.0)),
         ),
     ]
 
@@ -202,7 +187,7 @@ def route_map(origin_idx, locations, etas, map_opacity, relayoutData):
             accesstoken=mapbox_access_token,
             center=dict(lat=lat, lon=lon),
             zoom=zoom,
-            style="carto-positron",
+            style=ui_defaults["mapbox_style"]
         ),
         hovermode="closest",
         margin=dict(r=0, l=0, t=0, b=0),
@@ -212,30 +197,6 @@ def route_map(origin_idx, locations, etas, map_opacity, relayoutData):
     )
 
     return dict(data=data, layout=layout)
-
-def route_heatmap(locations, options):
-
-    nl, nt = options.shape
-    location_labels = [str(idx_loc[l]) for l in locations]
-    time_labels = [idx_t[t].strftime("%H:%M %p") for t in range(options.shape[1])]
-    data = [
-        Heatmap(
-            z=np.transpose(options),
-            x=location_labels,
-            y=time_labels,
-            colorscale="Viridis",
-        ),
-    ]
-
-    layout = dict(
-        title="Journey ETA in minutes",
-        xaxis_title="Location ID",
-        xaxis_type="category",
-        yaxis_title="Travel Time"
-    )
-
-    return dict(data=data, layout=layout)
-
 
 # Layout of Dash App
 app.layout = html.Div(
@@ -281,29 +242,6 @@ app.layout = html.Div(
                                 ),
                             ],
                         ),
-                        html.Div(
-                            style={"margin-top": 20},
-                            id="opacity-slider-container",
-                            children = [
-                                html.P(children="Route map opacity"),
-                                dcc.Slider(
-                                    id="map-opacity-slider",
-                                    min=0,
-                                    max=100,
-                                    step=1,
-                                    value=int(ui_defaults["route_map_opacity"] * 100),
-                                    marks={
-                                        str(t): {
-                                            "label": str(t),
-                                            "style": {"color": "#7fafdf"},
-                                        }
-                                        for t in list(range(0, 100, 20)) + [100]
-                                    },
-                                    updatemode='mouseup',
-                                ),
-                            ]
-                        ),
-
                     ],
                 ),
                 html.Div(
@@ -323,18 +261,6 @@ app.layout = html.Div(
                                         ),
                                     ]
                                 ),
-                                html.Div(
-                                    id="heatmap-container",
-                                    className="subplot",
-                                    hidden=True,
-                                    children=[
-                                        dcc.Graph(
-                                            id="heatmap-graph",
-                                            figure={}
-                                        )
-                                    ]
-
-                                ),
                             ]
                         ),
                     ],
@@ -345,7 +271,6 @@ app.layout = html.Div(
     ]
 )
 
-
 # callbacks should be defined after app.layout
 
 @app.callback(
@@ -355,52 +280,39 @@ def update_time_limit_value(value):
     value_text = f"Available time: {value} minutes"
     return value_text
 
-
-
 @app.callback(
     Output("map-graph", "selectedData"), [Input("map-container", "n_clicks")]
 )
 def reset_selectedData(n_clicks):
     return None
 
-
 @app.callback(
     [
         Output("selected-point", "children"),
         Output("map-graph", "figure"),
-        Output("map-graph", "className"),
-        Output("heatmap-graph", "figure"),
-        Output("heatmap-container", "hidden")
     ],
     [
         Input("map-graph", "selectedData"),
         Input("time-limit-slider", "value"),
-        Input("map-opacity-slider", "value"),
     ],
     [
         State("map-graph", "relayoutData")
     ]
 )
-def select_point(selectedData, time_limit, map_opacity, relayoutData):
+def select_point(selectedData, time_limit, relayoutData):
 
     if selectedData:
         origin = selectedData["points"][0]["location"]
         origin_idx = loc_idx[origin]
-        locations, etas, options = plan(origin_idx, odt, time_limit)
-
-        figure = go.Figure(route_map(origin_idx, locations, etas, map_opacity/100, relayoutData))
+        locations, values, opacity = travel_time_accessibility(origin_idx, odt, time_limit)
+        figure = go.Figure(route_map(origin_idx, locations, values, opacity, relayoutData))
         selected_text = f"Selected location: {origin}"
-        map_class = "subplot"
-        heatmap_hidden = False
-        heatmap_figure = go.Figure(route_heatmap(locations, options))
+
     else:
         figure = go.Figure(selection_map(relayoutData))
         selected_text = f"Selected location: None"
-        map_class="single-plot"
-        heatmap_figure = {}
-        heatmap_hidden = True
 
-    return selected_text, figure, map_class, heatmap_figure, heatmap_hidden
+    return selected_text, figure
 
 
 if __name__ == "__main__":
