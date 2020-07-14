@@ -99,32 +99,11 @@ class App extends Component {
             .catch((error) => {console.error(error)});
 
         // TODO: Fetch one javascript object to avoid multiple calls to render()
+
     }
 
     _onHover({x, y, object}) {
         this.setState({x, y, hoveredObject: object});
-    }
-
-    _renderLayers() {
-        const {data = DATA_URL} = this.props;
-
-        return [
-            new GeoJsonLayer({
-                id: 'geojson',
-                data,
-                opacity: 0.8,
-                stroked: false,
-                filled: true,
-                getFillColor: f => this.getColor(f.id),
-                getLineColor: [255, 255, 255],
-                onClick: event => this.viewMeanETA(event),
-                pickable: true,
-                onHover: this._onHover,
-                updateTriggers: {
-                    getFillColor: this.state.eta
-                }
-            })
-        ];
     }
 
     _renderTooltip() {
@@ -155,6 +134,30 @@ class App extends Component {
         }
     }
 
+    _renderLayers() {
+        const {data = DATA_URL} = this.props;
+
+        return [
+            new GeoJsonLayer({
+                id: 'geojson',
+                data,
+                opacity: 0.8,
+                stroked: false,
+                filled: true,
+                getFillColor: f => this.getColor(f.id),
+                getLineColor: [255, 255, 255],
+                onClick: (event, info) => {info.handled = true; this.viewMeanETA(event);},
+                //onClick: (event, info) => {info.handled = true; this.randomValues(event, info)},
+                //onClick: (event, info) => {info.handled = true; console.log(`GeoJSON: ${info.handled}`)},
+                pickable: true,
+                onHover: this._onHover,
+                updateTriggers: {
+                    getFillColor: this.state.eta
+                }
+            })
+        ];
+    }
+
     render() {
         const {mapStyle = 'mapbox://styles/mapbox/light-v9'} = this.props;
         //const {classes} = this.props;
@@ -181,8 +184,12 @@ class App extends Component {
                 effects={this._effects}
                 initialViewState={INITIAL_VIEW_STATE}
                 controller={true}
-                //onClick={() => {console.log("clicked"); this.resetValues();}}
-                onClick={() => {this.resetValues();}}
+                onClick={(event, info) => {
+                    if (!info.handled){
+                        //console.log(`DeckGL: ${info.handled}`);
+                        this.resetValues();
+                    }
+                }}
             >
                 <StaticMap
                     reuseMaps
@@ -197,12 +204,29 @@ class App extends Component {
     }
 
     resetValues(){
+        console.log("reset values");
         let eta = {};
-        for (let i = 0; i < this.state.idxLoc; i++) {
+        for (let i = 0; i < Object.keys(this.state.idxLoc).length; i++) {
             eta[this.state.idxLoc[i]] = -1;
         }
         this.setState({eta: eta, maxEta: -1, valid: false});
+    }
 
+    randomValues(){
+        console.log(`setting random ${Object.keys(this.state.idxLoc).length} random values`);
+        let eta = {};
+        let rel = {};
+        let maxEta = -1
+        for (let i = 0; i < Object.keys(this.state.idxLoc).length; i++) {
+            let v = Math.random() * 100;
+            if ( v > maxEta){
+                maxEta = v
+            }
+            eta[this.state.idxLoc[i]] = v;
+            rel[this.state.idxLoc[i]] = Math.random();
+            //console.log(`value: ${eta[this.state.idxLoc[i]]}, rel: ${rel[this.state.idxLoc[i]]}`)
+        }
+        this.setState({eta: eta, maxEta: maxEta, reliability: rel, valid: true});
     }
 
     computeMeanETA(data) {
@@ -275,7 +299,8 @@ class App extends Component {
     }
 
     getColor(location) {
-        if (this.state.eta[location] === undefined || this.state.eta[location] === -1){
+        //console.log(`${location}: ${this.state.eta[location]}`)
+        if (!this.state.valid || this.state.eta[location] === undefined || this.state.eta[location] === -1){
             return [128, 128, 128, 64];
         } else{
             let v = this.state.eta[location] / this.state.maxEta;
