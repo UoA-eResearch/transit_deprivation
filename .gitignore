@@ -1,6 +1,8 @@
 # react
 deck.gl/dump
 deck.gl/node_modules
+app.react/node_modules
+app.react/dist
 
 
 # misc
