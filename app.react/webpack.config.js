@@ -1,5 +1,5 @@
 const path = require("path");
-const webpack = require("webpack");
+const webpack = require('webpack');
 
 module.exports = {
     entry: "./src/index.js",
@@ -7,31 +7,19 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.(js|jsx)$/,
-                exclude: /(node_modules|bower_components)/,
-                loader: "babel-loader",
-                options: { presets: ["@babel/env", "@babel/preset-react"] }
-            },
-            {
-                test: /\.css$/,
-                use: ["style-loader", "css-loader"]
+                test: /\.(js)$/,
+                exclude: /node_modules/,
+                use: ["babel-loader"],
             }
         ]
     },
-    resolve: { extensions: ["*", ".js", ".jsx"] },
+    resolve: { extensions: ["*", ".js"] },
     output: {
-        path: path.resolve(__dirname, "dist/"),
-        publicPath: "/dist/",
-        filename: "bundle.js"
+        filename: "bundle.js",
+        path: path.resolve(__dirname, "dist"),
     },
     devServer: {
-        contentBase: path.join(__dirname, "public/"),
-        port: 3000,
-        publicPath: "http://localhost:3000/dist/",
-        hotOnly: true
+        contentBase: "./dist"
     },
-    plugins: [
-        new webpack.HotModuleReplacementPlugin(),
-        new webpack.EnvironmentPlugin(['MapboxAccessToken'])
-    ]
+    plugins: [new webpack.EnvironmentPlugin(['MapboxAccessToken'])]
 };
