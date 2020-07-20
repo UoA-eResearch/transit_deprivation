@@ -160,23 +160,6 @@ class App extends Component {
 
     render() {
         const {mapStyle = 'mapbox://styles/mapbox/light-v9'} = this.props;
-        //const {classes} = this.props;
-
-        //console.log(classes.root);
-        // return (
-        //     <div className={classes.root}>
-        //         <Grid container spacing={3}>
-        //             <Grid item xs={4}>
-        //                 <Paper className={classes.paper}>
-        //                     <div>LEFT</div>
-        //                 </Paper>
-        //             </Grid>
-        //             <Grid item xs={8}>
-        //                 <div>RIGHT</div>
-        //             </Grid>
-        //         </Grid>
-        //     </div>
-        // );
 
         return (
             <DeckGL
