@@ -10,6 +10,10 @@ module.exports = {
                 test: /\.(js)$/,
                 exclude: /node_modules/,
                 use: ["babel-loader"],
+            },
+            {
+                test: /\.geojson$/,
+                loader: 'json-loader'
             }
         ]
     },

@@ -20,8 +20,9 @@ const MAPBOX_TOKEN = process.env.MapboxAccessToken;
 import ContainerDimensions from 'react-container-dimensions'
 
 // Source data GeoJSON
-const DATA_URL =
-    'https://raw.githubusercontent.com/UoA-eResearch/transit_deprivation/master/data/akl_polygons_id.geojson'
+import * as data from "./akl_polygons_id.geojson"
+import * as akl_idx_loc from "./akl_idx_loc.json"
+import * as akl_loc_idx from "./akl_loc_idx.json"
 
 // TODO: There's probably a cleaner way to this color scale
 function hexToRgb(hex) {
@@ -70,12 +71,11 @@ const styles = (theme) => ({
     },
     paper: {
         padding: theme.spacing(2),
-        textAlign: "left",
         color: theme.palette.text.secondary,
         background: theme.palette.background.paper
     },
     slider: {
-        textAlign: "center",
+
     },
     map: {
         minHeight: "800px"
@@ -109,7 +109,6 @@ function TimeLimitSlider(props) {
 function Map(props){
     const classes = makeStyles(styles)();
     const mapStyle = 'mapbox://styles/mapbox/light-v9';
-    const data = DATA_URL;
 
     const layers = [
         new GeoJsonLayer({
@@ -122,7 +121,7 @@ function Map(props){
             getLineColor: [255, 255, 255],
             //onClick: (event, info) => {info.handled = true; this.viewMeanETA(event);},
             pickable: true,
-            //onHover: this._onHover,
+            onHover: props.onHover,
             // updateTriggers: {
             //     getFillColor: this.state.eta
             // }
@@ -149,7 +148,7 @@ function Map(props){
                     mapboxApiAccessToken={MAPBOX_TOKEN}
                 />
 
-                {/*{renderTooltip}*/}
+                {props.renderTooltip}
             </DeckGL>
         </div>
 
@@ -162,13 +161,50 @@ class App extends Component{
         super(props);
         this.state = {
             timeLimit: 60, // minutes
+            valid: false
         }
-    }
+        //this._renderTooltip = this._renderTooltip.bind(this);
+    };
+
+
 
     _handleTimeLimitChange(value){
         //console.log(`called with ${value}`)
         this.setState({timeLimit: value});
     }
+
+    _handleMapOnHover({x, y, object}) {
+        this.setState({x, y, hoveredObject: object});
+        //console.log({x, y, object})
+    }
+
+    _renderMapTooltip() {
+        const {x, y, hoveredObject, valid} = this.state;
+        if(hoveredObject){
+
+            if (valid){
+                return (
+                    <div className="tooltip" style={{top: y, left: x}}>
+                        <div>
+                            <b>ID: {hoveredObject.id}</b>
+                        </div>
+                        <div>
+                            <div>Mean ETA {Math.round(this.state.eta[hoveredObject.id])} minutes</div>
+                        </div>
+                    </div>
+                );
+            } else {
+                return (
+                    <div className="tooltip" style={{top: y, left: x}}>
+                        <div>
+                            <b>ID: {hoveredObject.id}</b>
+                        </div>
+                    </div>
+                );
+            }
+        }
+    }
+
 
     render(){
 
@@ -202,7 +238,10 @@ class App extends Component{
                     <Grid item xs={8}>
                         <Paper className={classes.paper}>
                             <ContainerDimensions className={classes.map}>
-                                <Map/>
+                                <Map
+                                    onHover = {(object) => this._handleMapOnHover(object)}
+                                    renderToolTip={this._renderMapTooltip()}
+                                />
                             </ContainerDimensions>
                         </Paper>
                     </Grid>
