@@ -56,7 +56,6 @@ const INITIAL_VIEW_STATE = {
     bearing: 0
 };
 
-
 const theme = createMuiTheme({
 
     palette: {
@@ -79,6 +78,18 @@ const styles = (theme) => ({
     },
     map: {
         minHeight: "800px"
+    },
+    tooltip: {
+        pointerEvents: "none",
+        position: "absolute",
+        zIndex: 9,
+        fontSize: "12px",
+        padding: "8px",
+        background: "#000",
+        color: "#fff",
+        minWidth: "160px",
+        maxHeight: "240px",
+        overflowY: "hidden",
     }
 });
 
@@ -147,8 +158,7 @@ function Map(props){
                     preventStyleDiffing={true}
                     mapboxApiAccessToken={MAPBOX_TOKEN}
                 />
-
-                {props.renderTooltip}
+                {props.renderMapTooltip()}
             </DeckGL>
         </div>
 
@@ -163,10 +173,8 @@ class App extends Component{
             timeLimit: 60, // minutes
             valid: false
         }
-        //this._renderTooltip = this._renderTooltip.bind(this);
+        this._renderMapTooltip = this._renderMapTooltip.bind(this);
     };
-
-
 
     _handleTimeLimitChange(value){
         //console.log(`called with ${value}`)
@@ -180,11 +188,12 @@ class App extends Component{
 
     _renderMapTooltip() {
         const {x, y, hoveredObject, valid} = this.state;
-        if(hoveredObject){
+        const {classes} = this.props;
 
+        if(hoveredObject){
             if (valid){
                 return (
-                    <div className="tooltip" style={{top: y, left: x}}>
+                    <div className={classes.tooltip} style={{top: y, left: x}}>
                         <div>
                             <b>ID: {hoveredObject.id}</b>
                         </div>
@@ -195,7 +204,7 @@ class App extends Component{
                 );
             } else {
                 return (
-                    <div className="tooltip" style={{top: y, left: x}}>
+                    <div className={classes.tooltip} style={{top: y, left: x}}>
                         <div>
                             <b>ID: {hoveredObject.id}</b>
                         </div>
@@ -240,8 +249,9 @@ class App extends Component{
                             <ContainerDimensions className={classes.map}>
                                 <Map
                                     onHover = {(object) => this._handleMapOnHover(object)}
-                                    renderToolTip={this._renderMapTooltip()}
-                                />
+                                    renderMapTooltip={this._renderMapTooltip}
+                                >
+                                </Map>
                             </ContainerDimensions>
                         </Paper>
                     </Grid>
