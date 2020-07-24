@@ -83,7 +83,6 @@ const styles = (theme) => ({
         pointerEvents: "none",
         position: "absolute",
         zIndex: 9,
-        fontSize: "12px",
         padding: "8px",
         background: "#000",
         color: "#fff",
@@ -128,14 +127,12 @@ function Map(props){
             opacity: 0.8,
             stroked: false,
             filled: true,
-            //getFillColor: f => this.getColor(f.id),
+            getFillColor: f => props.getColor(f.id),
             getLineColor: [255, 255, 255],
-            //onClick: (event, info) => {info.handled = true; this.viewMeanETA(event);},
+            onClick: (event, info) => {info.handled = true; props.handleGeoJsonLayerOnClick(event)},
             pickable: true,
             onHover: props.onHover,
-            // updateTriggers: {
-            //     getFillColor: this.state.eta
-            // }
+            updateTriggers: props.updateTriggers,
         })
     ];
 
@@ -145,12 +142,7 @@ function Map(props){
                 layers={layers}
                 initialViewState={INITIAL_VIEW_STATE}
                 controller={true}
-                // onClick={(event, info) => {
-                //     if (!info.handled){
-                //         //console.log(`DeckGL: ${info.handled}`);
-                //         this.resetValues();
-                //     }
-                // }}
+                onClick={(event, info) => props.deckGLOnClick(event, info)}
             >
                 <StaticMap
                     reuseMaps
@@ -171,14 +163,36 @@ class App extends Component{
         super(props);
         this.state = {
             timeLimit: 60, // minutes
-            valid: false
+            idxLoc: akl_idx_loc["default"],
+            locIdx: akl_loc_idx["default"],
+            locationDT: null,
+            eta: null,
+            maxEta: 1,
+            reliability: null,
+            valid: false,
+            // only used for debugging
+            locations: [7601217, 7600739],
+            lastLocationIndex: 0
+
         }
         this._renderMapTooltip = this._renderMapTooltip.bind(this);
     };
 
+    _handleGeoJsonLayerOnClick(event, info){
+        //console.log(`GeoJson handled, location ${event.object.id}`);
+        this._viewMeanETA(event.object.id);
+    }
+
+    _handleDeckGLOnClick(event, info){
+        if (!info.handled){
+            //console.log(`DeckGL handled`);
+            this._resetETA();
+        }
+    }
+
     _handleTimeLimitChange(value){
         //console.log(`called with ${value}`)
-        this.setState({timeLimit: value});
+        this.setState({timeLimit: value}, () => {this._computeMeanETA()});
     }
 
     _handleMapOnHover({x, y, object}) {
@@ -192,21 +206,33 @@ class App extends Component{
 
         if(hoveredObject){
             if (valid){
+                let mean = Math.round(this.state.eta[hoveredObject.id]);
+                let rel = Math.round(this.state.reliability[hoveredObject.id] * 100);
+                let infoStr = this.state.eta[hoveredObject.id] === -1 ? "Inaccessible" : `Mean ETA ${mean} minutes, reliability: ${rel} %`;
                 return (
-                    <div className={classes.tooltip} style={{top: y, left: x}}>
-                        <div>
-                            <b>ID: {hoveredObject.id}</b>
+
+                        <div className={classes.tooltip} style={{top: y, left: x}}>
+                            <div>
+                                <Typography variant="subtitle2">
+                                    <b>ID: {hoveredObject.id}</b>
+                                </Typography>
+                            </div>
+                            <div>
+                                <Typography variant="subtitle2">
+                                    {infoStr}
+                                </Typography>
+                            </div>
                         </div>
-                        <div>
-                            <div>Mean ETA {Math.round(this.state.eta[hoveredObject.id])} minutes</div>
-                        </div>
-                    </div>
+
+
                 );
             } else {
                 return (
                     <div className={classes.tooltip} style={{top: y, left: x}}>
                         <div>
-                            <b>ID: {hoveredObject.id}</b>
+                            <Typography variant="subtitle2">
+                                <b>ID: {hoveredObject.id}</b>
+                            </Typography>
                         </div>
                     </div>
                 );
@@ -214,6 +240,111 @@ class App extends Component{
         }
     }
 
+    _getColor(location) {
+        const defaultColor = [128, 128, 128, 64];
+        const inaccessibleColor = [128, 128, 128, 0];
+        if (this.state.valid){
+            if (this.state.eta[location] === -1){
+                return inaccessibleColor;
+            } else {
+                let v = this.state.eta[location] / this.state.maxEta;
+                let pv = Math.pow(v, 0.5);
+                let a = Math.min(this.state.reliability[location] * 255, 255);
+                //console.log(`${location}: ${this.state.eta[location]}, rel: ${this.state.reliability[location]}, maxEta: ${this.state.maxEta}, ${v}`)
+                let c = COLOR_SCALE(pv);
+                c[3] = a
+                //console.log(`${location}: ${v}, ${pv}, ${c}, ${a}`)
+                return c;
+            }
+        } else {
+            return defaultColor;
+        }
+
+    }
+
+    // handle generic callback on locationDT update
+    _getLocationDT(location) {
+
+        // fixed locations for debugging performance
+        let idx = this.state.lastLocationIndex + 1;
+        if (idx > this.state.locations.length - 1){
+            idx = 0
+        }
+        this.setState({lastLocationIndex: idx})
+        location = this.state.locations[idx];
+
+        let url = `https://raw.githubusercontent.com/UoA-eResearch/transit_deprivation/master/data/${location}-dt.json`;
+        fetch(url)
+            .then(response => response.json())
+            .then((data) => {
+                this.setState({locationDT: data}, () => {this._computeMeanETA()});
+            })
+            .catch((error) => {
+                console.error(error)
+            })
+    }
+
+    _resetETA(){
+        let eta = {};
+        for (let i = 0; i < Object.keys(this.state.idxLoc).length; i++) {
+            eta[this.state.idxLoc[i]] = -1;
+        }
+        this.setState({locationDT: null, eta: eta, maxEta: 1, valid: false});
+    }
+
+    _computeMeanETA() {
+
+        const data = this.state.locationDT;
+        if (data === null){
+            return;
+        }
+
+        const nloc = data.length
+        const ntimes = data[0].length
+
+        let count = new Array(nloc).fill(0);
+        let sum = new Array(nloc).fill(0);
+
+        // find valid journeys
+        let t = 0
+        for (let i = 0; i < nloc; i++) {
+            for (let j = 0; j < ntimes; j++) {
+                t = data[i][j]
+                if (t > -1 && t < this.state.timeLimit) {
+                    count[i] += 1;
+                    sum[i] += t;
+                }
+            }
+        }
+
+        // mean eta from origin to each destinations
+        let eta = {};
+        let v = -1;
+        let maxEta = 1;
+        for (let i = 0; i < nloc; i++) {
+            v = count[i] > 0 ? sum[i] / count[i] : -1;
+            //console.log(`${i}: ${this.state.idxLoc[i]}, v: ${v}, maxEta: ${maxEta}`)
+            maxEta = v > maxEta ? v : maxEta;
+
+            eta[this.state.idxLoc[i]] = v;
+        }
+
+        // reliability is ratio of valid journeys / total possible journeys to each destination
+        let rel = {};
+        for (let i = 0; i < nloc; i++) {
+            rel[this.state.idxLoc[i]] = count[i] / ntimes;
+            //console.log(`${count[i]}, ${ntimes}, ${count[i]/ntimes}`);
+        }
+
+
+        //console.log(`maxEta: ${maxEta}`)
+        this.setState({eta: eta, maxEta: maxEta, reliability: rel, valid: true});
+    }
+
+    _viewMeanETA(location) {
+        //console.log(`view mean eta for ${location}`);
+        this._getLocationDT(location);
+    }
 
     render(){
 
@@ -248,8 +379,12 @@ class App extends Component{
                         <Paper className={classes.paper}>
                             <ContainerDimensions className={classes.map}>
                                 <Map
-                                    onHover = {(object) => this._handleMapOnHover(object)}
+                                    deckGLOnClick={(event, info) => this._handleDeckGLOnClick(event, info)}
+                                    handleGeoJsonLayerOnClick={(event, info) => this._handleGeoJsonLayerOnClick(event, info)}
+                                    getColor={(location) => this._getColor(location)}
+                                    onHover={(object) => this._handleMapOnHover(object)}
                                     renderMapTooltip={this._renderMapTooltip}
+                                    updateTriggers={{getFillColor: this.state.eta}}
                                 >
                                 </Map>
                             </ContainerDimensions>
@@ -260,5 +395,7 @@ class App extends Component{
         );
     }
 }
-console.log(theme);
+
 export default hot(withStyles(styles, {defaultTheme: theme})(App));
+
+// TODO font on tooltip should be roboto
