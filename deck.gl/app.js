@@ -180,7 +180,6 @@ class App extends Component {
                     preventStyleDiffing={true}
                     mapboxApiAccessToken={MAPBOX_TOKEN}
                 />
-
                 {this._renderTooltip}
             </DeckGL>
         );

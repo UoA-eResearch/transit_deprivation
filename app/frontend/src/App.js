@@ -20,9 +20,9 @@ const MAPBOX_TOKEN = process.env.MapboxAccessToken;
 import ContainerDimensions from 'react-container-dimensions'
 
 // Source data GeoJSON
-import * as data from "./akl_polygons_id.geojson"
-import * as akl_idx_loc from "./akl_idx_loc.json"
-import * as akl_loc_idx from "./akl_loc_idx.json"
+import * as data from "../data/akl/akl_polygons_id.geojson"
+import * as akl_idx_loc from "../data/akl/akl_idx_loc.json"
+import * as akl_loc_idx from "../data/akl/akl_loc_idx.json"
 
 // TODO: There's probably a cleaner way to this color scale
 function hexToRgb(hex) {
@@ -170,9 +170,6 @@ class App extends Component{
             maxEta: 1,
             reliability: null,
             valid: false,
-            // only used for debugging
-            locations: [7601217, 7600739],
-            lastLocationIndex: 0
 
         }
         this._renderMapTooltip = this._renderMapTooltip.bind(this);
@@ -265,15 +262,8 @@ class App extends Component{
     // handle generic callback on locationDT update
     _getLocationDT(location) {
 
-        // fixed locations for debugging performance
-        let idx = this.state.lastLocationIndex + 1;
-        if (idx > this.state.locations.length - 1){
-            idx = 0
-        }
-        this.setState({lastLocationIndex: idx})
-        location = this.state.locations[idx];
-
-        let url = `https://raw.githubusercontent.com/UoA-eResearch/transit_deprivation/master/data/${location}-dt.json`;
+        let region = "akl";
+        let url = `http://130.216.217.4:8081/transit?region=${region}&location=${location}`;
         fetch(url)
             .then(response => response.json())
             .then((data) => {
@@ -282,6 +272,7 @@ class App extends Component{
             .catch((error) => {
                 console.error(error)
             })
+
     }
 
     _resetETA(){

@@ -1,8 +1,11 @@
-# react
+# webapp
 deck.gl/dump
 deck.gl/node_modules
-app.react/node_modules
-app.react/dist
+app/frontend/node_modules
+app/frontend/dist
+app/frontend/data
+app.dash/data
+app/backend/data
 
 
 # misc
