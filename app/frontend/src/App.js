@@ -1,5 +1,5 @@
 import { hot } from 'react-hot-loader/root';
-import React, { Component} from "react";
+import React, {Component, useMemo} from "react";
 
 import { makeStyles, withStyles, createMuiTheme} from '@material-ui/core/styles';
 //import Typography from '@material-ui/core/Typography';
@@ -12,10 +12,11 @@ import {GeoJsonLayer} from '@deck.gl/layers';
 const MAPBOX_TOKEN = process.env.MapboxAccessToken;
 
 // plot colors https://github.com/d3/d3-scale-chromatic
-import {color} from 'd3';
+import {color, scaleSequential, scaleLinear} from "d3";
 import {interpolateViridis, interpolateTurbo} from 'd3-scale-chromatic'
-
-
+import {ContinuousColorLegend} from 'react-vis';
+import {XYPlot, XAxis, YAxis, HorizontalGridLines, LineSeries} from 'react-vis';
+import '../node_modules/react-vis/dist/style.css';
 
 import ContainerDimensions from 'react-container-dimensions'
 
@@ -57,6 +58,15 @@ const styles = (theme) => ({
     mapColorSchemeSelector: {
       minWidth: "150px"
     },
+    mapLegend: {
+        x: 0,
+        y: 0,
+        maxWidth: "330px",
+        color: theme.palette.text.secondary,
+        background: theme.palette.background.paper,
+        padding: theme.spacing(2)
+
+    },
     map: {
         minHeight: "800px"
     },
@@ -97,6 +107,128 @@ function TimeLimitSlider(props) {
     );
 }
 
+function MapLegend(props){
+
+    const classes = makeStyles(styles)();
+
+    let vmin = 0;
+    let vmax = 100;
+    let width = 300;
+    let height = 15;
+    let xpad = 5;
+
+    let colorScale = scaleSequential([0, 1], interpolateViridis);
+    let tickScale = scaleLinear().domain([0, 1]).range([vmin, vmax]);
+    let tickValues = tickScale.ticks().map(value => tickScale(value));
+    let tickOffset = width / (tickValues.length - 1);
+
+    // https://wattenberger.com/blog/react-and-d3
+    // https://www.visualcinnamon.com/2016/05/smooth-color-legend-d3-svg-gradient
+
+    // const ticks = useMemo(() => {
+    //     const xScale = scaleLinear()
+    //         .domain([0, 1])
+    //         .range([vmin, vmax])
+    //     return xScale.ticks()
+    //         .map(value => ({
+    //             value,
+    //             xOffset: xScale(value)
+    //         }))
+    // }, []);
+
+    return (
+      <Paper className={classes.mapLegend}>
+         <svg width="400" height="35" version="1.1" xmlns="http://www.w3.org/2000/svg">
+             <defs>
+                 <linearGradient id="Gradient">
+                     {
+                         tickScale.ticks().map((value, index) => (
+                             //console.log(`${index} ${value} ${colorScale(value)}`)
+                             <stop key={`stop-${index}`} offset={`${value*100}%`} stopColor={colorScale(value)}/>
+                         ))
+
+                     }
+                 </linearGradient>
+             </defs>
+             <rect
+                 x={xpad}
+                 y="0"
+                 width={width}
+                 height={height}
+                 stroke="transparent"
+                 strokeWidth="1"
+                 fill="url(#Gradient)"
+             />
+             {
+                 tickValues.map((value, index) => (
+                     // console.log(`${value} ${index} ${index * tickOffset}`)
+                     <g
+                         key={`tick-${index}`}
+                         transform={`translate(${xpad + index * tickOffset}, 0)`}
+                     >
+                         <text
+                             key={`tickValue-${index}`}
+                             style={{
+                                 fontSize: "10px",
+                                 textAnchor: "middle",
+                                 transform: `translateY(${height + 20}px)`
+                             }}>
+                             { value }
+                         </text>
+                     </g>
+                 ))
+             }
+         </svg>
+      </Paper>
+    );
+
+    // return (
+    //     <Paper className={classes.mapLegend}>
+    //         <Typography>
+    //             Colorbar
+    //         </Typography>
+    //
+    //         <svg>
+    //             <rect
+    //                 x="0"
+    //                 y="0"
+    //                 width="290.5"
+    //                 height="30"
+    //                 stroke="black"
+    //                 fill="transparent"
+    //                 stroke-width="1"
+    //             />
+    //             <path
+    //                 // d="M 9.5 0.5 H 290.5"
+    //                 d="M 9.5 0.5 H 290.5"
+    //                 stroke="currentColor"
+    //             />
+    //             {ticks.map(({ value, xOffset }) => (
+    //                 <g
+    //                     key={value}
+    //                     transform={`translate(${xOffset}, 0)`}
+    //                 >
+    //                     <line
+    //                         y2="6"
+    //                         stroke="currentColor"
+    //                     />
+    //                     <text
+    //                         key={value}
+    //                         style={{
+    //                             fontSize: "10px",
+    //                             textAnchor: "middle",
+    //                             transform: "translateY(20px)"
+    //                         }}>
+    //                         { value }
+    //                     </text>
+    //                 </g>
+    //             ))}
+    //         </svg>
+    //
+    //     </Paper>
+    // );
+}
+
 function Map(props){
     const classes = makeStyles(styles)();
     const mapStyle = 'mapbox://styles/mapbox/light-v9';
@@ -131,6 +263,7 @@ function Map(props){
                     preventStyleDiffing={true}
                     mapboxApiAccessToken={MAPBOX_TOKEN}
                 />
+                <MapLegend></MapLegend>
                 {props.renderMapTooltip()}
             </DeckGL>
         </div>
@@ -380,6 +513,26 @@ class App extends Component{
                                         colorScheme={this.state.mapColorScheme}
                                         handleChange={(event) => {this.setState({mapColorScheme:event.target.value})}}
                                     ></MapColorSchemePicker>
+                                </Paper>
+                            </Grid>
+                            <Grid item>
+                                <Paper className={classes.paper}>
+                                    <Typography>
+                                        Another thing
+                                    </Typography>
+                                    <XYPlot
+                                        width={300}
+                                        height={300}>
+                                        <HorizontalGridLines />
+                                        <LineSeries
+                                            data={[
+                                                {x: 1, y: 10},
+                                                {x: 2, y: 5},
+                                                {x: 3, y: 15}
+                                            ]}/>
+                                        <XAxis />
+                                        <YAxis />
+                                    </XYPlot>
                                 </Paper>
                             </Grid>
                         </Grid>
