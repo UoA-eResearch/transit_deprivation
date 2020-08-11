@@ -61,11 +61,16 @@ const styles = (theme) => ({
     mapLegend: {
         x: 0,
         y: 0,
-        maxWidth: "330px",
+        maxWidth: "310px",
         color: theme.palette.text.secondary,
         background: theme.palette.background.paper,
         padding: theme.spacing(2)
 
+    },
+    colorBar: {
+        color: theme.palette.text.secondary,
+        fontSize: "10px",
+        textAnchor: "middle",
     },
     map: {
         minHeight: "800px"
@@ -112,14 +117,14 @@ function MapLegend(props){
     const classes = makeStyles(styles)();
 
     let vmin = 0;
-    let vmax = 100;
+    let vmax = props.maxValue;
     let width = 300;
-    let height = 15;
+    let height = 8;
     let xpad = 5;
 
-    let colorScale = scaleSequential([0, 1], interpolateViridis);
+    let colorScale = scaleSequential([0, 1], props.mapColorSchemeInterpolator);
     let tickScale = scaleLinear().domain([0, 1]).range([vmin, vmax]);
-    let tickValues = tickScale.ticks().map(value => tickScale(value));
+    let tickValues = tickScale.ticks().map(value => Math.round(tickScale(value)));
     let tickOffset = width / (tickValues.length - 1);
 
     // https://wattenberger.com/blog/react-and-d3
@@ -138,7 +143,7 @@ function MapLegend(props){
 
     return (
       <Paper className={classes.mapLegend}>
-         <svg width="400" height="35" version="1.1" xmlns="http://www.w3.org/2000/svg">
+         <svg width="400" height="28" version="1.1" xmlns="http://www.w3.org/2000/svg">
              <defs>
                  <linearGradient id="Gradient">
                      {
@@ -168,9 +173,9 @@ function MapLegend(props){
                      >
                          <text
                              key={`tickValue-${index}`}
+                             className={classes.colorBar}
+                             fill={"currentColor"}
                              style={{
-                                 fontSize: "10px",
-                                 textAnchor: "middle",
                                  transform: `translateY(${height + 20}px)`
                              }}>
                              { value }
@@ -181,52 +186,6 @@ function MapLegend(props){
          </svg>
       </Paper>
     );
-
-    // return (
-    //     <Paper className={classes.mapLegend}>
-    //         <Typography>
-    //             Colorbar
-    //         </Typography>
-    //
-    //         <svg>
-    //             <rect
-    //                 x="0"
-    //                 y="0"
-    //                 width="290.5"
-    //                 height="30"
-    //                 stroke="black"
-    //                 fill="transparent"
-    //                 stroke-width="1"
-    //             />
-    //             <path
-    //                 // d="M 9.5 0.5 H 290.5"
-    //                 d="M 9.5 0.5 H 290.5"
-    //                 stroke="currentColor"
-    //             />
-    //             {ticks.map(({ value, xOffset }) => (
-    //                 <g
-    //                     key={value}
-    //                     transform={`translate(${xOffset}, 0)`}
-    //                 >
-    //                     <line
-    //                         y2="6"
-    //                         stroke="currentColor"
-    //                     />
-    //                     <text
-    //                         key={value}
-    //                         style={{
-    //                             fontSize: "10px",
-    //                             textAnchor: "middle",
-    //                             transform: "translateY(20px)"
-    //                         }}>
-    //                         { value }
-    //                     </text>
-    //                 </g>
-    //             ))}
-    //         </svg>
-    //
-    //     </Paper>
-    // );
 }
 
 function Map(props){
@@ -263,7 +222,13 @@ function Map(props){
                     preventStyleDiffing={true}
                     mapboxApiAccessToken={MAPBOX_TOKEN}
                 />
-                <MapLegend></MapLegend>
+                {
+                    props.valid ? (
+                    <MapLegend
+                        maxValue={props.maxEta}
+                        mapColorSchemeInterpolator={props.mapColorSchemeInterpolator}
+                    />) : null
+                }
                 {props.renderMapTooltip()}
             </DeckGL>
         </div>
@@ -305,6 +270,7 @@ class App extends Component{
             reliability: null,
             valid: false,
             mapColorScheme: "Viridis",
+            mapColorSchemeInterpolator: interpolateViridis,
 
         }
         this._renderMapTooltip = this._renderMapTooltip.bind(this);
@@ -332,43 +298,48 @@ class App extends Component{
         //console.log({x, y, object})
     }
 
+    _handleMapColorSchemeChange(event){
+        const colorScheme = event.target.value;
+        let interp = () => {}
+        switch(colorScheme){
+            case "Viridis":
+                interp = interpolateViridis;
+                break;
+            case "Turbo":
+                interp = interpolateTurbo;
+                break;
+        }
+
+        this.setState({mapColorScheme: colorScheme, mapColorSchemeInterpolator:interp})
+    }
+
     _renderMapTooltip() {
         const {x, y, hoveredObject, valid} = this.state;
         const {classes} = this.props;
 
         if(hoveredObject){
-            if (valid){
-                let mean = Math.round(this.state.eta[hoveredObject.id]);
-                let rel = Math.round(this.state.reliability[hoveredObject.id] * 100);
-                let infoStr = this.state.eta[hoveredObject.id] === -1 ? "Inaccessible" : `Mean ETA ${mean} minutes, reliability: ${rel} %`;
-                return (
+            let mean = Math.round(this.state.eta[hoveredObject.id]);
+            let rel = Math.round(this.state.reliability[hoveredObject.id] * 100);
+            let infoStr = this.state.eta[hoveredObject.id] === -1 ? "Inaccessible" : `Mean ETA ${mean} minutes, reliability: ${rel} %`;
 
-                        <div className={classes.tooltip} style={{top: y, left: x}}>
-                            <div>
-                                <Typography variant="subtitle2">
-                                    <b>ID: {hoveredObject.id}</b>
-                                </Typography>
-                            </div>
+            return (
+                <div className={classes.tooltip} style={{top: y, left: x}}>
+                    <div>
+                        <Typography variant="subtitle2">
+                            <b>ID: {hoveredObject.id}</b>
+                        </Typography>
+                    </div>
+                    {
+                        valid ? (
                             <div>
                                 <Typography variant="subtitle2">
                                     {infoStr}
                                 </Typography>
                             </div>
-                        </div>
-
-
-                );
-            } else {
-                return (
-                    <div className={classes.tooltip} style={{top: y, left: x}}>
-                        <div>
-                            <Typography variant="subtitle2">
-                                <b>ID: {hoveredObject.id}</b>
-                            </Typography>
-                        </div>
-                    </div>
-                );
-            }
+                        ) : null
+                    }
+                </div>
+            );
         }
     }
 
@@ -381,17 +352,7 @@ class App extends Component{
             } else {
                 let v = this.state.eta[location] / this.state.maxEta;
                 let a = this.state.reliability[location] * 255;
-
-                let interp = () => {}
-                switch(this.state.mapColorScheme){
-                    case "Viridis":
-                        interp = interpolateViridis;
-                        break;
-                    case "Turbo":
-                        interp = interpolateTurbo;
-                        break;
-                }
-                let c = interp(v);
+                let c = this.state.mapColorSchemeInterpolator(v);
                 c = color(c).copy({opacity: a})
 
                 return [c.r, c.g, c.b, c.opacity];
@@ -402,7 +363,7 @@ class App extends Component{
 
     }
 
-    // handle generic callback on locationDT update
+    // TODO change to handling arbitrary function on locationDT update, not just meanETA
     _getLocationDT(location) {
 
         let region = "akl";
@@ -511,7 +472,7 @@ class App extends Component{
                                 <Paper className={classes.paper}>
                                     <MapColorSchemePicker
                                         colorScheme={this.state.mapColorScheme}
-                                        handleChange={(event) => {this.setState({mapColorScheme:event.target.value})}}
+                                        handleChange={(event) => this._handleMapColorSchemeChange(event)}
                                     ></MapColorSchemePicker>
                                 </Paper>
                             </Grid>
@@ -547,6 +508,9 @@ class App extends Component{
                                     onHover={(object) => this._handleMapOnHover(object)}
                                     renderMapTooltip={this._renderMapTooltip}
                                     updateTriggers={{getFillColor: [this.state.eta, this.state.mapColorScheme]}}
+                                    valid={this.state.valid}
+                                    maxEta={this.state.maxEta}
+                                    mapColorSchemeInterpolator={this.state.mapColorSchemeInterpolator}
                                 >
                                 </Map>
                             </ContainerDimensions>
@@ -559,5 +523,3 @@ class App extends Component{
 }
 
 export default hot(withStyles(styles, {defaultTheme: theme})(App));
-
-// TODO font on tooltip should be roboto
