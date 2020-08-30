@@ -26,8 +26,8 @@ for qf in query_files:
 		queries += [l.strip() for l in f.readlines()[1:]]
 
 # create list of existing output files
-result_files = glob(os.path.join(results_dir, "*.csv"))
-result_files = [os.path.basename(f) for f in result_files]
+#result_files = glob(os.path.join(results_dir, "*.csv"))
+#result_files = [os.path.basename(f) for f in result_files]
 
 def as_results_file(query):
 
