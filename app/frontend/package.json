@@ -1,0 +1,38 @@
+{
+  "name": "transit",
+  "version": "0.0.1",
+  "main": "index.js",
+  "scripts": {
+    "start": "webpack-dev-server --mode development --progress --hot --open --host 0.0.0.0"
+  },
+  "author": "University of Auckland",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/cli": "^7.10.4",
+    "@babel/core": "^7.10.4",
+    "@babel/preset-env": "^7.10.4",
+    "@babel/preset-react": "^7.10.4",
+    "babel-loader": "^8.1.0",
+    "css-loader": "^3.6.0",
+    "sass-loader": "^9.0.3",
+    "style-loader": "^1.2.1",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "^3.11.0"
+  },
+  "dependencies": {
+    "@material-ui/core": "^4.11.0",
+    "d3": "^5.16.0",
+    "d3-scale": "^3.2.1",
+    "d3-scale-chromatic": "^1.5.0",
+    "d3-svg-legend": "^2.25.6",
+    "deck.gl": "^8.2.3",
+    "json-loader": "^0.5.7",
+    "react": "^16.13.1",
+    "react-container-dimensions": "^1.4.1",
+    "react-dom": "^16.13.1",
+    "react-hot-loader": "^4.12.21",
+    "react-map-gl": "^5.2.7",
+    "react-vis": "^1.11.7"
+  }
+}

@@ -10,8 +10,8 @@
 source src/modules.rc
 
 geodata="data/akl_points.shp"
-batches=5000
-start_time="2020-06-01 07:00:00"
+batches=1000
+start_time="2020-06-01 13:00:00"
 timezone="Pacific/Auckland"
 time_steps=36
 time_delta_minutes=10
