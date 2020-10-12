@@ -85,6 +85,9 @@ const styles = (theme) => ({
         minWidth: "160px",
         maxHeight: "240px",
         overflowY: "hidden",
+    },
+    destinationDatasetPicker: {
+
     }
 });
 
@@ -242,7 +245,7 @@ function MapColorSchemePicker(props){
     return (
         <div>
             <Typography gutterBottom>
-                Map Colour Scheme
+                Colour Scheme
             </Typography>
             <Select
                 className={classes.mapColorSchemeSelector}
@@ -254,6 +257,45 @@ function MapColorSchemePicker(props){
             </Select>
         </div>
     );
+}
+
+function DestinationDatasetPicker(props){
+    const classes = makeStyles(styles)();
+
+    let infoStr = {
+        "Default": "This dataset will show the mean travel time from any selected location in Auckland to every other " +
+            "accessible location in Auckland within the travel time set in the Time Limit slider below. \n\n Click on the map to select a starting location. To clear the map, select " +
+            "an empty location, such as the ocean",
+        "Diabetes Clinics": "This dataset contains the location diabetes clinics in the Auckland Region. " +
+            "The results show the mean travel time from each location to the clinic most easily accessible via public" +
+            " transport"
+    }
+
+    return (
+        <Grid item container direction="column" spacing={3}>
+            <Grid item>
+                <div>
+                    <Typography variant="h5" gutterBottom>
+                        Dataset
+                    </Typography>
+                    <Select
+                        className={classes.destinationDatasetPicker}
+                        value={props.destinationDataset}
+                        onChange={props.handleChange}
+                    >
+                        <MenuItem value={"Default"}>Default</MenuItem>
+                        <MenuItem value={"Diabetes Clinics"}>Diabetes Clinics</MenuItem>
+                    </Select>
+                </div>
+            </Grid>
+            <Grid item>
+                <Typography variant="body1" paragraph style={{whiteSpace: 'pre-line'}}>
+                    {infoStr[props.destinationDataset]}
+                </Typography>
+            </Grid>
+        </Grid>
+    );
+
 }
 
 class App extends Component{
@@ -271,6 +313,7 @@ class App extends Component{
             valid: false,
             mapColorScheme: "Viridis",
             mapColorSchemeInterpolator: interpolateViridis,
+            destinationDataset: "Default",
 
         }
         this._renderMapTooltip = this._renderMapTooltip.bind(this);
@@ -311,6 +354,11 @@ class App extends Component{
         }
 
         this.setState({mapColorScheme: colorScheme, mapColorSchemeInterpolator:interp})
+    }
+
+    _handleDestinationDatasetChange(event){
+        const dataset = event.target.value;
+        this.setState({destinationDataset: dataset})
     }
 
     _renderMapTooltip() {
@@ -455,9 +503,35 @@ class App extends Component{
         this._getLocationDT(location);
     }
 
+
     render(){
 
         const {classes} = this.props;
+
+        let datasetControls = null;
+        if (this.state.destinationDataset === "Default"){
+            datasetControls = (
+                <div>
+                    <TimeLimitSlider
+                        value={this.state.timeLimit}
+                        onChange={(value) => this._handleTimeLimitChange(value)}
+                    ></TimeLimitSlider>
+                    <MapColorSchemePicker
+                        colorScheme={this.state.mapColorScheme}
+                        handleChange={(event) => this._handleMapColorSchemeChange(event)}
+                    ></MapColorSchemePicker>
+                </div>
+            )
+        } else if (this.state.destinationDataset === "Diabetes Clinics"){
+            datasetControls = (
+                <div>
+                    <MapColorSchemePicker
+                        colorScheme={this.state.mapColorScheme}
+                        handleChange={(event) => this._handleMapColorSchemeChange(event)}
+                    ></MapColorSchemePicker>
+                </div>
+            )
+        }
 
         return (
             <div className={classes.root}>
@@ -476,24 +550,24 @@ class App extends Component{
                             </Grid>
                             <Grid item>
                                 <Paper className={classes.paper}>
-                                    <TimeLimitSlider
-                                        value={this.state.timeLimit}
-                                        onChange={(value) => this._handleTimeLimitChange(value)}
-                                    ></TimeLimitSlider>
+                                    <DestinationDatasetPicker
+                                        destinationDataset={this.state.destinationDataset}
+                                        handleChange={(event) => this._handleDestinationDatasetChange(event)}
+                                    ></DestinationDatasetPicker>
                                 </Paper>
                             </Grid>
                             <Grid item>
                                 <Paper className={classes.paper}>
-                                    <MapColorSchemePicker
-                                        colorScheme={this.state.mapColorScheme}
-                                        handleChange={(event) => this._handleMapColorSchemeChange(event)}
-                                    ></MapColorSchemePicker>
+                                    <Typography variant="h5" gutterBottom>
+                                        Controls
+                                    </Typography>
+                                    {datasetControls}
                                 </Paper>
                             </Grid>
                             <Grid item>
                                 <Paper className={classes.paper}>
-                                    <Typography>
-                                        Another thing
+                                    <Typography variant="h5" gutterBottom>
+                                        Travel Time
                                     </Typography>
                                     <XYPlot
                                         width={300}
