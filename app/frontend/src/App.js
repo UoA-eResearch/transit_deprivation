@@ -194,46 +194,27 @@ function MapLegend(props){
 function Map(props){
     const classes = makeStyles(styles)();
     const mapStyle = 'mapbox://styles/mapbox/light-v9';
-    const layers = [];
 
-    if (props.dataset == "Default"){
+    // default starting layer
+    const layers = [
+        new GeoJsonLayer({
+            id: 'eta',
+            data,
+            opacity: 0.8,
+            stroked: false,
+            filled: true,
+            getFillColor: f => props.getColor(f.id),
+            getLineColor: [255, 255, 255],
+            onClick: (event, info) => {info.handled = true; props.handleGeoJsonLayerOnClick(event)},
+            pickable: true,
+            onHover: props.onHover,
+            updateTriggers: props.updateTriggers,
+        })
+    ];
+
+    // add dataset specific layers
+    if (props.dataset === "Diabetes Clinics"){
         layers.push(
-            new GeoJsonLayer({
-                id: 'eta',
-                data,
-                opacity: 0.8,
-                stroked: false,
-                filled: true,
-                getFillColor: f => props.getColor(f.id),
-                getLineColor: [255, 255, 255],
-                onClick: (event, info) => {info.handled = true; props.handleGeoJsonLayerOnClick(event)},
-                pickable: true,
-                onHover: props.onHover,
-                updateTriggers: props.updateTriggers,
-            }),
-            new GeoJsonLayer({
-                id: 'clinics',
-                data: clinics,
-                pointRadiusMinPixels: 5,
-                getFillColor: [202, 33, 34, 255],
-            })
-        )
-    }
-    else if (props.dataset === "Diabetes Clinics"){
-        layers.push(
-            new GeoJsonLayer({
-                id: 'eta',
-                data,
-                opacity: 0.8,
-                stroked: false,
-                filled: true,
-                getFillColor: f => props.getColor(f.id),
-                getLineColor: [255, 255, 255],
-                onClick: (event, info) => {info.handled = true; props.handleGeoJsonLayerOnClick(event)},
-                pickable: true,
-                onHover: props.onHover,
-                updateTriggers: props.updateTriggers,
-            }),
             new GeoJsonLayer({
                 id: 'clinics',
                 data: clinics,
@@ -295,12 +276,8 @@ function DestinationDatasetPicker(props){
     const classes = makeStyles(styles)();
 
     let infoStr = {
-        "Default": "This dataset will show the mean travel time from any selected location in Auckland to every other " +
-            "accessible location in Auckland within the travel time set by the slider in the control panel below. \n\n Click on the map to select a starting location. To clear the map, select " +
-            "an empty location, such as the ocean",
-        "Diabetes Clinics": "This dataset contains the location diabetes clinics in the Auckland Region. " +
-            "The results show the mean travel time from each location to the clinic most easily accessible via public" +
-            " transport"
+        "None": "No destination dataset selected",
+        "Diabetes Clinics": "This dataset contains the location diabetes treatment centers in the Auckland Region."
     }
 
     return (
@@ -315,7 +292,7 @@ function DestinationDatasetPicker(props){
                         value={props.destinationDataset}
                         onChange={props.handleChange}
                     >
-                        <MenuItem value={"Default"}>Default</MenuItem>
+                        <MenuItem value={"None"}>None</MenuItem>
                         <MenuItem value={"Diabetes Clinics"}>Diabetes Clinics</MenuItem>
                     </Select>
                 </div>
@@ -345,7 +322,7 @@ class App extends Component{
             valid: false,
             mapColorScheme: "Viridis",
             mapColorSchemeInterpolator: interpolateViridis,
-            destinationDataset: "Default",
+            destinationDataset: "None",
 
         }
         this._renderMapTooltip = this._renderMapTooltip.bind(this);
@@ -353,21 +330,25 @@ class App extends Component{
 
     _handleGeoJsonLayerOnClick(event, info){
         //console.log(`GeoJson handled, location ${event.object.id}`);
+
+        // default click handling to show mean eta
+        this._viewMeanETA(event.object.id);
         let ds = this.state.destinationDataset
-        if (ds === "Default"){
-            this._viewMeanETA(event.object.id);
-        } else if (ds === "Diabetes Clinics"){
+
+        if (ds === "Diabetes Clinics"){
+            // do something special for clinic locations
             //console.log(`${ds} onclick handler`)
         }
     }
 
     _handleDeckGLOnClick(event, info){
         if (!info.handled){
-            let ds = this.state.destinationDataset
-            if (ds === "Default"){
-                this._resetETA();
-            } else if (ds === "Diabetes Clinics"){
+            // reset the eta values
+            this._resetETA();
 
+            let ds = this.state.destinationDataset
+            if (ds === "Diabetes Clinics"){
+                // do something special for clinic locations
             }
             //console.log(`DeckGL handled`);
 
@@ -405,11 +386,12 @@ class App extends Component{
     }
 
     _initialiseView(){
+        // default view initialisation
+        // this._resetETA();
+
         let ds = this.state.destinationDataset
-        if (ds === "Default"){
-            this._resetETA();
-        } else if (ds === "Diabetes Clinics"){
-            this._viewDiabetesClinics();
+        if (ds === "Diabetes Clinics"){
+            // special handling if required
         }
     }
 
@@ -555,17 +537,12 @@ class App extends Component{
         this._getLocationDT(location);
     }
 
-    _viewDiabetesClinics(){
-
-    }
-
-
     render(){
 
         const {classes} = this.props;
 
         let datasetControls = null;
-        if (this.state.destinationDataset === "Default"){
+        if (this.state.destinationDataset === "None"){
             datasetControls = (
                 <div>
                     <TimeLimitSlider
@@ -581,6 +558,10 @@ class App extends Component{
         } else if (this.state.destinationDataset === "Diabetes Clinics"){
             datasetControls = (
                 <div>
+                    <TimeLimitSlider
+                        value={this.state.timeLimit}
+                        onChange={(value) => this._handleTimeLimitChange(value)}
+                    ></TimeLimitSlider>
                     <MapColorSchemePicker
                         colorScheme={this.state.mapColorScheme}
                         handleChange={(event) => this._handleMapColorSchemeChange(event)}
@@ -599,8 +580,11 @@ class App extends Component{
                                     <Typography variant="h4" gutterBottom>
                                         Transit & Deprivation
                                     </Typography>
-                                    <Typography variant="body1">
-                                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+                                    <Typography variant="body1" paragraph style={{whiteSpace: 'pre-line'}}>
+                                        {"This tool will show visualise the travel time between origins and destinations in the Auckland Region via public transport. \n\n" +
+                                        "Click on the map to view the travel time from there to the rest of Auckland. To clear the map, select an empty location, such as the ocean. \n\n" +
+                                        "You can visualise how accessibility changes with the amount of time available by using the time limit slider in the control settings below."
+                                        }
                                     </Typography>
                                 </Paper>
                             </Grid>
