@@ -8,7 +8,7 @@ import {Paper, Grid, Slider, Select, MenuItem, Typography} from '@material-ui/co
 // mapping
 import {StaticMap} from 'react-map-gl';
 import DeckGL from '@deck.gl/react';
-import {GeoJsonLayer} from '@deck.gl/layers';
+import {GeoJsonLayer, ScatterplotLayer} from '@deck.gl/layers';
 const MAPBOX_TOKEN = process.env.MapboxAccessToken;
 
 // plot colors https://github.com/d3/d3-scale-chromatic
@@ -22,9 +22,9 @@ import ContainerDimensions from 'react-container-dimensions'
 
 // Source data GeoJSON
 import * as data from "../data/akl/akl_polygons_id.geojson"
+import * as clinics from "../data/akl/akl_clinics.geojson"
 import * as akl_idx_loc from "../data/akl/akl_idx_loc.json"
 import * as akl_loc_idx from "../data/akl/akl_loc_idx.json"
-
 
 const INITIAL_VIEW_STATE = {
     latitude: -36.8485, // auckland
@@ -194,22 +194,54 @@ function MapLegend(props){
 function Map(props){
     const classes = makeStyles(styles)();
     const mapStyle = 'mapbox://styles/mapbox/light-v9';
+    const layers = [];
 
-    const layers = [
-        new GeoJsonLayer({
-            id: 'geojson',
-            data,
-            opacity: 0.8,
-            stroked: false,
-            filled: true,
-            getFillColor: f => props.getColor(f.id),
-            getLineColor: [255, 255, 255],
-            onClick: (event, info) => {info.handled = true; props.handleGeoJsonLayerOnClick(event)},
-            pickable: true,
-            onHover: props.onHover,
-            updateTriggers: props.updateTriggers,
-        })
-    ];
+    if (props.dataset == "Default"){
+        layers.push(
+            new GeoJsonLayer({
+                id: 'eta',
+                data,
+                opacity: 0.8,
+                stroked: false,
+                filled: true,
+                getFillColor: f => props.getColor(f.id),
+                getLineColor: [255, 255, 255],
+                onClick: (event, info) => {info.handled = true; props.handleGeoJsonLayerOnClick(event)},
+                pickable: true,
+                onHover: props.onHover,
+                updateTriggers: props.updateTriggers,
+            }),
+            new GeoJsonLayer({
+                id: 'clinics',
+                data: clinics,
+                pointRadiusMinPixels: 5,
+                getFillColor: [202, 33, 34, 255],
+            })
+        )
+    }
+    else if (props.dataset === "Diabetes Clinics"){
+        layers.push(
+            new GeoJsonLayer({
+                id: 'eta',
+                data,
+                opacity: 0.8,
+                stroked: false,
+                filled: true,
+                getFillColor: f => props.getColor(f.id),
+                getLineColor: [255, 255, 255],
+                onClick: (event, info) => {info.handled = true; props.handleGeoJsonLayerOnClick(event)},
+                pickable: true,
+                onHover: props.onHover,
+                updateTriggers: props.updateTriggers,
+            }),
+            new GeoJsonLayer({
+                id: 'clinics',
+                data: clinics,
+                pointRadiusMinPixels: 5,
+                getFillColor: [202, 33, 34, 255],
+            })
+        )
+    }
 
     return (
         <div className={classes.map}>
@@ -264,7 +296,7 @@ function DestinationDatasetPicker(props){
 
     let infoStr = {
         "Default": "This dataset will show the mean travel time from any selected location in Auckland to every other " +
-            "accessible location in Auckland within the travel time set in the Time Limit slider below. \n\n Click on the map to select a starting location. To clear the map, select " +
+            "accessible location in Auckland within the travel time set by the slider in the control panel below. \n\n Click on the map to select a starting location. To clear the map, select " +
             "an empty location, such as the ocean",
         "Diabetes Clinics": "This dataset contains the location diabetes clinics in the Auckland Region. " +
             "The results show the mean travel time from each location to the clinic most easily accessible via public" +
@@ -321,13 +353,24 @@ class App extends Component{
 
     _handleGeoJsonLayerOnClick(event, info){
         //console.log(`GeoJson handled, location ${event.object.id}`);
-        this._viewMeanETA(event.object.id);
+        let ds = this.state.destinationDataset
+        if (ds === "Default"){
+            this._viewMeanETA(event.object.id);
+        } else if (ds === "Diabetes Clinics"){
+            //console.log(`${ds} onclick handler`)
+        }
     }
 
     _handleDeckGLOnClick(event, info){
         if (!info.handled){
+            let ds = this.state.destinationDataset
+            if (ds === "Default"){
+                this._resetETA();
+            } else if (ds === "Diabetes Clinics"){
+
+            }
             //console.log(`DeckGL handled`);
-            this._resetETA();
+
         }
     }
 
@@ -358,7 +401,16 @@ class App extends Component{
 
     _handleDestinationDatasetChange(event){
         const dataset = event.target.value;
-        this.setState({destinationDataset: dataset})
+        this.setState({destinationDataset: dataset}, this._initialiseView)
+    }
+
+    _initialiseView(){
+        let ds = this.state.destinationDataset
+        if (ds === "Default"){
+            this._resetETA();
+        } else if (ds === "Diabetes Clinics"){
+            this._viewDiabetesClinics();
+        }
     }
 
     _renderMapTooltip() {
@@ -503,6 +555,10 @@ class App extends Component{
         this._getLocationDT(location);
     }
 
+    _viewDiabetesClinics(){
+
+    }
+
 
     render(){
 
@@ -599,6 +655,7 @@ class App extends Component{
                                     valid={this.state.valid}
                                     maxEta={this.state.maxEta}
                                     mapColorSchemeInterpolator={this.state.mapColorSchemeInterpolator}
+                                    dataset={this.state.destinationDataset}
                                 >
                                 </Map>
                             </ContainerDimensions>
