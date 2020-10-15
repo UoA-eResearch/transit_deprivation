@@ -52,8 +52,11 @@ const styles = (theme) => ({
         color: theme.palette.text.secondary,
         background: theme.palette.background.paper
     },
-    slider: {
-
+    timeLimitSlider: {
+        maxWidth: "300px"
+    },
+    mapOpacitySlider: {
+        maxWidth: "300px"
     },
     mapColorSchemeSelector: {
       minWidth: "150px"
@@ -100,7 +103,7 @@ function TimeLimitSlider(props) {
                 Time Limit: {props.value} minutes
             </Typography>
             <Slider
-                className={classes.slider}
+                className={classes.timeLimitSlider}
                 defaultValue={60}
                 onChange={(event, value) => props.onChange(value)}
                 getAriaValueText={(value) => {`${value}`}}
@@ -110,6 +113,29 @@ function TimeLimitSlider(props) {
                 marks
                 min={10}
                 max={300}
+            />
+        </div>
+    );
+}
+
+function OpacitySlider(props) {
+    const classes = makeStyles(styles)();
+
+    return (
+        <div>
+            <Typography gutterBottom>
+                Opacity
+            </Typography>
+            <Slider
+                className={classes.mapOpacitySlider}
+                defaultValue={0.8}
+                onChange={(event, value) => props.onChange(value)}
+                getAriaValueText={(value) => {`${value}`}}
+                aria-labelledby="continuous-slider"
+                valueLabelDisplay="auto"
+                step={0.01}
+                min={0.0}
+                max={1.0}
             />
         </div>
     );
@@ -200,11 +226,11 @@ function Map(props){
         new GeoJsonLayer({
             id: 'eta',
             data,
-            opacity: 0.8,
+            opacity: props.opacity,
             stroked: false,
             filled: true,
             getFillColor: f => props.getColor(f.id),
-            getLineColor: [255, 255, 255],
+            getLineColor: [0, 0, 0],
             onClick: (event, info) => {info.handled = true; props.handleGeoJsonLayerOnClick(event)},
             pickable: true,
             onHover: props.onHover,
@@ -320,6 +346,7 @@ class App extends Component{
             maxEta: 1,
             reliability: null,
             valid: false,
+            mapOpacity: 0.8,
             mapColorScheme: "Viridis",
             mapColorSchemeInterpolator: interpolateViridis,
             destinationDataset: "None",
@@ -358,6 +385,11 @@ class App extends Component{
     _handleTimeLimitChange(value){
         //console.log(`called with ${value}`)
         this.setState({timeLimit: value}, () => {this._computeMeanETA()});
+    }
+
+    _handleMapOpacityChange(value){
+        //console.log(`called with ${value}`)
+        this.setState({mapOpacity: value});
     }
 
     _handleMapOnHover({x, y, object}) {
@@ -440,7 +472,7 @@ class App extends Component{
     }
 
     _getColor(location) {
-        const defaultColor = [128, 128, 128, 64];
+        const defaultColor = [128, 128, 128, 24];
         const inaccessibleColor = [128, 128, 128, 0];
         if (this.state.valid){
             if (this.state.eta[location] === -1){
@@ -542,33 +574,25 @@ class App extends Component{
         const {classes} = this.props;
 
         let datasetControls = null;
-        if (this.state.destinationDataset === "None"){
-            datasetControls = (
-                <div>
-                    <TimeLimitSlider
-                        value={this.state.timeLimit}
-                        onChange={(value) => this._handleTimeLimitChange(value)}
-                    ></TimeLimitSlider>
-                    <MapColorSchemePicker
-                        colorScheme={this.state.mapColorScheme}
-                        handleChange={(event) => this._handleMapColorSchemeChange(event)}
-                    ></MapColorSchemePicker>
-                </div>
-            )
-        } else if (this.state.destinationDataset === "Diabetes Clinics"){
-            datasetControls = (
-                <div>
-                    <TimeLimitSlider
-                        value={this.state.timeLimit}
-                        onChange={(value) => this._handleTimeLimitChange(value)}
-                    ></TimeLimitSlider>
-                    <MapColorSchemePicker
-                        colorScheme={this.state.mapColorScheme}
-                        handleChange={(event) => this._handleMapColorSchemeChange(event)}
-                    ></MapColorSchemePicker>
-                </div>
-            )
-        }
+
+        // this has been setup to allow different controls to be visible, based on the dataset selected
+        // currently there is no difference
+        datasetControls = (
+            <div>
+                <TimeLimitSlider
+                    value={this.state.timeLimit}
+                    onChange={(value) => this._handleTimeLimitChange(value)}
+                ></TimeLimitSlider>
+                <OpacitySlider
+                    value={this.state.mapOpacity}
+                    onChange={(value) => this._handleMapOpacityChange(value)}
+                ></OpacitySlider>
+                <MapColorSchemePicker
+                    colorScheme={this.state.mapColorScheme}
+                    handleChange={(event) => this._handleMapColorSchemeChange(event)}
+                ></MapColorSchemePicker>
+            </div>
+        )
 
         return (
             <div className={classes.root}>
@@ -640,6 +664,7 @@ class App extends Component{
                                     maxEta={this.state.maxEta}
                                     mapColorSchemeInterpolator={this.state.mapColorSchemeInterpolator}
                                     dataset={this.state.destinationDataset}
+                                    opacity={this.state.mapOpacity}
                                 >
                                 </Map>
                             </ContainerDimensions>
