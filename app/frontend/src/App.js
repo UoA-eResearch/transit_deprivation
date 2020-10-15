@@ -14,9 +14,14 @@ const MAPBOX_TOKEN = process.env.MapboxAccessToken;
 // plot colors https://github.com/d3/d3-scale-chromatic
 import {color, scaleSequential, scaleLinear} from "d3";
 import {interpolateViridis, interpolateTurbo} from 'd3-scale-chromatic'
+
+// react vis
 import {ContinuousColorLegend} from 'react-vis';
 import {XYPlot, XAxis, YAxis, HorizontalGridLines, LineSeries} from 'react-vis';
 import '../node_modules/react-vis/dist/style.css';
+
+// color helpers
+var tinycolor = require("tinycolor2");
 
 import ContainerDimensions from 'react-container-dimensions'
 
@@ -143,6 +148,7 @@ function OpacitySlider(props) {
 
 function MapLegend(props){
 
+    // TODO: this should only update when the selected location changes
     const classes = makeStyles(styles)();
 
     let vmin = 0;
@@ -177,8 +183,8 @@ function MapLegend(props){
                  <linearGradient id="Gradient">
                      {
                          tickScale.ticks().map((value, index) => (
-                             //console.log(`${index} ${value} ${colorScale(value)}`)
-                             <stop key={`stop-${index}`} offset={`${value*100}%`} stopColor={colorScale(value)}/>
+                             // console.log(`${index} ${value} ${colorScale(value)}`)
+                             <stop key={`stop-${index}`} offset={`${value*100}%`} stopColor={tinycolor(colorScale(value)).setAlpha(props.opacity)}/>
                          ))
 
                      }
@@ -269,6 +275,7 @@ function Map(props){
                     <MapLegend
                         maxValue={props.maxEta}
                         mapColorSchemeInterpolator={props.mapColorSchemeInterpolator}
+                        opacity={props.opacity}
                     />) : null
                 }
                 {props.renderMapTooltip()}
@@ -346,7 +353,7 @@ class App extends Component{
             maxEta: 1,
             reliability: null,
             valid: false,
-            mapOpacity: 0.8,
+            mapOpacity: 0.7,
             mapColorScheme: "Viridis",
             mapColorSchemeInterpolator: interpolateViridis,
             destinationDataset: "None",

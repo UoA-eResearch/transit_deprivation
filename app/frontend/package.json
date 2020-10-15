@@ -33,6 +33,7 @@
     "react-dom": "^16.13.1",
     "react-hot-loader": "^4.12.21",
     "react-map-gl": "^5.2.7",
-    "react-vis": "^1.11.7"
+    "react-vis": "^1.11.7",
+    "tinycolor2": "^1.4.2"
   }
 }
