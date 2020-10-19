@@ -190,8 +190,11 @@ function MapLegend(props){
     // }, []);
 
     return (
-      <Paper className={classes.mapLegend}>
-          <svg width="400" height="60" version="1.1" xmlns="http://www.w3.org/2000/svg">
+      <Paper
+          id={"map-legend"}
+          className={classes.mapLegend}
+      >
+          <svg id="map-legend" width="320" height="60" version="1.1" xmlns="http://www.w3.org/2000/svg">
               <defs>
                   <linearGradient id="Gradient">
                       {
@@ -220,6 +223,7 @@ function MapLegend(props){
                           transform={`translate(${xpad + index * tickOffset}, 0)`}
                       >
                           <text
+                              id="map-legend"
                               key={`tickValue-${index}`}
                               className={classes.colorBar}
                               fill={"currentColor"}
@@ -234,6 +238,7 @@ function MapLegend(props){
                   transform={`translate(${xpad + width/2}, ${height + 50})`}
               >
                   <text
+                      id="map-legend"
                       key={"label"}
                       className={classes.colorBarLabel}
                       fill={"currentColor"}
@@ -398,6 +403,7 @@ class App extends Component{
             mapColorScheme: "Viridis",
             mapColorSchemeInterpolator: interpolateViridis,
             dataset: "None",
+            showHover: true
 
         }
         this._renderMapTooltip = this._renderMapTooltip.bind(this);
@@ -441,9 +447,12 @@ class App extends Component{
         this.setState({mapOpacity: value});
     }
 
-    _handleMapOnHover({x, y, object}) {
-        this.setState({x, y, hoveredObject: object});
-        //console.log({x, y, object})
+    _handleMapOnHover(info, event) {
+        if (event.target.id !== "map-legend"){
+            this.setState({showHover: true, x: info.x, y: info.y, hoveredObject: info.object});
+        } else {
+            this.setState({showHover: false});
+        }
     }
 
     _handleMapColorSchemeChange(event){
@@ -483,10 +492,10 @@ class App extends Component{
     }
 
     _renderMapTooltip() {
-        const {x, y, hoveredObject, valid} = this.state;
+        const {x, y, showHover, hoveredObject, valid} = this.state;
         const {classes} = this.props;
 
-        if(hoveredObject){
+        if(showHover && hoveredObject){
 
             var idInfo = (
                 <div>
@@ -749,7 +758,7 @@ class App extends Component{
                                     deckGLOnClick={(event, info) => this._handleDeckGLOnClick(event, info)}
                                     handleGeoJsonLayerOnClick={(event, info) => this._handleGeoJsonLayerOnClick(event, info)}
                                     getColor={(location) => this._getColor(location)}
-                                    onHover={(object) => this._handleMapOnHover(object)}
+                                    onHover={(info, event) => this._handleMapOnHover(info, event)}
                                     renderMapTooltip={this._renderMapTooltip}
                                     updateTriggers={{getFillColor: [this.state.eta, this.state.etaView, this.state.mapColorScheme]}}
                                     valid={this.state.valid}
