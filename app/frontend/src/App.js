@@ -313,37 +313,39 @@ function DatasetSelector(props){
     }
 
     return (
-        <Grid item container direction="column" spacing={3}>
+        <Grid container direction="column" spacing={3}>
             <Grid item>
-                <Typography variant="h5" gutterBottom>
-                    Data
-                </Typography>
+                <Typography variant="h5">Data</Typography>
             </Grid>
-            <Grid item>
-                <Typography variant="h6" gutterBottom>
-                    Travel Time
-                </Typography>
-                <Select
-                    className={classes.etaViewSelector}
-                    value={props.view}
-                    onChange={props.viewHandleChange}
-                >
-                    <MenuItem value={"mean"}>Mean</MenuItem>
-                    <MenuItem value={"stdev"}>Standard Deviation</MenuItem>
-                </Select>
+            <Grid container item direction="row" spacing={3} alignItems="center">
+                <Grid item xs={4}>
+                    <Typography variant="subtitle1">Travel Time View</Typography>
+                </Grid>
+                <Grid>
+                     <Select
+                         className={classes.etaViewSelector}
+                         value={props.view}
+                         onChange={props.viewHandleChange}
+                     >
+                         <MenuItem value={"mean"}>Mean</MenuItem>
+                         <MenuItem value={"stdev"}>Standard Deviation</MenuItem>
+                     </Select>
+                </Grid>
             </Grid>
-            <Grid item>
-                <Typography variant="h6" gutterBottom>
-                    Destinations
-                </Typography>
-                <Select
-                    className={classes.datasetSelector}
-                    value={props.dataset}
-                    onChange={props.datasetHandleChange}
-                >
-                    <MenuItem value={"None"}>None</MenuItem>
-                    <MenuItem value={"Diabetes Clinics"}>Diabetes Clinics</MenuItem>
-                </Select>
+            <Grid container item direction="row" spacing={3} alignItems="center">
+                <Grid item xs={4}>
+                    <Typography variant="subtitle1">Destinations</Typography>
+                </Grid>
+                <Grid>
+                    <Select
+                        className={classes.datasetSelector}
+                        value={props.dataset}
+                        onChange={props.datasetHandleChange}
+                    >
+                        <MenuItem value={"None"}>None</MenuItem>
+                        <MenuItem value={"Diabetes Clinics"}>Diabetes Clinics</MenuItem>
+                    </Select>
+                </Grid>
             </Grid>
             <Grid item>
                 <Typography variant="body1" paragraph style={{whiteSpace: 'pre-line'}}>
@@ -351,6 +353,7 @@ function DatasetSelector(props){
                 </Typography>
             </Grid>
         </Grid>
+
     );
 }
 
