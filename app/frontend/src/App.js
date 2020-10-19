@@ -12,6 +12,7 @@ import {GeoJsonLayer, ScatterplotLayer} from '@deck.gl/layers';
 const MAPBOX_TOKEN = process.env.MapboxAccessToken;
 
 // plot colors https://github.com/d3/d3-scale-chromatic
+import {mean, deviation, max, min} from "d3";
 import {color, scaleSequential, scaleLinear} from "d3";
 import {interpolateViridis, interpolateTurbo} from 'd3-scale-chromatic'
 
@@ -90,13 +91,10 @@ const styles = (theme) => ({
         padding: "8px",
         background: "#000",
         color: "#fff",
-        minWidth: "160px",
-        maxHeight: "240px",
         overflowY: "hidden",
     },
-    destinationDatasetPicker: {
-
-    }
+    datasetSelector: {},
+    etaViewSelector: {}
 });
 
 function TimeLimitSlider(props) {
@@ -151,7 +149,7 @@ function MapLegend(props){
     // TODO: this should only update when the selected location changes
     const classes = makeStyles(styles)();
 
-    let vmin = 0;
+    let vmin = props.minValue;
     let vmax = props.maxValue;
     let width = 300;
     let height = 8;
@@ -273,7 +271,8 @@ function Map(props){
                 {
                     props.valid ? (
                     <MapLegend
-                        maxValue={props.maxEta}
+                        minValue={props.minValue}
+                        maxValue={props.maxValue}
                         mapColorSchemeInterpolator={props.mapColorSchemeInterpolator}
                         opacity={props.opacity}
                     />) : null
@@ -285,7 +284,7 @@ function Map(props){
     );
 }
 
-function MapColorSchemePicker(props){
+function MapColorSchemeSelector(props){
     const classes = makeStyles(styles)();
 
     return (
@@ -305,7 +304,7 @@ function MapColorSchemePicker(props){
     );
 }
 
-function DestinationDatasetPicker(props){
+function DatasetSelector(props){
     const classes = makeStyles(styles)();
 
     let infoStr = {
@@ -316,32 +315,67 @@ function DestinationDatasetPicker(props){
     return (
         <Grid item container direction="column" spacing={3}>
             <Grid item>
-                <div>
-                    <Typography variant="h5" gutterBottom>
-                        Dataset
-                    </Typography>
-                    <Select
-                        className={classes.destinationDatasetPicker}
-                        value={props.destinationDataset}
-                        onChange={props.handleChange}
-                    >
-                        <MenuItem value={"None"}>None</MenuItem>
-                        <MenuItem value={"Diabetes Clinics"}>Diabetes Clinics</MenuItem>
-                    </Select>
-                </div>
+                <Typography variant="h5" gutterBottom>
+                    Data
+                </Typography>
+            </Grid>
+            <Grid item>
+                <Typography variant="h6" gutterBottom>
+                    Travel Time
+                </Typography>
+                <Select
+                    className={classes.etaViewSelector}
+                    value={props.view}
+                    onChange={props.viewHandleChange}
+                >
+                    <MenuItem value={"mean"}>Mean</MenuItem>
+                    <MenuItem value={"stdev"}>Standard Deviation</MenuItem>
+                </Select>
+            </Grid>
+            <Grid item>
+                <Typography variant="h6" gutterBottom>
+                    Destinations
+                </Typography>
+                <Select
+                    className={classes.datasetSelector}
+                    value={props.dataset}
+                    onChange={props.datasetHandleChange}
+                >
+                    <MenuItem value={"None"}>None</MenuItem>
+                    <MenuItem value={"Diabetes Clinics"}>Diabetes Clinics</MenuItem>
+                </Select>
             </Grid>
             <Grid item>
                 <Typography variant="body1" paragraph style={{whiteSpace: 'pre-line'}}>
-                    {infoStr[props.destinationDataset]}
+                    {infoStr[props.dataset]}
                 </Typography>
             </Grid>
         </Grid>
     );
+}
 
+function ETAViewSelector(props){
+    const classes = makeStyles(styles)();
+
+    return (
+        <div>
+            <Typography gutterBottom>
+                Travel Time View
+            </Typography>
+            <Select
+                value={props.view}
+                onChange={props.handleChange}
+            >
+                <MenuItem value={"mean"}>Mean</MenuItem>
+                <MenuItem value={"stdev"}>Standard Deviation</MenuItem>
+            </Select>
+        </div>
+    );
 }
 
 class App extends Component{
 
+    // TODO combine the map* variables into one object
     constructor(props){
         super(props);
         this.state = {
@@ -349,14 +383,13 @@ class App extends Component{
             idxLoc: akl_idx_loc["default"],
             locIdx: akl_loc_idx["default"],
             locationDT: null,
+            etaView: "mean",
             eta: null,
-            maxEta: 1,
-            reliability: null,
             valid: false,
             mapOpacity: 0.7,
             mapColorScheme: "Viridis",
             mapColorSchemeInterpolator: interpolateViridis,
-            destinationDataset: "None",
+            dataset: "None",
 
         }
         this._renderMapTooltip = this._renderMapTooltip.bind(this);
@@ -364,11 +397,10 @@ class App extends Component{
 
     _handleGeoJsonLayerOnClick(event, info){
         //console.log(`GeoJson handled, location ${event.object.id}`);
+        this._getLocationDT((event.object.id)); // get location destination-time data and compute stats
 
-        // default click handling to show mean eta
-        this._viewMeanETA(event.object.id);
-        let ds = this.state.destinationDataset
-
+        // any dataset specific behaviour
+        let ds = this.state.dataset
         if (ds === "Diabetes Clinics"){
             // do something special for clinic locations
             //console.log(`${ds} onclick handler`)
@@ -377,10 +409,12 @@ class App extends Component{
 
     _handleDeckGLOnClick(event, info){
         if (!info.handled){
+
             // reset the eta values
             this._resetETA();
 
-            let ds = this.state.destinationDataset
+            // any dataset specific behaviour
+            let ds = this.state.dataset
             if (ds === "Diabetes Clinics"){
                 // do something special for clinic locations
             }
@@ -391,7 +425,7 @@ class App extends Component{
 
     _handleTimeLimitChange(value){
         //console.log(`called with ${value}`)
-        this.setState({timeLimit: value}, () => {this._computeMeanETA()});
+        this.setState({timeLimit: value}, () => {this._computeETA();});
     }
 
     _handleMapOpacityChange(value){
@@ -419,16 +453,22 @@ class App extends Component{
         this.setState({mapColorScheme: colorScheme, mapColorSchemeInterpolator:interp})
     }
 
-    _handleDestinationDatasetChange(event){
+    _handleDatasetChange(event){
         const dataset = event.target.value;
-        this.setState({destinationDataset: dataset}, this._initialiseView)
+        this.setState({dataset: dataset}, this._initialiseView)
+    }
+
+    _handleViewChange(event){
+        const view = event.target.value;
+        this.setState({etaView: view}, this._initialiseView)
     }
 
     _initialiseView(){
         // default view initialisation
-        // this._resetETA();
+        // none
 
-        let ds = this.state.destinationDataset
+        // any dataset specific behaviour
+        let ds = this.state.dataset
         if (ds === "Diabetes Clinics"){
             // special handling if required
         }
@@ -439,37 +479,55 @@ class App extends Component{
         const {classes} = this.props;
 
         if(hoveredObject){
+
+            var idInfo = (
+                <div>
+                    <Typography variant="subtitle2">
+                        <b>ID: {hoveredObject.id}</b>
+                    </Typography>
+                </div>
+            );
+
             if (valid) {
-                let mean = Math.round(this.state.eta[hoveredObject.id]);
-                let rel = Math.round(this.state.reliability[hoveredObject.id] * 100);
-                let infoStr = this.state.eta[hoveredObject.id] === -1 ? "Inaccessible" : `Mean ETA ${mean} minutes, reliability: ${rel} %`;
+                let view = this.state.etaView;
+                let accessible = hoveredObject.id in this.state.eta[view]["values"];
+
+                let meanEta = Math.round(this.state.eta["mean"]["values"][hoveredObject.id]);
+                let stdevEta = Math.round(this.state.eta["stdev"]["values"][hoveredObject.id]);
+                let avail = Math.round(this.state.eta["avail"]["values"][hoveredObject.id] * 100);
 
                 return (
-                    <div className={classes.tooltip} style={{top: y, left: x}}>
-                        <div>
-                            <Typography variant="subtitle2">
-                                <b>ID: {hoveredObject.id}</b>
-                            </Typography>
-                        </div>
+                    <div className={classes.tooltip} style={{top: y, left: x, width: "210px",}}>
+                        {idInfo}
                         {
-                            valid ? (
-                                <div>
-                                    <Typography variant="subtitle2">
-                                        {infoStr}
-                                    </Typography>
-                                </div>
-                            ) : null
+                            accessible ?
+                                (
+                                    <div>
+                                        <Typography variant="subtitle2">
+                                            {`Mean: ${meanEta} minutes`}
+                                        </Typography>
+                                        <Typography variant="subtitle2">
+                                            {`Standard deviation: ${stdevEta} minutes`}
+                                        </Typography>
+                                        <Typography variant="subtitle2">
+                                            {`Availability: ${avail} %`}
+                                        </Typography>
+                                    </div>
+                                ) :
+                                (
+                                    <div>
+                                        <Typography variant="subtitle2">
+                                            {"Inaccessible"}
+                                        </Typography>
+                                    </div>
+                                )
                         }
                     </div>
                 );
             } else {
                 return (
-                    <div className={classes.tooltip} style={{top: y, left: x}}>
-                        <div>
-                            <Typography variant="subtitle2">
-                                <b>ID: {hoveredObject.id}</b>
-                            </Typography>
-                        </div>
+                    <div className={classes.tooltip} style={{top: y, left: x, width:90}}>
+                        {idInfo}
                     </div>
                 );
             }
@@ -482,15 +540,21 @@ class App extends Component{
         const defaultColor = [128, 128, 128, 24];
         const inaccessibleColor = [128, 128, 128, 0];
         if (this.state.valid){
-            if (this.state.eta[location] === -1){
-                return inaccessibleColor;
-            } else {
-                let v = this.state.eta[location] / this.state.maxEta;
-                let a = this.state.reliability[location] * 255;
-                let c = this.state.mapColorSchemeInterpolator(v);
+            // console.log(`loc: ${location} view: ${this.state.etaView} v: ${this.state.eta[this.state.etaView]["values"][location]}`);
+            let view = this.state.etaView;
+            if (location in this.state.eta[view]["values"]){
+                let v = this.state.eta[view]["values"][location];
+                let vmin = this.state.eta[view]["min"];
+                let vmax = this.state.eta[view]["max"];
+
+                let nv = (v - vmin) / Math.max((vmax - vmin), 1);
+                let a = this.state.eta["avail"]["values"][location] * 255;
+                let c = this.state.mapColorSchemeInterpolator(nv);
                 c = color(c).copy({opacity: a})
 
                 return [c.r, c.g, c.b, c.opacity];
+            } else {
+                return inaccessibleColor;
             }
         } else {
             return defaultColor;
@@ -498,7 +562,6 @@ class App extends Component{
 
     }
 
-    // TODO change to handling arbitrary function on locationDT update, not just meanETA
     _getLocationDT(location) {
 
         let region = "akl";
@@ -506,7 +569,7 @@ class App extends Component{
         fetch(url)
             .then(response => response.json())
             .then((data) => {
-                this.setState({locationDT: data}, () => {this._computeMeanETA()});
+                this.setState({locationDT: data}, () => {this._computeETA()});
             })
             .catch((error) => {
                 console.error(error)
@@ -515,14 +578,10 @@ class App extends Component{
     }
 
     _resetETA(){
-        let eta = {};
-        for (let i = 0; i < Object.keys(this.state.idxLoc).length; i++) {
-            eta[this.state.idxLoc[i]] = -1;
-        }
-        this.setState({locationDT: null, eta: eta, maxEta: 1, valid: false});
+        this.setState({locationDT: null, eta: null, valid: false});
     }
 
-    _computeMeanETA() {
+    _computeETA() {
 
         const data = this.state.locationDT;
         if (data === null){
@@ -532,48 +591,64 @@ class App extends Component{
         const nloc = data.length
         const ntimes = data[0].length
 
-        let count = new Array(nloc).fill(0);
-        let sum = new Array(nloc).fill(0);
+        let times = {}
 
-        // find valid journeys
-        let t = 0
+        // find valid journeys given the time constraint
+        let t = null
         for (let i = 0; i < nloc; i++) {
+            times[i] = [];
             for (let j = 0; j < ntimes; j++) {
                 t = data[i][j]
                 if (t > -1 && t < this.state.timeLimit) {
-                    count[i] += 1;
-                    sum[i] += t;
+                    times[i].push(t);
                 }
             }
         }
 
-        // mean eta from origin to each destinations
-        let eta = {};
-        let v = -1;
-        let maxEta = 1;
-        for (let i = 0; i < nloc; i++) {
-            v = count[i] > 0 ? sum[i] / count[i] : -1;
-            //console.log(`${i}: ${this.state.idxLoc[i]}, v: ${v}, maxEta: ${maxEta}`)
-            maxEta = v > maxEta ? v : maxEta;
+        // compute stats from origin to each destinations
+        let mean_ = {"values": {}, "min": 0, "max": 1};
+        let stdev = {"values": {}, "min": 0, "max": 1};
+        let avail = {"values": {}, "min": 0, "max": 1}; // ratio of trips that meet the time limit criteria
 
-            eta[this.state.idxLoc[i]] = v;
+        let loc = null;
+        for (let i = 0; i < nloc; i++) {
+            loc = this.state.idxLoc[i]; // convert DT matrix index to datazone location id
+
+            if (times[i].length > 0){
+
+                // mean
+                mean_["values"][loc] = mean(times[i]);
+
+                // stdev
+                if (times[i].length >= 2){
+                    stdev["values"][loc] = deviation(times[i])
+                }
+
+                // avail
+                avail["values"][loc] = times[i].length / ntimes;
+
+            }
+            //console.log(`${i}: ${loc}, mean: ${mean[loc]} stdev: ${stdev[loc]}`)
         }
 
-        // reliability is ratio of valid journeys / total possible journeys to each destination
-        let rel = {};
-        for (let i = 0; i < nloc; i++) {
-            rel[this.state.idxLoc[i]] = count[i] / ntimes;
-            //console.log(`${count[i]}, ${ntimes}, ${count[i]/ntimes}`);
+
+        // calculate min, max required for normalisation
+        mean_["max"] = max(Object.values(mean_["values"]));
+        mean_["min"] = min(Object.values(mean_["values"]));
+
+        stdev["max"] = max(Object.values(stdev["values"]));
+        stdev["min"] = min(Object.values(stdev["values"]));
+
+        avail["max"] = max(Object.values(avail["values"]));
+        avail["min"] = min(Object.values(avail["values"]));
+
+        let eta = {
+            "avail": avail,
+            "mean": mean_,
+            "stdev": stdev,
         }
 
-
-        //console.log(`maxEta: ${maxEta}`)
-        this.setState({eta: eta, maxEta: maxEta, reliability: rel, valid: true});
-    }
-
-    _viewMeanETA(location) {
-        //console.log(`view mean eta for ${location}`);
-        this._getLocationDT(location);
+        this.setState({eta: eta, valid: true});
     }
 
     render(){
@@ -594,10 +669,10 @@ class App extends Component{
                     value={this.state.mapOpacity}
                     onChange={(value) => this._handleMapOpacityChange(value)}
                 ></OpacitySlider>
-                <MapColorSchemePicker
+                <MapColorSchemeSelector
                     colorScheme={this.state.mapColorScheme}
                     handleChange={(event) => this._handleMapColorSchemeChange(event)}
-                ></MapColorSchemePicker>
+                ></MapColorSchemeSelector>
             </div>
         )
 
@@ -612,7 +687,7 @@ class App extends Component{
                                         Transit & Deprivation
                                     </Typography>
                                     <Typography variant="body1" paragraph style={{whiteSpace: 'pre-line'}}>
-                                        {"This tool will show visualise the travel time between origins and destinations in the Auckland Region via public transport. \n\n" +
+                                        {"This tool will visualise the travel time between origins and destinations in the Auckland Region when using public transport. \n\n" +
                                         "Click on the map to view the travel time from there to the rest of Auckland. To clear the map, select an empty location, such as the ocean. \n\n" +
                                         "You can visualise how accessibility changes with the amount of time available by using the time limit slider in the control settings below."
                                         }
@@ -621,10 +696,12 @@ class App extends Component{
                             </Grid>
                             <Grid item>
                                 <Paper className={classes.paper}>
-                                    <DestinationDatasetPicker
-                                        destinationDataset={this.state.destinationDataset}
-                                        handleChange={(event) => this._handleDestinationDatasetChange(event)}
-                                    ></DestinationDatasetPicker>
+                                    <DatasetSelector
+                                        dataset={this.state.dataset}
+                                        datasetHandleChange={(event) => this._handleDatasetChange(event)}
+                                        view={this.state.etaView}
+                                        viewHandleChange={(event) => this._handleViewChange(event)}
+                                    ></DatasetSelector>
                                 </Paper>
                             </Grid>
                             <Grid item>
@@ -666,12 +743,13 @@ class App extends Component{
                                     getColor={(location) => this._getColor(location)}
                                     onHover={(object) => this._handleMapOnHover(object)}
                                     renderMapTooltip={this._renderMapTooltip}
-                                    updateTriggers={{getFillColor: [this.state.eta, this.state.mapColorScheme]}}
+                                    updateTriggers={{getFillColor: [this.state.eta, this.state.etaView, this.state.mapColorScheme]}}
                                     valid={this.state.valid}
-                                    maxEta={this.state.maxEta}
                                     mapColorSchemeInterpolator={this.state.mapColorSchemeInterpolator}
-                                    dataset={this.state.destinationDataset}
+                                    dataset={this.state.dataset}
                                     opacity={this.state.mapOpacity}
+                                    maxValue={this.state.valid ? this.state.eta[this.state.etaView]["max"] : 1}
+                                    minValue={this.state.valid ? this.state.eta[this.state.etaView]["min"] : 0}
                                 >
                                 </Map>
                             </ContainerDimensions>
