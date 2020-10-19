@@ -70,7 +70,7 @@ const styles = (theme) => ({
     mapLegend: {
         x: 0,
         y: 0,
-        maxWidth: "310px",
+        width: "320px",
         color: theme.palette.text.secondary,
         background: theme.palette.background.paper,
         padding: theme.spacing(2)
@@ -79,6 +79,11 @@ const styles = (theme) => ({
     colorBar: {
         color: theme.palette.text.secondary,
         fontSize: "10px",
+        textAnchor: "middle",
+    },
+    colorBarLabel: {
+        color: theme.palette.text.secondary,
+        fontSize: "14px",
         textAnchor: "middle",
     },
     map: {
@@ -160,6 +165,16 @@ function MapLegend(props){
     let tickValues = tickScale.ticks().map(value => Math.round(tickScale(value)));
     let tickOffset = width / (tickValues.length - 1);
 
+    let label = "";
+    switch (props.etaView){
+        case "mean":
+            label = "Mean Travel Time (minutes)"
+            break;
+        case "stdev":
+            label = "Standard Deviation in Travel Time (minutes)"
+            break;
+    }
+
     // https://wattenberger.com/blog/react-and-d3
     // https://www.visualcinnamon.com/2016/05/smooth-color-legend-d3-svg-gradient
 
@@ -176,47 +191,55 @@ function MapLegend(props){
 
     return (
       <Paper className={classes.mapLegend}>
-         <svg width="400" height="28" version="1.1" xmlns="http://www.w3.org/2000/svg">
-             <defs>
-                 <linearGradient id="Gradient">
-                     {
-                         tickScale.ticks().map((value, index) => (
-                             // console.log(`${index} ${value} ${colorScale(value)}`)
-                             <stop key={`stop-${index}`} offset={`${value*100}%`} stopColor={tinycolor(colorScale(value)).setAlpha(props.opacity)}/>
-                         ))
+          <svg width="400" height="60" version="1.1" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                  <linearGradient id="Gradient">
+                      {
+                          tickScale.ticks().map((value, index) => (
+                              // console.log(`${index} ${value} ${colorScale(value)}`)
+                              <stop key={`stop-${index}`} offset={`${value*100}%`} stopColor={tinycolor(colorScale(value)).setAlpha(props.opacity)}/>
+                          ))
 
-                     }
-                 </linearGradient>
-             </defs>
-             <rect
-                 x={xpad}
-                 y="0"
-                 width={width}
-                 height={height}
-                 stroke="transparent"
-                 strokeWidth="1"
-                 fill="url(#Gradient)"
-             />
-             {
-                 tickValues.map((value, index) => (
-                     // console.log(`${value} ${index} ${index * tickOffset}`)
-                     <g
-                         key={`tick-${index}`}
-                         transform={`translate(${xpad + index * tickOffset}, 0)`}
-                     >
-                         <text
-                             key={`tickValue-${index}`}
-                             className={classes.colorBar}
-                             fill={"currentColor"}
-                             style={{
-                                 transform: `translateY(${height + 20}px)`
-                             }}>
-                             { value }
-                         </text>
-                     </g>
-                 ))
-             }
-         </svg>
+                      }
+                  </linearGradient>
+              </defs>
+              <rect
+                  x={xpad}
+                  y="0"
+                  width={width}
+                  height={height}
+                  stroke="transparent"
+                  strokeWidth="1"
+                  fill="url(#Gradient)"
+              />
+              {
+                  tickValues.map((value, index) => (
+                      // console.log(`${value} ${index} ${index * tickOffset}`)
+                      <g
+                          key={`tick-${index}`}
+                          transform={`translate(${xpad + index * tickOffset}, 0)`}
+                      >
+                          <text
+                              key={`tickValue-${index}`}
+                              className={classes.colorBar}
+                              fill={"currentColor"}
+                              style={{transform: `translateY(${height + 20}px)`}}>
+                              { value }
+                          </text>
+                      </g>
+                  ))
+              }
+              <g
+                  key={"label"}
+                  transform={`translate(${xpad + width/2}, ${height + 50})`}
+              >
+                  <text
+                      key={"label"}
+                      className={classes.colorBarLabel}
+                      fill={"currentColor"}
+                  >{label}</text>
+              </g>
+          </svg>
       </Paper>
     );
 }
@@ -275,6 +298,7 @@ function Map(props){
                         maxValue={props.maxValue}
                         mapColorSchemeInterpolator={props.mapColorSchemeInterpolator}
                         opacity={props.opacity}
+                        etaView={props.etaView}
                     />) : null
                 }
                 {props.renderMapTooltip()}
@@ -354,25 +378,6 @@ function DatasetSelector(props){
             </Grid>
         </Grid>
 
-    );
-}
-
-function ETAViewSelector(props){
-    const classes = makeStyles(styles)();
-
-    return (
-        <div>
-            <Typography gutterBottom>
-                Travel Time View
-            </Typography>
-            <Select
-                value={props.view}
-                onChange={props.handleChange}
-            >
-                <MenuItem value={"mean"}>Mean</MenuItem>
-                <MenuItem value={"stdev"}>Standard Deviation</MenuItem>
-            </Select>
-        </div>
     );
 }
 
@@ -753,6 +758,7 @@ class App extends Component{
                                     opacity={this.state.mapOpacity}
                                     maxValue={this.state.valid ? this.state.eta[this.state.etaView]["max"] : 1}
                                     minValue={this.state.valid ? this.state.eta[this.state.etaView]["min"] : 0}
+                                    etaView={this.state.etaView}
                                 >
                                 </Map>
                             </ContainerDimensions>
