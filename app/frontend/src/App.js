@@ -1,4 +1,5 @@
 import { hot } from 'react-hot-loader/root';
+import { cold } from 'react-hot-loader';
 import React, {Component, useMemo} from "react";
 
 import { makeStyles, withStyles, createMuiTheme} from '@material-ui/core/styles';
@@ -18,19 +19,37 @@ import {interpolateViridis, interpolateTurbo} from 'd3-scale-chromatic'
 
 // react vis
 import {ContinuousColorLegend} from 'react-vis';
-import {XYPlot, XAxis, YAxis, HorizontalGridLines, LineSeries} from 'react-vis';
-import '../node_modules/react-vis/dist/style.css';
+// import {XYPlot, XAxis, YAxis, LineSeries} from 'react-vis';
+// import '../node_modules/react-vis/dist/style.css';
+
+// timeseries
+import { TimeSeries } from "pondjs";
+import {
+    Charts,
+    ChartContainer,
+    ChartRow,
+    YAxis,
+    LineChart,
+    Resizable
+} from "react-timeseries-charts";
+const ColdResizable = cold(Resizable);
+const ColdChartContainer = cold(ChartContainer);
+const ColdChartRow = cold(ChartRow);
+const ColdYAxis = cold(YAxis);
+const ColdCharts = cold(Charts);
+const ColdLineChart = cold(LineChart);
 
 // color helpers
 var tinycolor = require("tinycolor2");
 
 import ContainerDimensions from 'react-container-dimensions'
 
-// Source data GeoJSON
+// Data
 import * as data from "../data/akl/akl_polygons_id.geojson"
 import * as clinics from "../data/akl/akl_clinics.geojson"
 import * as akl_idx_loc from "../data/akl/akl_idx_loc.json"
 import * as akl_loc_idx from "../data/akl/akl_loc_idx.json"
+import * as akl_idx_t from "../data/akl/akl_idx_t.json"
 
 const INITIAL_VIEW_STATE = {
     latitude: -36.8485, // auckland
@@ -277,7 +296,7 @@ function Map(props){
                 id: 'clinics',
                 data: clinics,
                 pointRadiusMinPixels: 5,
-                getFillColor: [202, 33, 34, 255],
+                getFillColor: [235, 52, 52, 255],
             })
         )
     }
@@ -347,10 +366,10 @@ function DatasetSelector(props){
                 <Typography variant="h5">Data</Typography>
             </Grid>
             <Grid container item direction="row" spacing={3} alignItems="center">
-                <Grid item xs={4}>
+                <Grid item>
                     <Typography variant="subtitle1">Travel Time View</Typography>
                 </Grid>
-                <Grid>
+                <Grid item>
                      <Select
                          className={classes.etaViewSelector}
                          value={props.view}
@@ -362,10 +381,10 @@ function DatasetSelector(props){
                 </Grid>
             </Grid>
             <Grid container item direction="row" spacing={3} alignItems="center">
-                <Grid item xs={4}>
+                <Grid item>
                     <Typography variant="subtitle1">Destinations</Typography>
                 </Grid>
-                <Grid>
+                <Grid item style={{marginLeft:32}}>
                     <Select
                         className={classes.datasetSelector}
                         value={props.dataset}
@@ -382,7 +401,56 @@ function DatasetSelector(props){
                 </Typography>
             </Grid>
         </Grid>
+    );
+}
 
+function TravelTimePlot(props){
+
+    const classes = makeStyles(styles)();
+    const {data, query, locIdx, idxT, eta} = props;
+
+    let points = [[0, 0]];
+    if (eta != null && typeof query !== 'undefined' && query.id in eta){
+
+        let idx = locIdx[query.id];
+        let times = data[idx];
+        points = Object.keys(times).map((key) => [idxT[key], times[key]]);
+    }
+
+    const series = new TimeSeries({
+        name: "Travel Time",
+        columns: ["time", "value"],
+        points: points
+    });
+
+    let min = series.min();
+    let max = series.max();
+    min = Math.max(0, min - min * 0.1);
+    max = max + max * 0.1;
+
+    return (
+        <ColdResizable>
+            <ColdChartContainer
+                title="Travel Time"
+                titleStyle={{ fill: "#555", fontWeight: 500 }}
+                timeRange={series.range()}
+                format="%H:%M %p"
+                timeAxisTickCount={5}
+            >
+                <ColdChartRow height="150">
+                    <ColdYAxis
+                        id="duration"
+                        label="Duration (minutes)"
+                        min={min}
+                        max={max}
+                        width="60"
+                    />
+                    <ColdCharts>
+                        <ColdLineChart axis="duration" series={series} />
+                    </ColdCharts>
+                </ColdChartRow>
+            </ColdChartContainer>
+        </ColdResizable>
     );
 }
 
@@ -395,6 +463,7 @@ class App extends Component{
             timeLimit: 60, // minutes
             idxLoc: akl_idx_loc["default"],
             locIdx: akl_loc_idx["default"],
+            idxT: akl_idx_t["default"],
             locationDT: null,
             etaView: "mean",
             eta: null,
@@ -672,106 +741,85 @@ class App extends Component{
 
         const {classes} = this.props;
 
-        let datasetControls = null;
-
-        // this has been setup to allow different controls to be visible, based on the dataset selected
-        // currently there is no difference
-        datasetControls = (
-            <div>
-                <TimeLimitSlider
-                    value={this.state.timeLimit}
-                    onChange={(value) => this._handleTimeLimitChange(value)}
-                ></TimeLimitSlider>
-                <OpacitySlider
-                    value={this.state.mapOpacity}
-                    onChange={(value) => this._handleMapOpacityChange(value)}
-                ></OpacitySlider>
-                <MapColorSchemeSelector
-                    colorScheme={this.state.mapColorScheme}
-                    handleChange={(event) => this._handleMapColorSchemeChange(event)}
-                ></MapColorSchemeSelector>
-            </div>
-        )
-
         return (
             <div className={classes.root}>
                 <Grid container spacing={3}>
-                    <Grid item xs={4}>
-                        <Grid container direction="column" spacing={3}>
-                            <Grid item>
-                                <Paper className={classes.paper}>
-                                    <Typography variant="h4" gutterBottom>
-                                        Transit & Deprivation
-                                    </Typography>
-                                    <Typography variant="body1" paragraph style={{whiteSpace: 'pre-line'}}>
-                                        {"This tool will visualise the travel time between origins and destinations in the Auckland Region when using public transport. \n\n" +
-                                        "Click on the map to view the travel time from there to the rest of Auckland. To clear the map, select an empty location, such as the ocean. \n\n" +
-                                        "You can visualise how accessibility changes with the amount of time available by using the time limit slider in the control settings below."
-                                        }
-                                    </Typography>
-                                </Paper>
-                            </Grid>
-                            <Grid item>
-                                <Paper className={classes.paper}>
-                                    <DatasetSelector
-                                        dataset={this.state.dataset}
-                                        datasetHandleChange={(event) => this._handleDatasetChange(event)}
-                                        view={this.state.etaView}
-                                        viewHandleChange={(event) => this._handleViewChange(event)}
-                                    ></DatasetSelector>
-                                </Paper>
-                            </Grid>
-                            <Grid item>
-                                <Paper className={classes.paper}>
-                                    <Typography variant="h5" gutterBottom>
-                                        Controls
-                                    </Typography>
-                                    {datasetControls}
-                                </Paper>
-                            </Grid>
-                            <Grid item>
-                                <Paper className={classes.paper}>
-                                    <Typography variant="h5" gutterBottom>
-                                        Travel Time
-                                    </Typography>
-                                    <XYPlot
-                                        width={300}
-                                        height={300}>
-                                        <HorizontalGridLines />
-                                        <LineSeries
-                                            data={[
-                                                {x: 1, y: 10},
-                                                {x: 2, y: 5},
-                                                {x: 3, y: 15}
-                                            ]}/>
-                                        <XAxis />
-                                        <YAxis />
-                                    </XYPlot>
-                                </Paper>
-                            </Grid>
+                    <Grid item container direction="column" xs={4} spacing={3}>
+                        <Grid item>
+                            <Paper className={classes.paper}>
+                                <Typography variant="h4" gutterBottom>
+                                    Transit & Deprivation
+                                </Typography>
+                                <Typography variant="body1" paragraph style={{whiteSpace: 'pre-line'}}>
+                                    {"This tool will visualise the travel time between origins and destinations in the Auckland Region when using public transport. \n\n" +
+                                    "Click on the map to view the travel time from there to the rest of Auckland. To clear the map, select an empty location, such as the ocean. \n\n" +
+                                    "You can visualise how accessibility changes with the amount of time available by using the time limit slider in the control settings below."
+                                    }
+                                </Typography>
+                            </Paper>
+                        </Grid>
+                        <Grid item>
+                            <Paper className={classes.paper}>
+                                <DatasetSelector
+                                    dataset={this.state.dataset}
+                                    datasetHandleChange={(event) => this._handleDatasetChange(event)}
+                                    view={this.state.etaView}
+                                    viewHandleChange={(event) => this._handleViewChange(event)}
+                                />
+                            </Paper>
+                        </Grid>
+                        <Grid item>
+                            <Paper className={classes.paper}>
+                                <Typography variant="h5" gutterBottom>Controls</Typography>
+                                <TimeLimitSlider
+                                    value={this.state.timeLimit}
+                                    onChange={(value) => this._handleTimeLimitChange(value)}
+                                ></TimeLimitSlider>
+                                <OpacitySlider
+                                    value={this.state.mapOpacity}
+                                    onChange={(value) => this._handleMapOpacityChange(value)}
+                                ></OpacitySlider>
+                                <MapColorSchemeSelector
+                                    colorScheme={this.state.mapColorScheme}
+                                    handleChange={(event) => this._handleMapColorSchemeChange(event)}
+                                ></MapColorSchemeSelector>
+                            </Paper>
                         </Grid>
                     </Grid>
-                    <Grid item xs={8}>
-                        <Paper className={classes.paper}>
-                            <ContainerDimensions className={classes.map}>
-                                <Map
-                                    deckGLOnClick={(event, info) => this._handleDeckGLOnClick(event, info)}
-                                    handleGeoJsonLayerOnClick={(event, info) => this._handleGeoJsonLayerOnClick(event, info)}
-                                    getColor={(location) => this._getColor(location)}
-                                    onHover={(info, event) => this._handleMapOnHover(info, event)}
-                                    renderMapTooltip={this._renderMapTooltip}
-                                    updateTriggers={{getFillColor: [this.state.eta, this.state.etaView, this.state.mapColorScheme]}}
-                                    valid={this.state.valid}
-                                    mapColorSchemeInterpolator={this.state.mapColorSchemeInterpolator}
-                                    dataset={this.state.dataset}
-                                    opacity={this.state.mapOpacity}
-                                    maxValue={this.state.valid ? this.state.eta[this.state.etaView]["max"] : 1}
-                                    minValue={this.state.valid ? this.state.eta[this.state.etaView]["min"] : 0}
-                                    etaView={this.state.etaView}
-                                >
-                                </Map>
-                            </ContainerDimensions>
-                        </Paper>
+                    <Grid container item direction="column" xs={8}>
+                        <Grid item>
+                            <Paper className={classes.paper}>
+                                <ContainerDimensions className={classes.map}>
+                                    <Map
+                                        deckGLOnClick={(event, info) => this._handleDeckGLOnClick(event, info)}
+                                        handleGeoJsonLayerOnClick={(event, info) => this._handleGeoJsonLayerOnClick(event, info)}
+                                        getColor={(location) => this._getColor(location)}
+                                        onHover={(info, event) => this._handleMapOnHover(info, event)}
+                                        renderMapTooltip={this._renderMapTooltip}
+                                        updateTriggers={{getFillColor: [this.state.eta, this.state.etaView, this.state.mapColorScheme]}}
+                                        valid={this.state.valid}
+                                        mapColorSchemeInterpolator={this.state.mapColorSchemeInterpolator}
+                                        dataset={this.state.dataset}
+                                        opacity={this.state.mapOpacity}
+                                        maxValue={this.state.valid ? this.state.eta[this.state.etaView]["max"] : 1}
+                                        minValue={this.state.valid ? this.state.eta[this.state.etaView]["min"] : 0}
+                                        etaView={this.state.etaView}
+                                    >
+                                    </Map>
+                                </ContainerDimensions>
+                            </Paper>
+                        </Grid>
+                        <Grid item>
+                            <Paper className={classes.paper}>
+                                <TravelTimePlot
+                                    data={this.state.locationDT}
+                                    query={this.state.hoveredObject}
+                                    locIdx={this.state.locIdx}
+                                    idxT={this.state.idxT}
+                                    eta={this.state.valid ? this.state.eta[this.state.etaView]["values"] : null}
+                                />
+                            </Paper>
+                        </Grid>
                     </Grid>
                 </Grid>
             </div>
