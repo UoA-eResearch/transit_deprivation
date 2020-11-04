@@ -71,6 +71,8 @@ const styles = (theme) => ({
     root: {
         flex: 1,
         //background: grey[900],
+        // background: "black",
+        marginTop: theme.spacing(2),
     },
     paper: {
         padding: theme.spacing(2),
@@ -106,7 +108,7 @@ const styles = (theme) => ({
         textAnchor: "middle",
     },
     map: {
-        minHeight: "800px"
+        minHeight: "600px"
     },
     tooltip: {
         pointerEvents: "none",
@@ -742,87 +744,85 @@ class App extends Component{
         const {classes} = this.props;
 
         return (
-            <div className={classes.root}>
-                <Grid container spacing={3}>
-                    <Grid item container direction="column" xs={4} spacing={3}>
-                        <Grid item>
-                            <Paper className={classes.paper}>
-                                <Typography variant="h4" gutterBottom>
-                                    Transit & Deprivation
-                                </Typography>
-                                <Typography variant="body1" paragraph style={{whiteSpace: 'pre-line'}}>
-                                    {"This tool will visualise the travel time between origins and destinations in the Auckland Region when using public transport. \n\n" +
-                                    "Click on the map to view the travel time from there to the rest of Auckland. To clear the map, select an empty location, such as the ocean. \n\n" +
-                                    "You can visualise how accessibility changes with the amount of time available by using the time limit slider in the control settings below."
-                                    }
-                                </Typography>
-                            </Paper>
-                        </Grid>
-                        <Grid item>
-                            <Paper className={classes.paper}>
-                                <DatasetSelector
-                                    dataset={this.state.dataset}
-                                    datasetHandleChange={(event) => this._handleDatasetChange(event)}
-                                    view={this.state.etaView}
-                                    viewHandleChange={(event) => this._handleViewChange(event)}
-                                />
-                            </Paper>
-                        </Grid>
-                        <Grid item>
-                            <Paper className={classes.paper}>
-                                <Typography variant="h5" gutterBottom>Controls</Typography>
-                                <TimeLimitSlider
-                                    value={this.state.timeLimit}
-                                    onChange={(value) => this._handleTimeLimitChange(value)}
-                                ></TimeLimitSlider>
-                                <OpacitySlider
-                                    value={this.state.mapOpacity}
-                                    onChange={(value) => this._handleMapOpacityChange(value)}
-                                ></OpacitySlider>
-                                <MapColorSchemeSelector
-                                    colorScheme={this.state.mapColorScheme}
-                                    handleChange={(event) => this._handleMapColorSchemeChange(event)}
-                                ></MapColorSchemeSelector>
-                            </Paper>
-                        </Grid>
+            <Grid className={classes.root} container spacing={3} justify="center" alignItems="flex-start">
+                <Grid item container direction="column" xs={4} spacing={3}>
+                    <Grid item>
+                        <Paper className={classes.paper}>
+                            <Typography variant="h4" gutterBottom>
+                                Transit & Deprivation
+                            </Typography>
+                            <Typography variant="body1" paragraph style={{whiteSpace: 'pre-line'}}>
+                                {"This tool will visualise the travel time between origins and destinations in the Auckland Region when using public transport. \n\n" +
+                                "Click on the map to view the travel time from there to the rest of Auckland. To clear the map, select an empty location, such as the ocean. \n\n" +
+                                "You can visualise how accessibility changes with the amount of time available by using the time limit slider in the control settings below."
+                                }
+                            </Typography>
+                        </Paper>
                     </Grid>
-                    <Grid container item direction="column" xs={8}>
-                        <Grid item>
-                            <Paper className={classes.paper}>
-                                <ContainerDimensions className={classes.map}>
-                                    <Map
-                                        deckGLOnClick={(event, info) => this._handleDeckGLOnClick(event, info)}
-                                        handleGeoJsonLayerOnClick={(event, info) => this._handleGeoJsonLayerOnClick(event, info)}
-                                        getColor={(location) => this._getColor(location)}
-                                        onHover={(info, event) => this._handleMapOnHover(info, event)}
-                                        renderMapTooltip={this._renderMapTooltip}
-                                        updateTriggers={{getFillColor: [this.state.eta, this.state.etaView, this.state.mapColorScheme]}}
-                                        valid={this.state.valid}
-                                        mapColorSchemeInterpolator={this.state.mapColorSchemeInterpolator}
-                                        dataset={this.state.dataset}
-                                        opacity={this.state.mapOpacity}
-                                        maxValue={this.state.valid ? this.state.eta[this.state.etaView]["max"] : 1}
-                                        minValue={this.state.valid ? this.state.eta[this.state.etaView]["min"] : 0}
-                                        etaView={this.state.etaView}
-                                    >
-                                    </Map>
-                                </ContainerDimensions>
-                            </Paper>
-                        </Grid>
-                        <Grid item>
-                            <Paper className={classes.paper}>
-                                <TravelTimePlot
-                                    data={this.state.locationDT}
-                                    query={this.state.hoveredObject}
-                                    locIdx={this.state.locIdx}
-                                    idxT={this.state.idxT}
-                                    eta={this.state.valid ? this.state.eta[this.state.etaView]["values"] : null}
-                                />
-                            </Paper>
-                        </Grid>
+                    <Grid item>
+                        <Paper className={classes.paper}>
+                            <DatasetSelector
+                                dataset={this.state.dataset}
+                                datasetHandleChange={(event) => this._handleDatasetChange(event)}
+                                view={this.state.etaView}
+                                viewHandleChange={(event) => this._handleViewChange(event)}
+                            />
+                        </Paper>
+                    </Grid>
+                    <Grid item>
+                        <Paper className={classes.paper}>
+                            <Typography variant="h5" gutterBottom>Controls</Typography>
+                            <TimeLimitSlider
+                                value={this.state.timeLimit}
+                                onChange={(value) => this._handleTimeLimitChange(value)}
+                            ></TimeLimitSlider>
+                            <OpacitySlider
+                                value={this.state.mapOpacity}
+                                onChange={(value) => this._handleMapOpacityChange(value)}
+                            ></OpacitySlider>
+                            <MapColorSchemeSelector
+                                colorScheme={this.state.mapColorScheme}
+                                handleChange={(event) => this._handleMapColorSchemeChange(event)}
+                            ></MapColorSchemeSelector>
+                        </Paper>
                     </Grid>
                 </Grid>
-            </div>
+                <Grid container item direction="column" xs={8} spacing={3}>
+                    <Grid item>
+                        <Paper className={classes.paper}>
+                            <ContainerDimensions className={classes.map}>
+                                <Map
+                                    deckGLOnClick={(event, info) => this._handleDeckGLOnClick(event, info)}
+                                    handleGeoJsonLayerOnClick={(event, info) => this._handleGeoJsonLayerOnClick(event, info)}
+                                    getColor={(location) => this._getColor(location)}
+                                    onHover={(info, event) => this._handleMapOnHover(info, event)}
+                                    renderMapTooltip={this._renderMapTooltip}
+                                    updateTriggers={{getFillColor: [this.state.eta, this.state.etaView, this.state.mapColorScheme]}}
+                                    valid={this.state.valid}
+                                    mapColorSchemeInterpolator={this.state.mapColorSchemeInterpolator}
+                                    dataset={this.state.dataset}
+                                    opacity={this.state.mapOpacity}
+                                    maxValue={this.state.valid ? this.state.eta[this.state.etaView]["max"] : 1}
+                                    minValue={this.state.valid ? this.state.eta[this.state.etaView]["min"] : 0}
+                                    etaView={this.state.etaView}
+                                >
+                                </Map>
+                            </ContainerDimensions>
+                        </Paper>
+                    </Grid>
+                    <Grid item>
+                        <Paper className={classes.paper}>
+                            <TravelTimePlot
+                                data={this.state.locationDT}
+                                query={this.state.hoveredObject}
+                                locIdx={this.state.locIdx}
+                                idxT={this.state.idxT}
+                                eta={this.state.valid ? this.state.eta[this.state.etaView]["values"] : null}
+                            />
+                        </Paper>
+                    </Grid>
+                </Grid>
+            </Grid>
         );
     }
 }
