@@ -97,13 +97,15 @@ const styles = (theme) => ({
         padding: theme.spacing(2)
 
     },
-    colorBar: {
+    colorBarTicks: {
         color: theme.palette.text.secondary,
+        fontFamily: "Roboto",
         fontSize: "10px",
         textAnchor: "middle",
     },
     colorBarLabel: {
         color: theme.palette.text.secondary,
+        fontFamily: "Roboto",
         fontSize: "14px",
         textAnchor: "middle",
     },
@@ -246,7 +248,7 @@ function MapLegend(props){
                           <text
                               id="map-legend"
                               key={`tickValue-${index}`}
-                              className={classes.colorBar}
+                              className={classes.colorBarTicks}
                               fill={"currentColor"}
                               style={{transform: `translateY(${height + 20}px)`}}>
                               { value }
@@ -430,25 +432,40 @@ function TravelTimePlot(props){
     min = Math.max(0, min - min * 0.1);
     max = max + max * 0.1;
 
+    // https://software.es.net/react-timeseries-charts/#/api/charts/YAxis
     return (
         <ColdResizable>
             <ColdChartContainer
                 title="Travel Time"
-                titleStyle={{ fill: "#555", fontWeight: 500 }}
+                titleStyle={{ fill: "#888", fontWeight: 400, fontFamily: "Roboto" }}
                 timeRange={series.range()}
                 format="%H:%M %p"
                 timeAxisTickCount={5}
+                timeAxisStyle={{
+                    axis:{fontFamily: "Roboto", fontSize: 12},
+                    ticks: {"font-family": "Roboto", "font-size": "12"},
+                    values: {"font-family": "Roboto", "font-size": "12"},
+                }}
             >
                 <ColdChartRow height="150">
                     <ColdYAxis
                         id="duration"
-                        label="Duration (minutes)"
+                        label="Minutes"
                         min={min}
                         max={max}
                         width="60"
+                        style={{
+                            label: {"font-family": "Roboto", "font-size": "14"},
+                            axis: {"font-family": "Roboto", "font-size": "12"},
+                            ticks: {"font-family": "Roboto", "font-size": "12"},
+                            values: {"font-family": "Roboto", "font-size": "12"},
+                        }}
                     />
                     <ColdCharts>
-                        <ColdLineChart axis="duration" series={series} />
+                        <ColdLineChart
+                            axis="duration"
+                            series={series}
+                        />
                     </ColdCharts>
                 </ColdChartRow>
             </ColdChartContainer>
