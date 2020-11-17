@@ -3,7 +3,6 @@ import { cold } from 'react-hot-loader';
 import React, {Component, useMemo} from "react";
 
 import { makeStyles, withStyles, createMuiTheme} from '@material-ui/core/styles';
-//import Typography from '@material-ui/core/Typography';
 import {Paper, Grid, Slider, Select, MenuItem, Typography} from '@material-ui/core';
 
 // mapping
@@ -17,10 +16,6 @@ import {mean, deviation, max, min} from "d3";
 import {color, scaleSequential, scaleLinear} from "d3";
 import {interpolateViridis, interpolateTurbo} from 'd3-scale-chromatic'
 
-// react vis
-import {ContinuousColorLegend} from 'react-vis';
-// import {XYPlot, XAxis, YAxis, LineSeries} from 'react-vis';
-// import '../node_modules/react-vis/dist/style.css';
 
 // timeseries
 import { TimeSeries } from "pondjs";
@@ -38,6 +33,7 @@ const ColdChartRow = cold(ChartRow);
 const ColdYAxis = cold(YAxis);
 const ColdCharts = cold(Charts);
 const ColdLineChart = cold(LineChart);
+import {timeFormat} from 'd3-time-format';
 
 // color helpers
 var tinycolor = require("tinycolor2");
@@ -130,7 +126,7 @@ function TimeLimitSlider(props) {
 
     return (
         <div>
-            <Typography gutterBottom>
+            <Typography gutterBottom style={{paddingTop:10}}>
                 Time Limit: {props.value} minutes
             </Typography>
             <Slider
@@ -365,13 +361,13 @@ function DatasetSelector(props){
     }
 
     return (
-        <Grid container direction="column" spacing={3}>
+        <Grid container direction="column" spacing={2}>
             <Grid item>
                 <Typography variant="h5">Data</Typography>
             </Grid>
             <Grid container item direction="row" spacing={3} alignItems="center">
                 <Grid item>
-                    <Typography variant="subtitle1">Travel Time View</Typography>
+                    <Typography>Travel Time View</Typography>
                 </Grid>
                 <Grid item>
                      <Select
@@ -386,7 +382,7 @@ function DatasetSelector(props){
             </Grid>
             <Grid container item direction="row" spacing={3} alignItems="center">
                 <Grid item>
-                    <Typography variant="subtitle1">Destinations</Typography>
+                    <Typography>Destinations</Typography>
                 </Grid>
                 <Grid item style={{marginLeft:32}}>
                     <Select
@@ -419,33 +415,53 @@ function TravelTimePlot(props){
         let idx = locIdx[query.id];
         let times = data[idx];
         points = Object.keys(times).map((key) => [idxT[key], times[key]]);
+
+        // points = [
+        //     [1590951600, 10],
+        //     [1590952200, 20]
+        // ];
+
+        // points = [
+        //     [1400425947000, 52],
+        //     [1400425948000, 18],
+        //     [1400425949000, 26],
+        //     [1400425950000, 93],
+        // ];
+
+        // console.log(points)
     }
 
     const series = new TimeSeries({
         name: "Travel Time",
         columns: ["time", "value"],
-        points: points
+        points: points,
+        // tz: "Pacific/Auckland'"
+
     });
 
     let min = series.min();
     let max = series.max();
     min = Math.max(0, min - min * 0.1);
-    max = max + max * 0.1;
+    max *= 1.1;
 
     // https://software.es.net/react-timeseries-charts/#/api/charts/YAxis
     return (
         <ColdResizable>
             <ColdChartContainer
                 title="Travel Time"
-                titleStyle={{ fill: "#888", fontWeight: 400, fontFamily: "Roboto" }}
+                titleStyle={{ fill: "#555", fontWeight: 400, fontFamily: "Roboto" }}
                 timeRange={series.range()}
-                format="%H:%M %p"
+                // format=""
+                //format="%H:%M %p"
+                //format={timeFormat("%H:%M %p")}
                 timeAxisTickCount={5}
                 timeAxisStyle={{
                     axis:{fontFamily: "Roboto", fontSize: 12},
                     ticks: {"font-family": "Roboto", "font-size": "12"},
                     values: {"font-family": "Roboto", "font-size": "12"},
                 }}
+                utc={true}
+                transition={0}
             >
                 <ColdChartRow height="150">
                     <ColdYAxis
@@ -768,7 +784,7 @@ class App extends Component{
                             <Typography variant="h4" gutterBottom>
                                 Transit & Deprivation
                             </Typography>
-                            <Typography variant="body1" paragraph style={{whiteSpace: 'pre-line'}}>
+                            <Typography paragraph style={{whiteSpace: 'pre-line'}}>
                                 {"This tool will visualise the travel time between origins and destinations in the Auckland Region when using public transport. \n\n" +
                                 "Click on the map to view the travel time from there to the rest of Auckland. To clear the map, select an empty location, such as the ocean. \n\n" +
                                 "You can visualise how accessibility changes with the amount of time available by using the time limit slider in the control settings below."
