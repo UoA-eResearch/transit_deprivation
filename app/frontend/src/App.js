@@ -318,28 +318,42 @@ class App extends Component{
         const {classes} = this.props;
 
         if(hoveredObject){
-            let mean = Math.round(this.state.eta[hoveredObject.id]);
-            let rel = Math.round(this.state.reliability[hoveredObject.id] * 100);
-            let infoStr = this.state.eta[hoveredObject.id] === -1 ? "Inaccessible" : `Mean ETA ${mean} minutes, reliability: ${rel} %`;
+            if (valid) {
+                let mean = Math.round(this.state.eta[hoveredObject.id]);
+                let rel = Math.round(this.state.reliability[hoveredObject.id] * 100);
+                let infoStr = this.state.eta[hoveredObject.id] === -1 ? "Inaccessible" : `Mean ETA ${mean} minutes, reliability: ${rel} %`;
 
-            return (
-                <div className={classes.tooltip} style={{top: y, left: x}}>
-                    <div>
-                        <Typography variant="subtitle2">
-                            <b>ID: {hoveredObject.id}</b>
-                        </Typography>
+                return (
+                    <div className={classes.tooltip} style={{top: y, left: x}}>
+                        <div>
+                            <Typography variant="subtitle2">
+                                <b>ID: {hoveredObject.id}</b>
+                            </Typography>
+                        </div>
+                        {
+                            valid ? (
+                                <div>
+                                    <Typography variant="subtitle2">
+                                        {infoStr}
+                                    </Typography>
+                                </div>
+                            ) : null
+                        }
                     </div>
-                    {
-                        valid ? (
-                            <div>
-                                <Typography variant="subtitle2">
-                                    {infoStr}
-                                </Typography>
-                            </div>
-                        ) : null
-                    }
-                </div>
-            );
+                );
+            } else {
+                return (
+                    <div className={classes.tooltip} style={{top: y, left: x}}>
+                        <div>
+                            <Typography variant="subtitle2">
+                                <b>ID: {hoveredObject.id}</b>
+                            </Typography>
+                        </div>
+                    </div>
+                );
+            }
+
+
         }
     }
 
