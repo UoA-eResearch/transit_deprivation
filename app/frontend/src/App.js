@@ -414,35 +414,17 @@ function TravelTimePlot(props){
 
         let idx = locIdx[query.id];
         let times = data[idx];
-        points = Object.keys(times).map((key) => [idxT[key], times[key]]);
-
-        // points = [
-        //     [1590951600, 10],
-        //     [1590952200, 20]
-        // ];
-
-        // points = [
-        //     [1400425947000, 52],
-        //     [1400425948000, 18],
-        //     [1400425949000, 26],
-        //     [1400425950000, 93],
-        // ];
+        points = Object.keys(times).map((key) => [idxT[key], times[key]]); // timestamps should be ms
+        // console.log(points);
 
         // console.log(points)
     }
-
-    // points = [
-    //     [1400425947000, 52],
-    //     [1400425948000, 18],
-    //     [1400425949000, 26],
-    //     [1400425950000, 93],
-    // ];
 
     const series = new TimeSeries({
         name: "Travel Time",
         columns: ["time", "value"],
         points: points,
-        // tz: "Pacific/Auckland'"
+        // tz: "Pacific/Auckland"
 
     });
 
@@ -458,10 +440,9 @@ function TravelTimePlot(props){
                 title="Travel Time"
                 titleStyle={{ fill: "#555", fontWeight: 400, fontFamily: "Roboto" }}
                 timeRange={series.range()}
-                // format=""
-                //format="%H:%M %p"
+                format="%H:%M %p"
                 //format={timeFormat("%H:%M %p")}
-                timeAxisTickCount={5}
+                timeAxisTickCount={10}
                 timeAxisStyle={{
                     axis:{fontFamily: "Roboto", fontSize: 12},
                     ticks: {"font-family": "Roboto", "font-size": "12"},
