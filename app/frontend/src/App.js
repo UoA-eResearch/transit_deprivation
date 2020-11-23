@@ -65,7 +65,7 @@ const theme = createMuiTheme({
 
 const styles = (theme) => ({
     root: {
-        flex: 1,
+        flexGrow: 1,
         //background: grey[900],
         // background: "black",
         marginTop: theme.spacing(2),
@@ -106,7 +106,7 @@ const styles = (theme) => ({
         textAnchor: "middle",
     },
     map: {
-        minHeight: "600px"
+        minHeight: "550px",
     },
     tooltip: {
         pointerEvents: "none",
@@ -431,6 +431,13 @@ function TravelTimePlot(props){
         // console.log(points)
     }
 
+    // points = [
+    //     [1400425947000, 52],
+    //     [1400425948000, 18],
+    //     [1400425949000, 26],
+    //     [1400425950000, 93],
+    // ];
+
     const series = new TimeSeries({
         name: "Travel Time",
         columns: ["time", "value"],
@@ -463,7 +470,7 @@ function TravelTimePlot(props){
                 utc={true}
                 transition={0}
             >
-                <ColdChartRow height="150">
+                <ColdChartRow height="170">
                     <ColdYAxis
                         id="duration"
                         label="Minutes"
@@ -486,6 +493,7 @@ function TravelTimePlot(props){
                 </ColdChartRow>
             </ColdChartContainer>
         </ColdResizable>
+
     );
 }
 
