@@ -605,6 +605,7 @@ class App extends Component{
                 let meanEta = Math.round(this.state.eta["mean"]["values"][hoveredObject.id]);
                 let stdevEta = Math.round(this.state.eta["stdev"]["values"][hoveredObject.id]);
                 let avail = Math.round(this.state.eta["avail"]["values"][hoveredObject.id] * 100);
+                let pop = hoveredObject.properties.Census18_P
 
                 return (
                     <div className={classes.tooltip} style={{top: y, left: x, width: "210px",}}>
@@ -621,6 +622,9 @@ class App extends Component{
                                         </Typography>
                                         <Typography variant="subtitle2">
                                             {`Availability: ${avail} %`}
+                                        </Typography>
+                                        <Typography variant="subtitle2">
+                                            {`Population: ${pop}`}
                                         </Typography>
                                     </div>
                                 ) :
