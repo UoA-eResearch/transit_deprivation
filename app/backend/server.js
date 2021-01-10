@@ -12,7 +12,6 @@ http.createServer(function (req, res) {
                 res.writeHead(404, {'Content-Type': 'text/html'});
                 return res.end();
             }
-            //console.log(req.headers.host);
             res.writeHead(200, {
                 'Content-Type': 'application/json',
                 "Access-Control-Allow-Origin": "http://130.216.217.4:8080",
@@ -20,6 +19,7 @@ http.createServer(function (req, res) {
                 "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept"
             });
             res.write(data);
+	    console.log(res);
             return res.end();
         });
     } else {
