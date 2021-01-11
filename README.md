@@ -5,9 +5,19 @@ This will include data for all the subprojects:
 * data/backend
 * data/notebooks
 
-in each of the corresponding directories, create a symlink to the data folder e.g.
+in each of the required directories, create a symlink to the corresponding data folder e.g.
 ```
-cd frontend
-ln -s ../../data/frontend data
+cd app/frontend/src/store
+ln -s ../../../../data/frontend data
+```
+
+```
+cd app/backend
+ln -s ../../data/backend data
+```
+
+```
+cd notebooks
+ln -s ../data/notebooks data
 ```
 

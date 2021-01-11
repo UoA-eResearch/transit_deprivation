@@ -3,7 +3,7 @@
 ### Setup
 
 
-`ln -s ../../data/frontend data`
+`ln -s ../../../../data/frontend data`
 
 `cp .env.example .env`
 

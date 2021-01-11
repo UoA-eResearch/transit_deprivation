@@ -27,14 +27,18 @@ class MapTooltip extends Component {
         const { classes, eta, etaView, mapTooltip, } = this.props;
         const { showHover, hoveredObject, x, y} = mapTooltip;
         if (showHover && hoveredObject) {
-            const idInfo = (
+            const dzInfo = (
                 <div>
                     <Typography variant="subtitle2">
                         <b>ID: {hoveredObject.id}</b>
                     </Typography>
+                    <Typography variant="subtitle2">
+                        {`Population: ${hoveredObject.properties.Census18_P}`}
+                    </Typography>
                 </div>
             );
             if (eta !== null) {
+
                 let view = etaView;
                 let accessible = hoveredObject.id in eta[view]["values"];
 
@@ -44,7 +48,7 @@ class MapTooltip extends Component {
 
                 return (
                     <div className={classes.tooltip} style={{top: y, left: x, width: "210px",}}>
-                        {idInfo}
+                        {dzInfo}
                         {
                             accessible ?
                                 (
@@ -73,7 +77,7 @@ class MapTooltip extends Component {
             } else {
                 return (
                     <div className={classes.tooltip} style={{top: y, left: x, width:90}}>
-                        {idInfo}
+                        {dzInfo}
                     </div>
                 );
             }
