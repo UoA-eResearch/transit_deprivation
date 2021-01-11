@@ -1,4 +1,18 @@
-# Getting Started with Create React App
+## App Frontend
+
+### Setup
+
+`cp .env.example .env`
+
+replace values in .env with those that represent your system
+
+### Install
+
+`yarn install`
+
+---
+
+## Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 

@@ -1,10 +1,8 @@
 # webapp
-app/frontend/node_modules
-app/frontend/data
-app.dash/data
-app/backend/data
-app/frontend/.env
-
+node_modules
+data
+.env
+.eslintcache
 
 # misc
 dev/
