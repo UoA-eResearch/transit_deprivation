@@ -2,6 +2,9 @@
 
 ### Setup
 
+
+`ln -s ../../data/frontend data`
+
 `cp .env.example .env`
 
 replace values in .env with those that represent your system
