@@ -1,4 +1,4 @@
-require('dotenv').config()
+require('dotenv').config();
 var http = require('http');
 var url = require('url');
 var fs = require('fs');
@@ -14,11 +14,16 @@ const server = http.createServer(function (req, res) {
         let filename = `./data/${q.region}/${q.location}.json`;
         fs.readFile(filename, function(err, data) {
             if (err) {
-                res.writeHead(404, {'Content-Type': 'text/html'});
+                res.writeHead(404, {
+                    "Content-Type": "text/html",
+                    "Access-Control-Allow-Origin": `http://${appHost}:${appPort}`,
+                    "Access-Control-Allow-Methods": "GET",
+                    "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept"
+                });
                 return res.end();
             }
             res.writeHead(200, {
-                "'Content-Type": "application/json",
+                "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": `http://${appHost}:${appPort}`,
                 "Access-Control-Allow-Methods": "GET",
                 "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept"
@@ -27,13 +32,18 @@ const server = http.createServer(function (req, res) {
             return res.end();
         });
     } else {
-        res.writeHead(404, {'Content-Type': 'text/html'});
+        res.writeHead(404, {
+            "Content-Type": "text/html",
+            "Access-Control-Allow-Origin": `http://${appHost}:${appPort}`,
+            "Access-Control-Allow-Methods": "GET",
+            "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept"
+        });
         res.end();
     }
 });
 
 server.listen(port, () => {
-    address = server.address();
+    const address = server.address();
     console.log(`Server listening on port ${address.port}`);
 });
 
