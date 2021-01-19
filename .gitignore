@@ -73,3 +73,5 @@ vignettes/*.pdf
 .Renviron
 
 tidytransit/
+
+yarn.lock
