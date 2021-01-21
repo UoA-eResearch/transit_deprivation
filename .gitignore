@@ -1,7 +1,7 @@
 # webapp
 node_modules
 data
-.env
+.env.local
 .eslintcache
 
 # misc

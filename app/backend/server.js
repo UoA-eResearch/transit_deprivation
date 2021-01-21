@@ -1,4 +1,6 @@
-require('dotenv').config();
+const dotenvLoad = require('dotenv-load');
+dotenvLoad();
+
 var http = require('http');
 var url = require('url');
 var fs = require('fs');
@@ -11,7 +13,7 @@ const server = http.createServer(function (req, res) {
     let u = url.parse(req.url, true);
     if (u.pathname === "/transit"){
         let q = u.query;
-        let filename = `./data/${q.region}/${q.location}.json`;
+        let filename = `./data/${q.direction}/${q.region}/${q.location}.json`;
         fs.readFile(filename, function(err, data) {
             if (err) {
                 res.writeHead(404, {
@@ -44,6 +46,6 @@ const server = http.createServer(function (req, res) {
 
 server.listen(port, () => {
     const address = server.address();
-    console.log(`Server listening on port ${address.port}`);
+    console.log(`Server listening on port ${address.port} for requests from ${appHost}:${appPort}`);
 });
 

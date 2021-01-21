@@ -101,17 +101,3 @@ export default connect(
     mapStateToProps,
     mapDispatchToProps
 )(withStyles(styles, {defaultTheme: theme})(App));
-
-/*}
-            <div>
-                <div>{etaView+","+destinationDataset+","+timeLimit+","+mapOpacity}</div>
-                <DatasetSelector />
-                <TimeLimitSlider />
-                <OpacitySlider />
-                <MapLegend />
-                <TravelTimePlot />
-                <ContainerDimensions className={classes.map}>
-                    <Map />
-                </ContainerDimensions>
-            </div>
-            */

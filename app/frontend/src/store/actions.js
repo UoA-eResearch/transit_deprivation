@@ -166,10 +166,13 @@ export function setLocationDT(locationDT) {
     }
 }
 
-export function getLocationDT(location) {
+export function getLocationDT(location, direction="outbound") {
+    /**
+     * direction: "inbound" means from everywhere to this location, "outbound" means from this location to everywhere
+     */
     return (dispatch, getState) => {
         let region = "akl";
-        let url = DT_SERVER+`/transit?region=${region}&location=${location}`;
+        let url = DT_SERVER+`/transit?region=${region}&location=${location}&direction=${direction}`;
         fetch(url)
             .then(response => response.json())
             .then((data) => {
