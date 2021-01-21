@@ -152,6 +152,18 @@ class Map extends Component {
             })
         ];
 
+        if (destinationOverlay === "Diabetes Clinics"){
+            layers.push(
+                new GeoJsonLayer({
+                    id: 'clinics',
+                    data: clinics,
+                    pointRadiusMinPixels: 5,
+                    getFillColor: [235, 52, 52, 255],
+                })
+            )
+        }
+
+
         return(
             <div className={classes.map}>
                 <DeckGL
@@ -168,7 +180,6 @@ class Map extends Component {
                         mapboxApiAccessToken={MAPBOX_TOKEN}
                     />
                     {
-                        //valid ? (
                         (eta !== null) ? (
                             <MapLegend
                                 minValue={minValue}
@@ -179,7 +190,6 @@ class Map extends Component {
                             />) : null
                     }
                     <MapTooltip />
-                    {/*props.renderMapTooltip()*/}
                 </DeckGL>
             </div>
         )
