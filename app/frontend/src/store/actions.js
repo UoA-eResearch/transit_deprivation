@@ -24,6 +24,13 @@ export function setTimeLimit(timeLimit) {
     }
 }
 
+export function setTimeAtDestination(time) {
+    return {
+        type: types.SET_TIME_AT_DESTINATION,
+        time
+    }
+}
+
 export function setMapOpacity(mapOpacity) {
     return {
         type: types.SET_MAP_OPACITY,
@@ -90,7 +97,8 @@ export function resetETA() {
 export function computeETA() {
     return (dispatch, getState) => {
         const data = getState().locationDT;
-        const timeLimit = getState().timeLimit;
+        const timeAtDestination = getState().timeAtDestination;
+        const timeLimit = getState().timeLimit - timeAtDestination;
         const idxLoc = getState().idxLoc;
         if (data === null) {
             return;

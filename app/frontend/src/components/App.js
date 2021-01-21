@@ -4,6 +4,7 @@ import { withStyles, createMuiTheme} from '@material-ui/core/styles';
 import { Paper, Grid, Typography } from '@material-ui/core';
 import DatasetSelector from "./DatasetSelector";
 import TimeLimitSlider from "./TimeLimitSlider";
+import DestinationTimeSlider from "./DestinationTimeSlider";
 import OpacitySlider from "./OpacitySlider";
 import Map from "./Map";
 import MapColorSchemeSelector from "./MapColorSchemeSelector";
@@ -62,6 +63,7 @@ class App extends Component {
                         <Paper className={classes.paper}>
                             <Typography variant="h5" gutterBottom>Controls</Typography>
                             <TimeLimitSlider />
+                            <DestinationTimeSlider />
                             <OpacitySlider />
                             <MapColorSchemeSelector />
                         </Paper>

@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import { connect } from 'react-redux';
 import { withStyles, createMuiTheme} from '@material-ui/core/styles';
 import { Slider, Typography} from '@material-ui/core';
-import { computeETA, setTimeLimit } from "../store/actions";
+import { computeETA, setTimeAtDestination } from "../store/actions";
 
 const theme = createMuiTheme({
     palette: {
@@ -11,31 +11,31 @@ const theme = createMuiTheme({
 });
 
 const styles = (theme) => ({
-    timeLimitSlider: {
+    destinationTimeSlider: {
         maxWidth: "300px"
     },
 });
 
-class TimeLimitSlider extends Component {
+class DestinationTimeSlider extends Component {
 
-    handleTimeLimitChange = (event, value) => {
-        const { computeETA, setTimeLimit } = this.props;
-        setTimeLimit(value);
+    handleDestinationTimeChange = (event, value) => {
+        const { computeETA, setTimeAtDestination } = this.props;
+        setTimeAtDestination(value);
         computeETA();
     }
 
     render() {
-        const { classes, timeLimit } = this.props;
+        const { classes, timeAtDestination } = this.props;
 
         return (
             <div>
                 <Typography gutterBottom style={{paddingTop:10}}>
-                    Time Limit: {timeLimit} minutes
+                    Time at Destination: {timeAtDestination} minutes
                 </Typography>
                 <Slider
-                    className={classes.timeLimitSlider}
-                    defaultValue={120}
-                    onChange={this.handleTimeLimitChange}
+                    className={classes.destinationTimeSlider}
+                    defaultValue={60}
+                    onChange={this.handleDestinationTimeChange}
                     aria-labelledby="discrete-slider"
                     valueLabelDisplay="auto"
                     step={10}
@@ -50,18 +50,18 @@ class TimeLimitSlider extends Component {
 
 const mapStateToProps = (state) => {
     return {
-        timeLimit: state.timeLimit,
+        timeAtDestination: state.timeAtDestination,
     }
 };
 
 const mapDispatchToProps = (dispatch) => {
     return ({
         computeETA: () => { dispatch(computeETA()) },
-        setTimeLimit: (timeLimit) => { dispatch(setTimeLimit(timeLimit)) },
+        setTimeAtDestination: (time) => { dispatch(setTimeAtDestination(time)) },
     });
 }
 
 export default connect(
     mapStateToProps,
     mapDispatchToProps
-)(withStyles(styles, {defaultTheme: theme})(TimeLimitSlider));
+)(withStyles(styles, {defaultTheme: theme})(DestinationTimeSlider));

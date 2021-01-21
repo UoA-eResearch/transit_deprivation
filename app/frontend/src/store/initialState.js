@@ -13,7 +13,8 @@ export default {
     // filter/selection values
     destinationDataset: "None",
     etaView: "avail",
-    timeLimit: 60,
+    timeLimit: 120,
+    timeAtDestination: 60,
 
     // map state
     // TODO: we might need more descriptive names if we add additional layers/second map
