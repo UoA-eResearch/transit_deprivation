@@ -42,6 +42,7 @@ export default {
     idxT: akl_idx_t["default"],
 
     // data, derived data from server
-    locationDT: null,
+    locationInboundData: null,
+    locationOutboundData: null,
     eta: null,
 }

@@ -1,75 +1,54 @@
 import * as types from './actionTypes';
 import initialState from './initialState';
+import { createReducer} from '@reduxjs/toolkit';
 
-export default function reducer(state = initialState, action) {
-    switch (action.type) {
-        case types.SET_ETA_VIEW:
-            return {
-                ...state,
-                etaView: action.etaView
-            };
-        case types.SET_DESTINATION_DATASET:
-            return {
-                ...state,
-                destinationDataset: action.destinationDataset
-            };
-        case types.SET_TIME_LIMIT:
-            return {
-                ...state,
-                timeLimit: action.timeLimit
-            };
-        case types.SET_TIME_AT_DESTINATION:
-            return {
-                ...state,
-                timeAtDestination: action.time
-            };
-        case types.SET_MAP_OPACITY:
-            return {
-                ...state,
-                mapOpacity: action.mapOpacity
-            };
-        case types.SET_MAP_MIN_VALUE:
-            return {
-                ...state,
-                mapMinValue: action.mapMinValue
-            };
-        case types.SET_MAP_MAX_VALUE:
-            return {
-                ...state,
-                mapMaxValue: action.mapMaxValue
-            };
-        case types.SET_MAP_COLOR_SCHEME:
-            return {
-                ...state,
-                mapColorScheme: action.mapColorScheme
-            };
-        case types.SET_MAP_VIEW_STATE:
-            return {
-                ...state,
-                mapViewState: action.mapViewState
-            };
-        case types.SET_SELECTED_DATA_ZONE:
-            return {
-                ...state,
-                selectedDataZone: action.selectedDataZone
-            };
-        case types.SET_MAP_TOOLTIP:
-            return {
-                ...state,
-                mapTooltip: action.mapTooltip
-            };
-        case types.SET_ETA:
-            return {
-                ...state,
-                eta: action.eta
-            };
-        case types.SET_LOCATIONDT:
-            return {
-                ...state,
-                locationDT: action.locationDT
-            };
-        default:
-            return { ...state }
-    }    
-}
-
+/*
+Using Redux Toolkit and Immer for immutable updates
+ */
+const reducer = createReducer(initialState, (builder) => {
+    builder
+        .addCase(types.SET_ETA_VIEW, (state, action) => {
+          state.etaView = action.etaView;
+        })
+        .addCase(types.SET_DESTINATION_DATASET, (state, action) => {
+            state.destinationDataset = action.destinationDataset;
+        })
+        .addCase(types.SET_TIME_LIMIT, (state, action) => {
+            state.timeLimit = action.timeLimit;
+        })
+        .addCase(types.SET_TIME_AT_DESTINATION, (state, action) => {
+            state.timeAtDestination = action.time;
+        })
+        .addCase(types.SET_MAP_OPACITY, (state, action) => {
+            state.mapOpacity = action.mapOpacity;
+        })
+        .addCase(types.SET_MAP_MIN_VALUE, (state, action) => {
+            state.mapMinValue = action.mapMinValue;
+        })
+        .addCase(types.SET_MAP_MAX_VALUE, (state, action) => {
+            state.mapMaxValue = action.mapMaxValue;
+        })
+        .addCase(types.SET_MAP_COLOR_SCHEME, (state, action) => {
+            state.mapColorScheme = action.mapColorScheme;
+        })
+        .addCase(types.SET_MAP_VIEW_STATE, (state, action) => {
+            state.mapViewState = action.mapViewState;
+        })
+        .addCase(types.SET_SELECTED_DATA_ZONE, (state, action) => {
+            state.selectedDataZone = action.selectedDataZone;
+        })
+        .addCase(types.SET_MAP_TOOLTIP, (state, action) => {
+            state.mapTooltip = action.mapTooltip;
+        })
+        .addCase(types.SET_ETA, (state, action) => {
+            state.eta = action.eta;
+        })
+        .addCase(types.SET_LOCATION_INBOUND_DATA, (state, action) => {
+            state.locationInboundData = action.data;
+        })
+        .addCase(types.SET_LOCATION_OUTBOUND_DATA, (state, action) => {
+            state.locationOutboundData = action.data;
+        })
+        .addDefaultCase((state, action) => {})
+});
+export default reducer;

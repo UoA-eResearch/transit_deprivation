@@ -90,13 +90,14 @@ export function setETA(eta) {
 export function resetETA() {
     return (dispatch, getState) => {
         dispatch(setETA(null));
-        dispatch(setLocationDT(null));
+        dispatch(setLocationInboundData(null));
+        dispatch(setLocationOutboundData(null));
     }
 }
 
 export function computeETA() {
     return (dispatch, getState) => {
-        const data = getState().locationDT;
+        const data = getState().locationOutboundData;
         const timeAtDestination = getState().timeAtDestination;
         const timeLimit = getState().timeLimit - timeAtDestination;
         const idxLoc = getState().idxLoc;
@@ -167,28 +168,49 @@ export function computeETA() {
     }
 }
 
-export function setLocationDT(locationDT) {
+export function setLocationInboundData(data) {
     return {
-        type: types.SET_LOCATIONDT,
-        locationDT
+        type: types.SET_LOCATION_INBOUND_DATA,
+        data
     }
 }
 
-export function getLocationDT(location, direction="outbound") {
+export function setLocationOutboundData(data) {
+    return {
+        type: types.SET_LOCATION_OUTBOUND_DATA,
+        data
+    }
+}
+
+export function getLocationDT(location) {
     /**
-     * direction: "inbound" means from everywhere to this location, "outbound" means from this location to everywhere
+     * "inbound" means from everywhere to this location, "outbound" means from this location to everywhere
      */
     return (dispatch, getState) => {
         let region = "akl";
-        let url = DT_SERVER+`/transit?region=${region}&location=${location}&direction=${direction}`;
-        fetch(url)
+        let url = DT_SERVER+`/transit?region=${region}&location=${location}&direction=inbound`;
+
+        const inbound = fetch(url)
             .then(response => response.json())
             .then((data) => {
-                dispatch(setLocationDT(data));
-                dispatch(computeETA());
+                dispatch(setLocationInboundData(data));
             })
             .catch((error) => {
                 console.error(error)
             })
+
+        url = DT_SERVER+`/transit?region=${region}&location=${location}&direction=outbound`;
+        const outbound = fetch(url)
+            .then(response => response.json())
+            .then((data) => {
+                dispatch(setLocationOutboundData(data));
+            })
+            .catch((error) => {
+                console.error(error)
+            })
+
+        Promise.all([inbound, outbound]).then(()=>{
+                dispatch(computeETA());
+        });
     }
 }
