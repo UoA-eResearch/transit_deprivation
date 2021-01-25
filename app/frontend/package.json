@@ -13,6 +13,7 @@
     "d3-scale-chromatic": "^1.5.0",
     "d3-svg-legend": "^2.25.6",
     "deck.gl": "^8.2.3",
+    "numjs": "^0.16.0",
     "pondjs": "^0.9.0",
     "react": "^17.0.1",
     "react-container-dimensions": "^1.4.1",

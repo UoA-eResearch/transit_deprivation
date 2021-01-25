@@ -95,6 +95,20 @@ export function resetETA() {
     }
 }
 
+export function computeMultiLegAvailablitiy(){
+    return (dispatch, getState) => {
+
+        // input data and parameters
+        const t_max = getState().timeLimit;
+        const t_dest = getState().timeAtDestination;
+        const t_delta = 10; // step size (minutes) in time dimension
+        const AB = getState().locationInboundData;
+        const BC = getState().locationOutboundData;
+
+        // construct initial time budget matrix
+    }
+}
+
 export function computeETA() {
     return (dispatch, getState) => {
         const data = getState().locationOutboundData;
