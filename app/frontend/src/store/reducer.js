@@ -22,12 +22,12 @@ const reducer = createReducer(initialState, (builder) => {
         .addCase(types.SET_MAP_OPACITY, (state, action) => {
             state.mapOpacity = action.mapOpacity;
         })
-        .addCase(types.SET_MAP_MIN_VALUE, (state, action) => {
-            state.mapMinValue = action.mapMinValue;
-        })
-        .addCase(types.SET_MAP_MAX_VALUE, (state, action) => {
-            state.mapMaxValue = action.mapMaxValue;
-        })
+        // .addCase(types.SET_MAP_MIN_VALUE, (state, action) => {
+        //     state.mapMinValue = action.mapMinValue;
+        // })
+        // .addCase(types.SET_MAP_MAX_VALUE, (state, action) => {
+        //     state.mapMaxValue = action.mapMaxValue;
+        // })
         .addCase(types.SET_MAP_COLOR_SCHEME, (state, action) => {
             state.mapColorScheme = action.mapColorScheme;
         })

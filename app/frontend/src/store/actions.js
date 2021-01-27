@@ -1,5 +1,6 @@
 import * as types from './actionTypes'
 import { mean, deviation, max, min } from "d3";
+var plan = require('./plan');
 
 const DT_SERVER = process.env.REACT_APP_DTServer || "http://0.0.0.0:8081";
 
@@ -38,19 +39,19 @@ export function setMapOpacity(mapOpacity) {
     }
 }
 
-export function setMapMinValue(mapMinValue) {
-    return {
-        type: types.SET_MAP_MIN_VALUE,
-        mapMinValue
-    }
-}
-
-export function setMapMaxValue(mapMaxValue) {
-    return {
-        type: types.SET_MAP_MAX_VALUE,
-        mapMaxValue
-    }
-}
+// export function setMapMinValue(mapMinValue) {
+//     return {
+//         type: types.SET_MAP_MIN_VALUE,
+//         mapMinValue
+//     }
+// }
+//
+// export function setMapMaxValue(mapMaxValue) {
+//     return {
+//         type: types.SET_MAP_MAX_VALUE,
+//         mapMaxValue
+//     }
+// }
 
 export function setMapColorScheme(mapColorScheme) {
     return {
@@ -95,17 +96,21 @@ export function resetETA() {
     }
 }
 
-export function computeMultiLegAvailablitiy(){
+export function computeAccessibility(){
     return (dispatch, getState) => {
 
-        // input data and parameters
-        const t_max = getState().timeLimit;
-        const t_dest = getState().timeAtDestination;
-        const t_delta = 10; // step size (minutes) in time dimension
-        const AB = getState().locationInboundData;
-        const BC = getState().locationOutboundData;
+        // constraints
+        const tMax = getState().timeLimit;
+        const tDest = getState().timeAtDestination;
+        const tDelta = 10; // step size (minutes) in time dimension
 
-        // construct initial time budget matrix
+        // convert travel time data to numjs ndarrays
+        const inbound = nj.array(getState().locationInboundData, 'float64'); // A->B
+        const outbound = nj.array(getState().locationOutboundData, 'float64'); // B->C
+
+        // get accessibility scores
+        const [acc_B, acc_C] = plan.multileg(inbound, outbound, tMax, tDest, tDelta);
+
     }
 }
 
