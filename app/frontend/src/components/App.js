@@ -8,8 +8,8 @@ import DestinationTimeSlider from "./DestinationTimeSlider";
 import OpacitySlider from "./OpacitySlider";
 import Map from "./Map";
 import MapColorSchemeSelector from "./MapColorSchemeSelector";
-import TravelTimePlot from "./TravelTimePlot";
-import ContainerDimensions from 'react-container-dimensions';
+// import TravelTimePlot from "./TravelTimePlot";
+// import ContainerDimensions from 'react-container-dimensions';
 
 const theme = createMuiTheme({
     palette: {
@@ -30,8 +30,8 @@ const styles = (theme) => ({
         background: theme.palette.background.paper
     },
     map: {
-        minHeight: "550px",
-    },
+        padding: theme.spacing(0),
+    }
 });
 
 class App extends Component {
@@ -71,17 +71,18 @@ class App extends Component {
                 </Grid>
                 <Grid container item direction="column" xs={8} spacing={3}>
                     <Grid item>
-                        <Paper className={classes.paper}>
-                            <ContainerDimensions className={classes.map}>
-                                <Map />
-                            </ContainerDimensions>
+                        <Paper className={classes.map}>
+                            <Map />
+                            {/*<ContainerDimensions className={classes.map}>*/}
+                            {/*    <Map />*/}
+                            {/*</ContainerDimensions>*/}
                         </Paper>
                     </Grid>
-                    <Grid item>
-                        <Paper className={classes.paper}>
-                            <TravelTimePlot />
-                        </Paper>
-                    </Grid>
+                    {/*<Grid item>*/}
+                    {/*    <Paper className={classes.paper}>*/}
+                    {/*        <TravelTimePlot />*/}
+                    {/*    </Paper>*/}
+                    {/*</Grid>*/}
                 </Grid>
             </Grid>
         );

@@ -40,9 +40,9 @@ const styles = (theme) => ({
 class MapLegend extends Component {
 
     label = () => {
-        const { etaView } = this.props;
+        const { view } = this.props;
         let l = "";
-        switch (etaView){
+        switch (view){
             case "mean":
                 l = "Mean Travel Time (minutes)"
                 break;
@@ -59,14 +59,14 @@ class MapLegend extends Component {
     }
 
     render() {
-        const { classes, minValue, maxValue, etaView, colorScheme, opacity } = this.props;
+        const { classes, minValue, maxValue, view, colorScheme, opacity } = this.props;
         let width = 300;
         let height = 8;
         let xpad = 5;
 
         let vmin = minValue;
         let vmax = maxValue;
-        if (etaView === "avail") {
+        if (view === "avail") {
             vmin = minValue * 100;
             vmax = maxValue * 100;
         }

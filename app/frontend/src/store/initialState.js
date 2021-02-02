@@ -12,9 +12,10 @@ export default {
 
     // filter/selection values
     destinationDataset: "None",
-    etaView: "avail",
+    view: "avail",
     timeLimit: 120,
     timeAtDestination: 60,
+    timeDelta: 10, // step size (minutes) in time dimension
 
     // map state
     // TODO: we might need more descriptive names if we add additional layers/second map
@@ -35,14 +36,17 @@ export default {
         showHover: false,
     },
     selectedDataZone: null,
+    hoveredDataZone: null,
 
     // indexes
-    idxLoc: akl_idx_loc["default"],
-    locIdx: akl_loc_idx["default"],
-    idxT: akl_idx_t["default"],
+    idxLoc: akl_idx_loc["default"], // array index to location id
+    locIdx: akl_loc_idx["default"], // location id to array index
+    idxT: akl_idx_t["default"], // array index to timestamp
 
     // data, derived data from server
     locationInboundData: null,
     locationOutboundData: null,
-    eta: null,
+    AB: null,
+    BC: null,
+
 }

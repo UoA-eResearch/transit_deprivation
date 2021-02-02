@@ -24,7 +24,7 @@ const styles = (theme) => ({
 
 class MapTooltip extends Component {
     render() {
-        const { classes, eta, etaView, mapTooltip, } = this.props;
+        const { classes, AB, BC, view, mapTooltip, } = this.props;
         const { showHover, hoveredObject, x, y} = mapTooltip;
         if (showHover && hoveredObject) {
             const dzInfo = (
@@ -37,41 +37,40 @@ class MapTooltip extends Component {
                     </Typography>
                 </div>
             );
-            if (eta !== null) {
+            if (AB !== null) {
 
-                let view = etaView;
-                let accessible = hoveredObject.id in eta[view]["values"];
+                // let accessible = hoveredObject.id in eta[view]["values"];
 
-                let meanEta = Math.round(eta["mean"]["values"][hoveredObject.id]);
-                let stdevEta = Math.round(eta["stdev"]["values"][hoveredObject.id]);
-                let avail = Math.round(eta["avail"]["values"][hoveredObject.id] * 100);
+                // let meanEta = Math.round(eta["mean"]["values"][hoveredObject.id]);
+                // let stdevEta = Math.round(eta["stdev"]["values"][hoveredObject.id]);
+                // let avail = Math.round(eta["avail"]["values"][hoveredObject.id] * 100);
 
                 return (
                     <div className={classes.tooltip} style={{top: y, left: x, width: "210px",}}>
                         {dzInfo}
-                        {
-                            accessible ?
-                                (
-                                    <div>
-                                        <Typography variant="subtitle2">
-                                            {`Mean: ${meanEta} minutes`}
-                                        </Typography>
-                                        <Typography variant="subtitle2">
-                                            {`Standard deviation: ${stdevEta} minutes`}
-                                        </Typography>
-                                        <Typography variant="subtitle2">
-                                            {`Availability: ${avail} %`}
-                                        </Typography>
-                                    </div>
-                                ) :
-                                (
-                                    <div>
-                                        <Typography variant="subtitle2">
-                                            {"Inaccessible"}
-                                        </Typography>
-                                    </div>
-                                )
-                        }
+                        {/*{*/}
+                        {/*    accessible ?*/}
+                        {/*        (*/}
+                        {/*            <div>*/}
+                        {/*                <Typography variant="subtitle2">*/}
+                        {/*                    {`Mean: ${meanEta} minutes`}*/}
+                        {/*                </Typography>*/}
+                        {/*                <Typography variant="subtitle2">*/}
+                        {/*                    {`Standard deviation: ${stdevEta} minutes`}*/}
+                        {/*                </Typography>*/}
+                        {/*                <Typography variant="subtitle2">*/}
+                        {/*                    {`Availability: ${avail} %`}*/}
+                        {/*                </Typography>*/}
+                        {/*            </div>*/}
+                        {/*        ) :*/}
+                        {/*        (*/}
+                        {/*            <div>*/}
+                        {/*                <Typography variant="subtitle2">*/}
+                        {/*                    {"Inaccessible"}*/}
+                        {/*                </Typography>*/}
+                        {/*            </div>*/}
+                        {/*        )*/}
+                        {/*}*/}
                     </div>
                 );
             } else {
@@ -89,8 +88,9 @@ class MapTooltip extends Component {
 
 const mapStateToProps = (state) => {
     return {
-        eta: state.eta,
-        etaView: state.etaView,
+        AB: state.AB,
+        BC: state.BC,
+        view: state.view,
         mapTooltip: state.mapTooltip,
     }
 };

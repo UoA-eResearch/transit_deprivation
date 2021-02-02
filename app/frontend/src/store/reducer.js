@@ -1,14 +1,15 @@
 import * as types from './actionTypes';
 import initialState from './initialState';
 import { createReducer} from '@reduxjs/toolkit';
+import {array} from 'numjs';
 
 /*
 Using Redux Toolkit and Immer for immutable updates
  */
 const reducer = createReducer(initialState, (builder) => {
     builder
-        .addCase(types.SET_ETA_VIEW, (state, action) => {
-          state.etaView = action.etaView;
+        .addCase(types.SET_VIEW, (state, action) => {
+          state.view = action.view;
         })
         .addCase(types.SET_DESTINATION_DATASET, (state, action) => {
             state.destinationDataset = action.destinationDataset;
@@ -22,12 +23,6 @@ const reducer = createReducer(initialState, (builder) => {
         .addCase(types.SET_MAP_OPACITY, (state, action) => {
             state.mapOpacity = action.mapOpacity;
         })
-        // .addCase(types.SET_MAP_MIN_VALUE, (state, action) => {
-        //     state.mapMinValue = action.mapMinValue;
-        // })
-        // .addCase(types.SET_MAP_MAX_VALUE, (state, action) => {
-        //     state.mapMaxValue = action.mapMaxValue;
-        // })
         .addCase(types.SET_MAP_COLOR_SCHEME, (state, action) => {
             state.mapColorScheme = action.mapColorScheme;
         })
@@ -37,17 +32,32 @@ const reducer = createReducer(initialState, (builder) => {
         .addCase(types.SET_SELECTED_DATA_ZONE, (state, action) => {
             state.selectedDataZone = action.selectedDataZone;
         })
+        .addCase(types.SET_HOVERED_DATA_ZONE, (state, action) => {
+            state.hoveredDataZone = action.hoveredDataZone;
+        })
         .addCase(types.SET_MAP_TOOLTIP, (state, action) => {
             state.mapTooltip = action.mapTooltip;
         })
-        .addCase(types.SET_ETA, (state, action) => {
-            state.eta = action.eta;
+        .addCase(types.SET_AB, (state, action) => {
+            state.AB = action.AB;
+        })
+        .addCase(types.SET_BC, (state, action) => {
+            state.BC = action.BC;
         })
         .addCase(types.SET_LOCATION_INBOUND_DATA, (state, action) => {
-            state.locationInboundData = action.data;
+            if (action.data === null) {
+                state.locationInboundData = action.data;
+            } else {
+                state.locationInboundData = array(action.data, 'float64');
+            }
         })
         .addCase(types.SET_LOCATION_OUTBOUND_DATA, (state, action) => {
-            state.locationOutboundData = action.data;
+            if (action.data === null) {
+                state.locationOutboundData = action.data;
+            } else {
+                state.locationOutboundData = array(action.data, 'float64');
+            }
+
         })
         .addDefaultCase((state, action) => {})
 });

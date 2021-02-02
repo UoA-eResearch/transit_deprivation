@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import { connect } from 'react-redux';
 import { withStyles, createMuiTheme} from '@material-ui/core/styles';
 import { Slider, Typography} from '@material-ui/core';
-import { computeETA, setTimeAtDestination } from "../store/actions";
+import { computeAB, computeBC, setTimeAtDestination } from "../store/actions";
 
 const theme = createMuiTheme({
     palette: {
@@ -19,9 +19,9 @@ const styles = (theme) => ({
 class DestinationTimeSlider extends Component {
 
     handleDestinationTimeChange = (event, value) => {
-        const { computeETA, setTimeAtDestination } = this.props;
+        const { computeAB, setTimeAtDestination } = this.props;
         setTimeAtDestination(value);
-        computeETA();
+        computeAB();
     }
 
     render() {
@@ -56,7 +56,7 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
     return ({
-        computeETA: () => { dispatch(computeETA()) },
+        computeAB: () => { dispatch(computeAB()) },
         setTimeAtDestination: (time) => { dispatch(setTimeAtDestination(time)) },
     });
 }

@@ -3,10 +3,11 @@ import { connect } from 'react-redux';
 import { withStyles, createMuiTheme } from '@material-ui/core/styles';
 import { mapColorSchemeNameToInterpolator } from "../utils/ColorScheme";
 import { setSelectedDataZone,
+         updateHover,
          setMapTooltip,
          setMapViewState,
          getLocationDT,
-         resetETA } from "../store/actions";
+         reset} from "../store/actions";
 // mapping
 import { StaticMap } from 'react-map-gl';
 import DeckGL from '@deck.gl/react';
@@ -24,12 +25,13 @@ const theme = createMuiTheme({
 const styles = (theme) => ({
     map: {
         minHeight: "550px",
+        position: "relative",
     },
 });
 
 const mapStyle = 'mapbox://styles/mapbox/light-v9';
 const MAPBOX_TOKEN = process.env.REACT_APP_MapboxAccessToken;
-console.log(MAPBOX_TOKEN);
+// console.log(MAPBOX_TOKEN);
 const INITIAL_VIEW_STATE = {
     latitude: -36.8485, // auckland
         longitude: 174.7633,
@@ -41,40 +43,100 @@ const INITIAL_VIEW_STATE = {
 
 class Map extends Component {
 
-    _getColor = (location) => {
-        const { colorScheme, eta, etaView, } = this.props;
+    // // old version
+    // _getColor = (location) => {
+    //     const { colorScheme, eta, etaView, } = this.props;
+    //     const mapColorSchemeInterpolator = mapColorSchemeNameToInterpolator(colorScheme);
+    //     const defaultColor = [128, 128, 128, 24];
+    //     const inaccessibleColor = [128, 128, 128, 0];
+    //     if(eta !== null) {
+    //         // console.log(`loc: ${location} view: ${this.state.etaView} v: ${this.state.eta[this.state.etaView]["values"][location]}`);
+    //         let view = etaView;
+    //         if (location in eta[view]["values"]){
+    //             let v = eta[view]["values"][location];
+    //             let vmin = eta[view]["min"];
+    //             let vmax = eta[view]["max"];
+    //
+    //             let nv = (v - vmin) / Math.max((vmax - vmin), 1);
+    //             let a = eta["avail"]["values"][location] * 255;
+    //             let c = mapColorSchemeInterpolator(nv);
+    //             c = color(c).copy({opacity: a})
+    //
+    //             //return [c.r, c.g, c.b, c.opacity];
+    //             return [c.r, c.g, c.b];
+    //         } else {
+    //             return inaccessibleColor;
+    //         }
+    //     } else {
+    //         return defaultColor;
+    //     }
+    // };
+
+     _getNormalisedValue(layer, index){
+        let v = layer["values"][index];
+        let vmin = layer["min"];
+        let vmax = layer["max"];
+        let nv = (v - vmin) / Math.max((vmax - vmin), 1);
+        return nv;
+    }
+
+     _getInetrepolatedColor(value, interpolator){
+        let c = interpolator(value);
+        c = color(c).copy({opacity: 255})
+        return [c.r, c.g, c.b, c.opacity];
+    }
+
+    // new version
+    _getColorAB = (location) => {
+
+        const { colorScheme, AB, view, locIdx} = this.props;
         const mapColorSchemeInterpolator = mapColorSchemeNameToInterpolator(colorScheme);
         const defaultColor = [128, 128, 128, 24];
         const inaccessibleColor = [128, 128, 128, 0];
-        if(eta !== null) {
+
+        if(AB !== null) {
             // console.log(`loc: ${location} view: ${this.state.etaView} v: ${this.state.eta[this.state.etaView]["values"][location]}`);
-            let view = etaView;
-            if (location in eta[view]["values"]){
-                let v = eta[view]["values"][location];
-                let vmin = eta[view]["min"];
-                let vmax = eta[view]["max"];
 
-                let nv = (v - vmin) / Math.max((vmax - vmin), 1);
-                let a = eta["avail"]["values"][location] * 255;
-                let c = mapColorSchemeInterpolator(nv);
-                c = color(c).copy({opacity: a})
+            let index = locIdx[location];
+            let layerAB = AB[view];
+            let nvAB = this._getNormalisedValue(layerAB, index);
+            let cAB = this._getInetrepolatedColor(nvAB, mapColorSchemeInterpolator);
 
-                //return [c.r, c.g, c.b, c.opacity];
-                return [c.r, c.g, c.b];
-            } else {
-                return inaccessibleColor;
-            }
+            return cAB;
+
         } else {
             return defaultColor;
         }
     };
 
+    _getColorBC = (location) => {
+
+        const { BC, view, locIdx} = this.props;
+        const colorScheme = "OrangeRed";
+        const mapColorSchemeInterpolator = mapColorSchemeNameToInterpolator(colorScheme);
+        const defaultColor = [128, 128, 128, 24];
+        const inaccessibleColor = [128, 128, 128, 0];
+
+        if(BC !== null) {
+
+            let index = locIdx[location];
+            let layerBC = BC[view];
+            let nvBC = this._getNormalisedValue(layerBC, index);
+            let cBC = this._getInetrepolatedColor(nvBC, mapColorSchemeInterpolator);
+
+            return cBC;
+
+        } else {
+            return defaultColor;
+        }
+    };
+
+
     _handleDeckGLOnClick = (event, info) => {
-        const { destinationOverlay, resetETA } = this.props;
+        const { destinationOverlay, reset } = this.props;
         if (!info.handled){
             // reset the eta values
-            resetETA();
-            setSelectedDataZone(null);
+            reset();
 
             // any dataset specific behaviour
             if (destinationOverlay === "Diabetes Clinics"){
@@ -99,16 +161,18 @@ class Map extends Component {
     };
 
     _handleMapOnHover = (info, event) => {
-        const { setMapTooltip } = this.props;
+        const { setMapTooltip, updateHover } = this.props;
         if (event.target.id !== "map-legend"){
             setMapTooltip({
                 showHover: true,
                 x: info.x,
                 y: info.y,
                 hoveredObject: info.object});
+            updateHover(info.object);
         } else {
             setMapTooltip({showHover: false});
         }
+
     };
 
     _matchesSelectedDataZone = (datazone) => {
@@ -123,21 +187,21 @@ class Map extends Component {
 
     render() {
         const {
-            classes, clinics, colorScheme, dataZones, destinationOverlay, eta,
-            etaView, minValue, maxValue, opacity, selectedDataZone,
+            classes, clinics, colorScheme, dataZones, destinationOverlay, AB, BC,
+            view, opacity, selectedDataZone,
         } = this.props;
-        const mapColorSchemeInterpolator = mapColorSchemeNameToInterpolator(colorScheme);
+        // const mapColorSchemeInterpolator = mapColorSchemeNameToInterpolator(colorScheme);
 
         const layers = [
             new GeoJsonLayer({
-                id: 'eta',
+                id: 'AB',
                 data: dataZones,
-                opacity: opacity,
+                opacity: 0.5,
                 getLineWidth: f => this._matchesSelectedDataZone(f.id),
                 stroked: true,
                 filled: true,
                 lineWidthUnits: "pixels",
-                getFillColor: f => this._getColor(f.id),
+                getFillColor: f => this._getColorAB(f.id),
                 getLineColor: [255, 255, 255],
                 onClick: (event, info) => {
                     info.handled = true;
@@ -146,11 +210,37 @@ class Map extends Component {
                 pickable: true,
                 onHover: this._handleMapOnHover,
                 updateTriggers: {
-                    getFillColor: [eta, etaView, colorScheme],
+                    getFillColor: [AB, BC, view, colorScheme],
                     getLineWidth: selectedDataZone,
                 },
             })
         ];
+
+        if (BC !== null){
+            layers.push(
+                new GeoJsonLayer({
+                    id: 'BC',
+                    data: dataZones,
+                    opacity: 0.5,
+                    getLineWidth: f => this._matchesSelectedDataZone(f.id),
+                    stroked: true,
+                    filled: true,
+                    lineWidthUnits: "pixels",
+                    getFillColor: f => this._getColorBC(f.id),
+                    getLineColor: [255, 255, 255],
+                    onClick: (event, info) => {
+                        info.handled = true;
+                        this._handleGeoJsonLayerOnClick(event);
+                    },
+                    pickable: true,
+                    onHover: this._handleMapOnHover,
+                    updateTriggers: {
+                        getFillColor: [AB, BC, view, colorScheme],
+                        getLineWidth: selectedDataZone,
+                    },
+                })
+            )
+        }
 
         if (destinationOverlay === "Diabetes Clinics"){
             layers.push(
@@ -179,16 +269,16 @@ class Map extends Component {
                         preventStyleDiffing={true}
                         mapboxApiAccessToken={MAPBOX_TOKEN}
                     />
-                    {
-                        (eta !== null) ? (
-                            <MapLegend
-                                minValue={minValue}
-                                maxValue={maxValue}
-                                mapColorSchemeInterpolator={mapColorSchemeInterpolator}
-                                opacity={opacity}
-                                etaView={etaView}
-                            />) : null
-                    }
+                    {/*{*/}
+                    {/*    (eta !== null) ? (*/}
+                    {/*        <MapLegend*/}
+                    {/*            minValue={minValue}*/}
+                    {/*            maxValue={maxValue}*/}
+                    {/*            mapColorSchemeInterpolator={mapColorSchemeInterpolator}*/}
+                    {/*            opacity={opacity}*/}
+                    {/*            etaView={etaView}*/}
+                    {/*        />) : null*/}
+                    {/*}*/}
                     <MapTooltip />
                 </DeckGL>
             </div>
@@ -200,8 +290,9 @@ const mapStateToProps = (state) => {
     return {
         minValue: state.mapMinValue,
         maxValue: state.mapMaxValue,
-        eta: state.eta,
-        etaView: state.etaView,
+        AB: state.AB,
+        BC: state.BC,
+        view: state.view,
         opacity: state.mapOpacity,
         colorScheme: state.mapColorScheme,
         destinationOverlay: state.destinationDataset,
@@ -209,16 +300,18 @@ const mapStateToProps = (state) => {
         selectedDataZone: state.selectedDataZone,
         clinics: state.clinics,
         tooltip: state.mapTooltip,
+        locIdx: state.locIdx,
     }
 };
 
 const mapDispatchToProps = (dispatch) => {
     return ({
         getLocationDT: (location) => { dispatch(getLocationDT(location)) },
-        resetETA: () => { dispatch(resetETA()) },
+        reset: () => { dispatch(reset()) },
         setMapTooltip: (mapTooltip) => { dispatch(setMapTooltip(mapTooltip)) },
         setMapViewState: (mapViewState) => { dispatch(setMapViewState(mapViewState)) },
         setSelectedDataZone: (selectedDataZone) => { dispatch(setSelectedDataZone(selectedDataZone)) },
+        updateHover: (hoveredDataZone) => { dispatch(updateHover(hoveredDataZone)) },
     });
 }
 
