@@ -131,6 +131,10 @@ class Map extends Component {
         }
     };
 
+    // https://observablehq.com/@d3/bivariate-choropleth
+    _getColorBivariate = () => {
+
+    }
 
     _handleDeckGLOnClick = (event, info) => {
         const { destinationOverlay, reset } = this.props;

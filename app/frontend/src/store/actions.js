@@ -136,7 +136,6 @@ export function computeAB(){
 
 export function computeBC(){
     return (dispatch, getState) => {
-
         const AB = getState().AB;
         const hoveredDataZone = getState().hoveredDataZone;
         if (AB !== null && hoveredDataZone !== null && hoveredDataZone !== undefined && ('id' in hoveredDataZone)){

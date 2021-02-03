@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import { connect } from 'react-redux';
 import { withStyles, createMuiTheme} from '@material-ui/core/styles';
 import { Slider, Typography} from '@material-ui/core';
-import { computeAB, computeBC, setTimeAtDestination } from "../store/actions";
+import { computeAB, setTimeAtDestination } from "../store/actions";
 
 const theme = createMuiTheme({
     palette: {

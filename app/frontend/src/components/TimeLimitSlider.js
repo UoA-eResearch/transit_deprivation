@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import { connect } from 'react-redux';
 import { withStyles, createMuiTheme} from '@material-ui/core/styles';
 import { Slider, Typography} from '@material-ui/core';
-import { computeAB, computeBC, setTimeLimit } from "../store/actions";
+import { computeAB, setTimeLimit } from "../store/actions";
 
 const theme = createMuiTheme({
     palette: {
@@ -19,10 +19,9 @@ const styles = (theme) => ({
 class TimeLimitSlider extends Component {
 
     handleTimeLimitChange = (event, value) => {
-        const { computeAB, computeBC, setTimeLimit } = this.props;
+        const { computeAB, setTimeLimit } = this.props;
         setTimeLimit(value);
         computeAB();
-        computeBC();
     }
 
     render() {
@@ -58,7 +57,6 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
     return ({
         computeAB: () => { dispatch(computeAB()) },
-        computeBC: () => { dispatch(computeAB()) },
         setTimeLimit: (timeLimit) => { dispatch(setTimeLimit(timeLimit)) },
     });
 }
