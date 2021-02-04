@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { withStyles, createMuiTheme } from '@material-ui/core/styles';
 import { Paper } from '@material-ui/core';
-import { mapColorSchemeNameToInterpolator } from "../utils/ColorScheme";
+import { mapColorSchemeNameToInterpolator } from "../utils/colorScheme";
 import { scaleSequential, scaleLinear } from "d3";
 // color helpers
 var tinycolor = require("tinycolor2");

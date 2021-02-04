@@ -7,9 +7,9 @@ import TimeLimitSlider from "./TimeLimitSlider";
 import DestinationTimeSlider from "./DestinationTimeSlider";
 import OpacitySlider from "./OpacitySlider";
 import Map from "./Map";
+import MapTile from "./MapTile";
+import * as mapTypes from "./mapTypes";
 import MapColorSchemeSelector from "./MapColorSchemeSelector";
-// import TravelTimePlot from "./TravelTimePlot";
-// import ContainerDimensions from 'react-container-dimensions';
 
 const theme = createMuiTheme({
     palette: {
@@ -29,9 +29,6 @@ const styles = (theme) => ({
         color: theme.palette.text.secondary,
         background: theme.palette.background.paper
     },
-    map: {
-        padding: theme.spacing(0),
-    }
 });
 
 class App extends Component {
@@ -70,19 +67,22 @@ class App extends Component {
                     </Grid>
                 </Grid>
                 <Grid container item direction="column" xs={8} spacing={3}>
-                    <Grid item>
-                        <Paper className={classes.map}>
-                            <Map />
-                            {/*<ContainerDimensions className={classes.map}>*/}
-                            {/*    <Map />*/}
-                            {/*</ContainerDimensions>*/}
-                        </Paper>
+                    <Grid container item direction="row" spacing={3}>
+                        <Grid item xs={6}>
+                            <MapTile mapType={mapTypes.DEPRIVATION}/>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <MapTile mapType={mapTypes.DESTINATION}/>
+                        </Grid>
                     </Grid>
-                    {/*<Grid item>*/}
-                    {/*    <Paper className={classes.paper}>*/}
-                    {/*        <TravelTimePlot />*/}
-                    {/*    </Paper>*/}
-                    {/*</Grid>*/}
+                    <Grid container item direction="row" spacing={3}>
+                        <Grid item xs={6}>
+                            <MapTile mapType={mapTypes.INBOUND}/>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <MapTile mapType={mapTypes.OUTBOUND}/>
+                        </Grid>
+                    </Grid>
                 </Grid>
             </Grid>
         );

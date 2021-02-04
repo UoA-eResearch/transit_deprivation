@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { withStyles, createMuiTheme } from '@material-ui/core/styles';
-import { mapColorSchemeNameToInterpolator } from "../utils/ColorScheme";
+import { mapColorSchemeNameToInterpolator } from "../utils/colorScheme";
 import { setSelectedDataZone,
          updateHover,
          setMapTooltip,
@@ -25,6 +25,7 @@ const theme = createMuiTheme({
 const styles = (theme) => ({
     map: {
         minHeight: "550px",
+        //maxWidth: "550px",
         position: "relative",
     },
 });
@@ -43,35 +44,6 @@ const INITIAL_VIEW_STATE = {
 
 class Map extends Component {
 
-    // // old version
-    // _getColor = (location) => {
-    //     const { colorScheme, eta, etaView, } = this.props;
-    //     const mapColorSchemeInterpolator = mapColorSchemeNameToInterpolator(colorScheme);
-    //     const defaultColor = [128, 128, 128, 24];
-    //     const inaccessibleColor = [128, 128, 128, 0];
-    //     if(eta !== null) {
-    //         // console.log(`loc: ${location} view: ${this.state.etaView} v: ${this.state.eta[this.state.etaView]["values"][location]}`);
-    //         let view = etaView;
-    //         if (location in eta[view]["values"]){
-    //             let v = eta[view]["values"][location];
-    //             let vmin = eta[view]["min"];
-    //             let vmax = eta[view]["max"];
-    //
-    //             let nv = (v - vmin) / Math.max((vmax - vmin), 1);
-    //             let a = eta["avail"]["values"][location] * 255;
-    //             let c = mapColorSchemeInterpolator(nv);
-    //             c = color(c).copy({opacity: a})
-    //
-    //             //return [c.r, c.g, c.b, c.opacity];
-    //             return [c.r, c.g, c.b];
-    //         } else {
-    //             return inaccessibleColor;
-    //         }
-    //     } else {
-    //         return defaultColor;
-    //     }
-    // };
-
      _getNormalisedValue(layer, index){
         let v = layer["values"][index];
         let vmin = layer["min"];
@@ -80,7 +52,7 @@ class Map extends Component {
         return nv;
     }
 
-     _getInetrepolatedColor(value, interpolator){
+     _getInterpolatedColor(value, interpolator){
         let c = interpolator(value);
         c = color(c).copy({opacity: 255})
         return [c.r, c.g, c.b, c.opacity];
@@ -100,7 +72,7 @@ class Map extends Component {
             let index = locIdx[location];
             let layerAB = AB[view];
             let nvAB = this._getNormalisedValue(layerAB, index);
-            let cAB = this._getInetrepolatedColor(nvAB, mapColorSchemeInterpolator);
+            let cAB = this._getInterpolatedColor(nvAB, mapColorSchemeInterpolator);
 
             return cAB;
 
@@ -122,7 +94,7 @@ class Map extends Component {
             let index = locIdx[location];
             let layerBC = BC[view];
             let nvBC = this._getNormalisedValue(layerBC, index);
-            let cBC = this._getInetrepolatedColor(nvBC, mapColorSchemeInterpolator);
+            let cBC = this._getInterpolatedColor(nvBC, mapColorSchemeInterpolator);
 
             return cBC;
 
