@@ -6,7 +6,7 @@ import DatasetSelector from "./DatasetSelector";
 import TimeLimitSlider from "./TimeLimitSlider";
 import DestinationTimeSlider from "./DestinationTimeSlider";
 import OpacitySlider from "./OpacitySlider";
-import Map from "./Map";
+// import Map from "./Map";
 import MapTile from "./MapTile";
 import * as mapTypes from "./mapTypes";
 import MapColorSchemeSelector from "./MapColorSchemeSelector";

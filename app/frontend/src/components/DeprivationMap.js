@@ -61,7 +61,6 @@ class DeprivationMap extends Component {
     render() {
         const { classes, dataZones, mapViewState } = this.props;
 
-        console.log("deprivation map render");
         const layers = [
             new GeoJsonLayer({
                 id: 'deprivation',

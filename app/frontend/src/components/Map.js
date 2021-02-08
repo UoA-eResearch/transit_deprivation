@@ -25,7 +25,6 @@ const theme = createMuiTheme({
 const styles = (theme) => ({
     map: {
         minHeight: "550px",
-        //maxWidth: "550px",
         position: "relative",
     },
 });
@@ -109,13 +108,13 @@ class Map extends Component {
     }
 
     _handleDeckGLOnClick = (event, info) => {
-        const { destinationOverlay, reset } = this.props;
+        const { destinationDataset, reset } = this.props;
         if (!info.handled){
             // reset the eta values
             reset();
 
             // any dataset specific behaviour
-            if (destinationOverlay === "Diabetes Clinics"){
+            if (destinationDataset === "Diabetes Clinics"){
                 // do something special for clinic locations
             }
             console.log(`DeckGL handled`);
@@ -123,14 +122,14 @@ class Map extends Component {
     };
 
     _handleGeoJsonLayerOnClick = (event, info) => {
-        const { destinationOverlay, getLocationDT, setSelectedDataZone } = this.props;
+        const { destinationDataset, getLocationDT, setSelectedDataZone } = this.props;
 
         console.log(`GeoJson handled, location ${event.object.id}`);
         getLocationDT(event.object.id); // get location destination-time data and compute stats
 
         setSelectedDataZone(event.object.id);
         // any dataset specific behaviour
-        if (destinationOverlay === "Diabetes Clinics"){
+        if (destinationDataset === "Diabetes Clinics"){
             // do something special for clinic locations
             //console.log(`${ds} onclick handler`)
         }
@@ -163,7 +162,7 @@ class Map extends Component {
 
     render() {
         const {
-            classes, clinics, colorScheme, dataZones, destinationOverlay, AB, BC,
+            classes, clinics, colorScheme, dataZones, destinationDataset, AB, BC,
             view, opacity, selectedDataZone,
         } = this.props;
         // const mapColorSchemeInterpolator = mapColorSchemeNameToInterpolator(colorScheme);
@@ -218,7 +217,7 @@ class Map extends Component {
             )
         }
 
-        if (destinationOverlay === "Diabetes Clinics"){
+        if (destinationDataset === "Diabetes Clinics"){
             layers.push(
                 new GeoJsonLayer({
                     id: 'clinics',
@@ -271,7 +270,7 @@ const mapStateToProps = (state) => {
         view: state.view,
         opacity: state.mapOpacity,
         colorScheme: state.mapColorScheme,
-        destinationOverlay: state.destinationDataset,
+        destinationDataset: state.destinationDataset,
         dataZones: state.dataZones,
         selectedDataZone: state.selectedDataZone,
         clinics: state.clinics,

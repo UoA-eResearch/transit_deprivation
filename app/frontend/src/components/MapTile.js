@@ -5,6 +5,7 @@ import {Grid, Paper, Typography} from '@material-ui/core';
 import Map from "./Map";
 import DefaultMap from "./DefaultMap";
 import DeprivationMap from "./DeprivationMap";
+import DestinationMap from "./DestinationMap";
 import * as mapTypes from "./mapTypes";
 
 const theme = createMuiTheme({
@@ -42,7 +43,7 @@ class MapTile extends Component {
             case mapTypes.DEPRIVATION:
                 return <DeprivationMap />;
             case mapTypes.DESTINATION:
-                return <DefaultMap />;
+                return <DestinationMap />;
             case mapTypes.INBOUND:
                 return <DefaultMap />;
             case mapTypes.OUTBOUND:

@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { withStyles, createMuiTheme} from '@material-ui/core/styles';
 import { Grid, Select, MenuItem, Typography} from '@material-ui/core';
 import { setView, setDestinationDataset } from "../store/actions";
+import * as destinationTypes from "./destinationTypes";
 
 const theme = createMuiTheme({
     palette: {
@@ -66,8 +67,8 @@ class DatasetSelector extends Component {
                             value={destinationDataset}
                             onChange={this.handleDestinationDatasetChange}
                         >
-                            <MenuItem value={"None"}>None</MenuItem>
-                            <MenuItem value={"Diabetes Clinics"}>Diabetes Clinics</MenuItem>
+                            <MenuItem value={destinationTypes.DESTINATION_NONE}>{destinationTypes.DESTINATION_NONE}</MenuItem>
+                            <MenuItem value={destinationTypes.DESTINATION_DIABETES_CLINICS}>{destinationTypes.DESTINATION_DIABETES_CLINICS}</MenuItem>
                         </Select>
                     </Grid>
                 </Grid>

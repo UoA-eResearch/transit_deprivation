@@ -7,6 +7,9 @@ import * as akl_idx_loc from "./data/akl/akl_idx_loc.json"
 import * as akl_loc_idx from "./data/akl/akl_loc_idx.json"
 import * as akl_idx_t from "./data/akl/akl_idx_t.json"
 
+import * as destinationTypes from "../components/destinationTypes";
+import {DESTINATION_DIABETES_CLINICS} from "../components/destinationTypes";
+
 function calcStats(data){
 
     const stats = {
@@ -18,10 +21,13 @@ function calcStats(data){
 export default {
     // geojson data
     dataZones: data_zones["default"],
-    clinics: clinics["default"],
+    destinations: {
+        [destinationTypes.DESTINATION_DIABETES_CLINICS]: clinics["default"],
+    },
+    // clinics: clinics["default"],
 
     // filter/selection values
-    destinationDataset: "None",
+    destinationDataset: destinationTypes.DESTINATION_DIABETES_CLINICS,
     view: "avail",
     timeLimit: 120,
     timeAtDestination: 60,

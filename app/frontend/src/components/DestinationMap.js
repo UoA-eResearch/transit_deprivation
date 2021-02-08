@@ -4,6 +4,8 @@ import { withStyles, createMuiTheme } from '@material-ui/core/styles';
 import { setMapViewState} from "../store/actions";
 import { StaticMap } from 'react-map-gl';
 import DeckGL from '@deck.gl/react';
+import { GeoJsonLayer } from '@deck.gl/layers';
+import * as destinationTypes from './destinationTypes';
 
 
 const theme = createMuiTheme({
@@ -22,7 +24,7 @@ const styles = (theme) => ({
 const mapStyle = 'mapbox://styles/mapbox/light-v9';
 const MAPBOX_TOKEN = process.env.REACT_APP_MapboxAccessToken;
 
-class DefaultMap extends Component {
+class DestinationMap extends Component {
 
     onViewStateChange = vs => {
         const { setMapViewState } = this.props;
@@ -30,10 +32,25 @@ class DefaultMap extends Component {
     };
 
     render() {
-        const { classes, mapViewState } = this.props;
+        const { classes, mapViewState, destinationDataset, destinations } = this.props;
+
+        const layers = [];
+
+        if (destinationDataset !== destinationTypes.DESTINATION_NONE){
+            layers.push(
+                new GeoJsonLayer({
+                    id: 'destinations',
+                    data: destinations[destinationDataset],
+                    pointRadiusMinPixels: 5,
+                    getFillColor: [235, 52, 52, 255],
+                })
+            )
+        }
+
         return(
             <div className={classes.map}>
                 <DeckGL
+                    layers={layers}
                     initialViewState={mapViewState}
                     controller={true}
                     // onViewStateChange={ this.onViewStateChange }
@@ -53,6 +70,8 @@ class DefaultMap extends Component {
 const mapStateToProps = (state) => {
     return {
         mapViewState: state.mapViewState,
+        destinations: state.destinations,
+        destinationDataset: state.destinationDataset,
     }
 };
 
@@ -65,4 +84,4 @@ const mapDispatchToProps = (dispatch) => {
 export default connect(
     mapStateToProps,
     mapDispatchToProps
-)(withStyles(styles, {defaultTheme: theme})(DefaultMap));
+)(withStyles(styles, {defaultTheme: theme})(DestinationMap));
