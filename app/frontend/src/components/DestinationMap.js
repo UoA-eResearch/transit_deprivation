@@ -6,20 +6,15 @@ import { StaticMap } from 'react-map-gl';
 import DeckGL from '@deck.gl/react';
 import { GeoJsonLayer } from '@deck.gl/layers';
 import * as destinationTypes from './destinationTypes';
-
-
-const theme = createMuiTheme({
-    palette: {
-        type: "light",
-    },
-});
+import * as mapTheme from "./mapTheme";
 
 const styles = (theme) => ({
     map: {
-        minHeight: "550px",
+        minHeight: theme.mapHeight,
         position: "relative",
     },
 });
+
 
 const mapStyle = 'mapbox://styles/mapbox/light-v9';
 const MAPBOX_TOKEN = process.env.REACT_APP_MapboxAccessToken;
@@ -130,4 +125,4 @@ const mapDispatchToProps = (dispatch) => {
 export default connect(
     mapStateToProps,
     mapDispatchToProps
-)(withStyles(styles, {defaultTheme: theme})(DestinationMap));
+)(withStyles(styles, {defaultTheme: mapTheme.theme})(DestinationMap));

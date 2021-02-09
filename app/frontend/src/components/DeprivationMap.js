@@ -14,16 +14,11 @@ import { GeoJsonLayer } from '@deck.gl/layers';
 import MapTooltip  from './MapTooltip';
 import MapLegend from './MapLegend';
 import { color } from "d3";
-
-const theme = createMuiTheme({
-    palette: {
-        type: "light",
-    },
-});
+import * as mapTheme from "./mapTheme";
 
 const styles = (theme) => ({
     map: {
-        minHeight: "550px",
+        minHeight: theme.mapHeight,
         position: "relative",
     },
 });
@@ -144,4 +139,4 @@ const mapDispatchToProps = (dispatch) => {
 export default connect(
     mapStateToProps,
     mapDispatchToProps
-)(withStyles(styles, {defaultTheme: theme})(DeprivationMap));
+)(withStyles(styles, {defaultTheme: mapTheme.theme})(DeprivationMap));

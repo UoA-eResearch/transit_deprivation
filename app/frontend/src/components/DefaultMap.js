@@ -4,17 +4,11 @@ import { withStyles, createMuiTheme } from '@material-ui/core/styles';
 import { setMapViewState} from "../store/actions";
 import { StaticMap } from 'react-map-gl';
 import DeckGL from '@deck.gl/react';
-
-
-const theme = createMuiTheme({
-    palette: {
-        type: "light",
-    },
-});
+import * as mapTheme from "./mapTheme";
 
 const styles = (theme) => ({
     map: {
-        minHeight: "550px",
+        minHeight: theme.minHeight,
         position: "relative",
     },
 });
@@ -65,4 +59,4 @@ const mapDispatchToProps = (dispatch) => {
 export default connect(
     mapStateToProps,
     mapDispatchToProps
-)(withStyles(styles, {defaultTheme: theme})(DefaultMap));
+)(withStyles(styles, {defaultTheme: mapTheme.theme})(DefaultMap));

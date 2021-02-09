@@ -14,19 +14,15 @@ import MapTooltip  from './MapTooltip';
 import MapLegend from './MapLegend';
 import { color } from "d3";
 import {getInterpolatedColor, getNormalisedValue} from "../utils/mapUtil";
-
-const theme = createMuiTheme({
-    palette: {
-        type: "light",
-    },
-});
+import * as mapTheme from "./mapTheme";
 
 const styles = (theme) => ({
     map: {
-        minHeight: "550px",
+        minHeight: theme.mapHeight,
         position: "relative",
     },
 });
+
 
 const mapStyle = 'mapbox://styles/mapbox/light-v9';
 const MAPBOX_TOKEN = process.env.REACT_APP_MapboxAccessToken;
@@ -132,4 +128,4 @@ const mapDispatchToProps = (dispatch) => {
 export default connect(
     mapStateToProps,
     mapDispatchToProps
-)(withStyles(styles, {defaultTheme: theme})(InboundAccessibilityMap));
+)(withStyles(styles, {defaultTheme: mapTheme.theme})(InboundAccessibilityMap));
