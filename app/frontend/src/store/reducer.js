@@ -32,6 +32,9 @@ const reducer = createReducer(initialState, (builder) => {
         .addCase(types.SET_SELECTED_DATA_ZONE, (state, action) => {
             state.selectedDataZone = action.selectedDataZone;
         })
+        .addCase(types.SET_DESTINATION_DATAZONE, (state, action) => {
+            state.selectedDestination = action.dz;
+        })
         .addCase(types.SET_HOVERED_DATA_ZONE, (state, action) => {
             state.hoveredDataZone = action.hoveredDataZone;
         })

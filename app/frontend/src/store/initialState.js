@@ -28,6 +28,7 @@ export default {
 
     // filter/selection values
     destinationDataset: destinationTypes.DESTINATION_DIABETES_CLINICS,
+    selectedDestination: null,
     view: "avail",
     timeLimit: 120,
     timeAtDestination: 60,

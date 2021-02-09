@@ -61,6 +61,14 @@ export function setSelectedDataZone(selectedDataZone) {
     }
 }
 
+export function setDestinationDataZone(dz) {
+    console.log('setting destination:', dz);
+    return {
+        type: types.SET_DESTINATION_DATAZONE,
+        dz
+    }
+}
+
 export function setHoveredDataZone(hoveredDataZone) {
     return {
         type: types.SET_HOVERED_DATA_ZONE,
