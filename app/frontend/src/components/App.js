@@ -69,15 +69,15 @@ class App extends Component {
                 <Grid container item direction="column" xs={8} spacing={3}>
                     <Grid container item direction="row" spacing={3}>
                         <Grid item xs={6}>
-                            <MapTile mapType={mapTypes.DEPRIVATION}/>
+                            <MapTile mapType={mapTypes.DESTINATION}/>
                         </Grid>
                         <Grid item xs={6}>
-                            <MapTile mapType={mapTypes.DESTINATION}/>
+                            <MapTile mapType={mapTypes.INBOUND}/>
                         </Grid>
                     </Grid>
                     <Grid container item direction="row" spacing={3}>
                         <Grid item xs={6}>
-                            <MapTile mapType={mapTypes.INBOUND}/>
+                            <MapTile mapType={mapTypes.DEPRIVATION}/>
                         </Grid>
                         <Grid item xs={6}>
                             <MapTile mapType={mapTypes.OUTBOUND}/>

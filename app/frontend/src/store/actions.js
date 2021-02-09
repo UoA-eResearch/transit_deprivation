@@ -54,6 +54,7 @@ export function setMapViewState(mapViewState) {
 }
 
 export function setSelectedDataZone(selectedDataZone) {
+    console.log('setting origin:', selectedDataZone);
     return {
         type: types.SET_SELECTED_DATA_ZONE,
         selectedDataZone
@@ -64,6 +65,15 @@ export function setHoveredDataZone(hoveredDataZone) {
     return {
         type: types.SET_HOVERED_DATA_ZONE,
         hoveredDataZone
+    }
+}
+
+export function updateSelectedDataZone(selectedDataZone){
+    return (dispatch, getState) => {
+        dispatch(setSelectedDataZone(selectedDataZone));
+        if (getState().AB !== null){
+            dispatch(computeBC());
+        }
     }
 }
 
@@ -130,15 +140,18 @@ export function computeAB(){
 
         dispatch(computeBC());
 
-
     }
 }
 
 export function computeBC(){
     return (dispatch, getState) => {
         const AB = getState().AB;
-        const hoveredDataZone = getState().hoveredDataZone;
-        if (AB !== null && hoveredDataZone !== null && hoveredDataZone !== undefined && ('id' in hoveredDataZone)){
+        const selectedDataZone = getState().selectedDataZone;
+
+        // if (AB !== null && selectedDataZone !== null && selectedDataZone !== undefined && ('id' in selectedDataZone)){
+        if (AB !== null && selectedDataZone !== null && selectedDataZone !== undefined){
+            console.log('computing outbound accessibility from origin', selectedDataZone);
+
             // constraints
             const tMax = getState().timeLimit;
             const tDest = getState().timeAtDestination;
@@ -146,7 +159,7 @@ export function computeBC(){
             const tRemain = AB.tRemain;
             const locIdx = getState().locIdx;
             const outbound = getState().locationOutboundData; // B->C
-            const originIdx = locIdx[getState().hoveredDataZone.id];
+            const originIdx = locIdx[selectedDataZone];
 
             // get outbound accessibility scores for hovered location
             const acc_C = plan.planBC(originIdx, tRemain, outbound, tMax, tDest, tDelta)
@@ -253,6 +266,8 @@ export function getLocationDT(location) {
     return (dispatch, getState) => {
         let region = "akl";
         let url = DT_SERVER+`/transit?region=${region}&location=${location}&direction=inbound`;
+
+        console.log('getting data for destination:', location);
 
         const inbound = fetch(url)
             .then(response => response.json())

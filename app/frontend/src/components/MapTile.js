@@ -6,6 +6,8 @@ import Map from "./Map";
 import DefaultMap from "./DefaultMap";
 import DeprivationMap from "./DeprivationMap";
 import DestinationMap from "./DestinationMap";
+import InboundAccessibilityMap from "./InboundAccessibilityMap";
+import OutboundAccessibilityMap from "./OutboundAccessibilityMap";
 import * as mapTypes from "./mapTypes";
 
 const theme = createMuiTheme({
@@ -26,9 +28,9 @@ class MapTile extends Component {
     getName(mapType) {
         switch (mapType){
             case mapTypes.DEPRIVATION:
-                return "Deprivation";
+                return "Origin / Deprivation";
             case mapTypes.DESTINATION:
-                return "Destinations";
+                return "Destination";
             case mapTypes.INBOUND:
                 return "Inbound Accessibility";
             case mapTypes.OUTBOUND:
@@ -45,9 +47,9 @@ class MapTile extends Component {
             case mapTypes.DESTINATION:
                 return <DestinationMap />;
             case mapTypes.INBOUND:
-                return <DefaultMap />;
+                return <InboundAccessibilityMap />
             case mapTypes.OUTBOUND:
-                return <DefaultMap />;
+                return <OutboundAccessibilityMap />;
             default:
                 return <DefaultMap />;
         }

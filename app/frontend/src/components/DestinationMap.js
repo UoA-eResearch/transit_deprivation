@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { withStyles, createMuiTheme } from '@material-ui/core/styles';
-import { setMapViewState} from "../store/actions";
+import {getLocationDT, setMapViewState} from "../store/actions";
 import { StaticMap } from 'react-map-gl';
 import DeckGL from '@deck.gl/react';
 import { GeoJsonLayer } from '@deck.gl/layers';
@@ -26,6 +26,11 @@ const MAPBOX_TOKEN = process.env.REACT_APP_MapboxAccessToken;
 
 class DestinationMap extends Component {
 
+    handleGeoJsonLayerOnClick = (event, info) => {
+        const { getLocationDT } = this.props;
+        getLocationDT(event.object.properties.DZ2018); // get location destination-time data and compute stats
+    };
+
     onViewStateChange = vs => {
         const { setMapViewState } = this.props;
         setMapViewState(vs);
@@ -43,6 +48,11 @@ class DestinationMap extends Component {
                     data: destinations[destinationDataset],
                     pointRadiusMinPixels: 5,
                     getFillColor: [235, 52, 52, 255],
+                    pickable: true,
+                    onClick: (event, info) => {
+                        info.handled = true;
+                        this.handleGeoJsonLayerOnClick(event);
+                    },
                 })
             )
         }
@@ -78,6 +88,7 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
     return ({
         setMapViewState: (mapViewState) => { dispatch(setMapViewState(mapViewState)) },
+        getLocationDT: (location) => { dispatch(getLocationDT(location)) },
     });
 }
 

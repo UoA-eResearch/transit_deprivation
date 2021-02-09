@@ -2,11 +2,10 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { withStyles, createMuiTheme } from '@material-ui/core/styles';
 import { mapColorSchemeNameToInterpolator } from "../utils/colorScheme";
-import {
-    updateHover,
-    setMapTooltip,
-    setMapViewState, updateSelectedDataZone,
-} from "../store/actions";
+import { updateHover,
+         setMapTooltip,
+         setMapViewState,
+         } from "../store/actions";
 // mapping
 import { StaticMap } from 'react-map-gl';
 import DeckGL from '@deck.gl/react';
@@ -14,6 +13,7 @@ import { GeoJsonLayer } from '@deck.gl/layers';
 import MapTooltip  from './MapTooltip';
 import MapLegend from './MapLegend';
 import { color } from "d3";
+import {getInterpolatedColor, getNormalisedValue} from "../utils/mapUtil";
 
 const theme = createMuiTheme({
     palette: {
@@ -31,31 +31,26 @@ const styles = (theme) => ({
 const mapStyle = 'mapbox://styles/mapbox/light-v9';
 const MAPBOX_TOKEN = process.env.REACT_APP_MapboxAccessToken;
 
-class DeprivationMap extends Component {
+class InboundAccessibilityMap extends Component {
 
-    handleGeoJsonLayerOnClick = (event, info) => {
-        const { updateSelectedDataZone } = this.props;
-        updateSelectedDataZone(event.object.id);
-    };
+    getColor = (location) => {
 
-     getInterpolatedColor(value, interpolator){
-        let c = interpolator(value);
-        c = color(c).copy({opacity: 255})
-        return [c.r, c.g, c.b, c.opacity];
-    }
-
-    // new version
-    getColor = (v) => {
-
-        const { dataZoneStats } = this.props;
-        const colorScheme = "BlueGreen";
+        const { AB, locIdx, colorScheme, view } = this.props;
         const mapColorSchemeInterpolator = mapColorSchemeNameToInterpolator(colorScheme);
+        const defaultColor = [0, 0, 0, 0];
 
-        const vmin = dataZoneStats.IMD18.min;
-        const vmax = dataZoneStats.IMD18.max;
+        if(AB !== null) {
 
-        const nv = (v - vmin) / Math.max((vmax - vmin), 1);
-        return this.getInterpolatedColor(nv, mapColorSchemeInterpolator);
+            let index = locIdx[location];
+            let layer = AB[view];
+            let nv = getNormalisedValue(layer, index);
+            let c = getInterpolatedColor(nv, mapColorSchemeInterpolator);
+
+            return c;
+
+        } else {
+            return defaultColor;
+        }
 
     };
 
@@ -65,29 +60,19 @@ class DeprivationMap extends Component {
     };
 
     render() {
-        const { classes, dataZones, mapViewState, selectedDataZone } = this.props;
+        const { classes, dataZones, mapViewState, AB, view, colorScheme} = this.props;
 
         const layers = [
             new GeoJsonLayer({
-                id: 'deprivation',
+                id: 'outbound',
                 data: dataZones,
                 opacity: 1,
                 filled: true,
-                getFillColor: f => this.getColor(f.properties.IMD18),
-                onClick: (event, info) => {
-                    info.handled = true;
-                    this.handleGeoJsonLayerOnClick(event);
-                },
-                getLineWidth: f => {return (f.id === selectedDataZone) ? 2 : 0 },
-                lineWidthUnits: "pixels",
-                getLineColor: [255, 0, 0],
-                stroked: true,
-                pickable: true,
-                // onHover: this.handleMapOnHover,
+                stroked: false,
+                getFillColor: f => this.getColor(f.id),
                 updateTriggers: {
-                    getLineWidth: selectedDataZone,
-                },
-
+                    getFillColor: [AB, view, colorScheme],
+                }
             })
         ];
 
@@ -130,6 +115,9 @@ const mapStateToProps = (state) => {
         selectedDataZone: state.selectedDataZone,
         tooltip: state.mapTooltip,
         locIdx: state.locIdx,
+        AB: state.AB,
+        view: state.view,
+        colorScheme: state.mapColorScheme,
     }
 };
 
@@ -137,11 +125,11 @@ const mapDispatchToProps = (dispatch) => {
     return ({
         setMapTooltip: (mapTooltip) => { dispatch(setMapTooltip(mapTooltip)) },
         setMapViewState: (mapViewState) => { dispatch(setMapViewState(mapViewState)) },
-        updateSelectedDataZone: (selectedDataZone) => { dispatch(updateSelectedDataZone(selectedDataZone)) },
+        // updateHover: (hoveredDataZone) => { dispatch(updateHover(hoveredDataZone)) },
     });
 }
 
 export default connect(
     mapStateToProps,
     mapDispatchToProps
-)(withStyles(styles, {defaultTheme: theme})(DeprivationMap));
+)(withStyles(styles, {defaultTheme: theme})(InboundAccessibilityMap));
