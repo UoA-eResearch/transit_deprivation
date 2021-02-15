@@ -56,7 +56,8 @@ class OutboundAccessibilityMap extends Component {
     };
 
     render() {
-        const { classes, dataZones, mapViewState, BC, view, colorScheme} = this.props;
+        const { classes, dataZones, mapViewState, BC, view, colorScheme, selectedDestination, selectedDataZone,
+            destinationColor, originColor} = this.props;
 
         const layers = [
             new GeoJsonLayer({
@@ -69,7 +70,34 @@ class OutboundAccessibilityMap extends Component {
                 updateTriggers: {
                     getFillColor: [BC, view, colorScheme],
                 }
-            })
+            }),
+            new GeoJsonLayer({
+                id: 'destination',
+                data: dataZones,
+                opacity: 1,
+                filled: true,
+                getFillColor: [0, 0, 0, 0],
+                getLineWidth: f => {return (f.id === selectedDestination) ? 2 : 0 },
+                lineWidthUnits: "pixels",
+                getLineColor: destinationColor,
+                stroked: true,
+                updateTriggers: {
+                    getLineWidth: selectedDestination,
+                },
+            }),
+            new GeoJsonLayer({
+                id: 'origin',
+                data: dataZones,
+                opacity: 1,
+                filled: false,
+                getLineWidth: f => {return (f.id === selectedDataZone) ? 2 : 0 },
+                lineWidthUnits: "pixels",
+                getLineColor: originColor,
+                stroked: true,
+                updateTriggers: {
+                    getLineWidth: selectedDataZone,
+                },
+            }),
         ];
 
         return(
@@ -114,6 +142,9 @@ const mapStateToProps = (state) => {
         BC: state.BC,
         view: state.view,
         colorScheme: state.mapColorScheme,
+        selectedDestination: state.selectedDestination,
+        destinationColor: state.destinationColor,
+        originColor: state.originColor,
     }
 };
 

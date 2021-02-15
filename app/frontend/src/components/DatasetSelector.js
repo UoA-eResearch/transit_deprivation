@@ -51,7 +51,7 @@ class DatasetSelector extends Component {
                             value={view}
                             onChange={this.handleViewChange}
                         >
-                            <MenuItem value={"avail"}>Availability</MenuItem>
+                            <MenuItem value={"avail"}>Accessibility</MenuItem>
                             {/*<MenuItem value={"mean"}>Mean</MenuItem>*/}
                             {/*<MenuItem value={"stdev"}>Standard Deviation</MenuItem>*/}
                         </Select>

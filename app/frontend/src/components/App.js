@@ -6,7 +6,6 @@ import DatasetSelector from "./DatasetSelector";
 import TimeLimitSlider from "./TimeLimitSlider";
 import DestinationTimeSlider from "./DestinationTimeSlider";
 import OpacitySlider from "./OpacitySlider";
-// import Map from "./Map";
 import MapTile from "./MapTile";
 import * as mapTypes from "./mapTypes";
 import MapColorSchemeSelector from "./MapColorSchemeSelector";
@@ -77,7 +76,7 @@ class App extends Component {
                     </Grid>
                     <Grid container item direction="row" spacing={3}>
                         <Grid item xs={6}>
-                            <MapTile mapType={mapTypes.DEPRIVATION}/>
+                            <MapTile mapType={mapTypes.ORIGIN}/>
                         </Grid>
                         <Grid item xs={6}>
                             <MapTile mapType={mapTypes.OUTBOUND}/>

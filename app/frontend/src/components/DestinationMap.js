@@ -40,9 +40,8 @@ class DestinationMap extends Component {
     };
 
     render() {
-        const { classes, mapViewState, dataZones, destinationDataset, destinations, selectedDestination } = this.props;
-
-        const destColor = [235, 52, 52, 255];
+        const { classes, mapViewState, dataZones, destinationDataset, destinations, selectedDestination,
+            selectedDataZone, destinationColor, originColor } = this.props;
 
         const layers = [
             new GeoJsonLayer({
@@ -57,15 +56,27 @@ class DestinationMap extends Component {
                 },
                 getLineWidth: f => {return (f.id === selectedDestination) ? 2 : 0 },
                 lineWidthUnits: "pixels",
-                getLineColor: destColor,
+                getLineColor: destinationColor,
                 stroked: true,
                 pickable: true,
                 // onHover: this.handleMapOnHover,
                 updateTriggers: {
                     getLineWidth: selectedDestination,
                 },
-
-            })
+            }),
+            new GeoJsonLayer({
+                id: 'origin',
+                data: dataZones,
+                opacity: 1,
+                filled: false,
+                getLineWidth: f => {return (f.id === selectedDataZone) ? 2 : 0 },
+                lineWidthUnits: "pixels",
+                getLineColor: originColor,
+                stroked: true,
+                updateTriggers: {
+                    getLineWidth: selectedDataZone,
+                },
+            }),
         ];
         if (destinationDataset !== destinationTypes.DESTINATION_NONE){
             layers.push(
@@ -73,7 +84,7 @@ class DestinationMap extends Component {
                     id: 'destination-points',
                     data: destinations[destinationDataset],
                     pointRadiusMinPixels: 5,
-                    getFillColor: destColor,
+                    getFillColor: destinationColor,
                     // pickable: true,
                     // onClick: (event, info) => {
                     //     console.log('points');
@@ -110,7 +121,10 @@ const mapStateToProps = (state) => {
         mapViewState: state.mapViewState,
         destinations: state.destinations,
         destinationDataset: state.destinationDataset,
-        selectedDestination: state.selectedDestination
+        selectedDestination: state.selectedDestination,
+        selectedDataZone: state.selectedDataZone,
+        destinationColor: state.destinationColor,
+        originColor: state.originColor,
     }
 };
 

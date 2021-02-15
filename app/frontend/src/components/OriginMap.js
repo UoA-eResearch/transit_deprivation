@@ -26,7 +26,7 @@ const styles = (theme) => ({
 const mapStyle = 'mapbox://styles/mapbox/light-v9';
 const MAPBOX_TOKEN = process.env.REACT_APP_MapboxAccessToken;
 
-class DeprivationMap extends Component {
+class OriginMap extends Component {
 
     handleGeoJsonLayerOnClick = (event, info) => {
         const { updateSelectedDataZone } = this.props;
@@ -60,11 +60,12 @@ class DeprivationMap extends Component {
     };
 
     render() {
-        const { classes, dataZones, mapViewState, selectedDataZone } = this.props;
+        const { classes, dataZones, mapViewState, selectedDataZone, selectedDestination,
+            destinationColor, originColor } = this.props;
 
         const layers = [
             new GeoJsonLayer({
-                id: 'deprivation',
+                id: 'origin',
                 data: dataZones,
                 opacity: 1,
                 filled: true,
@@ -75,14 +76,27 @@ class DeprivationMap extends Component {
                 },
                 getLineWidth: f => {return (f.id === selectedDataZone) ? 2 : 0 },
                 lineWidthUnits: "pixels",
-                getLineColor: [255, 0, 0],
+                getLineColor: originColor,
                 stroked: true,
                 pickable: true,
                 // onHover: this.handleMapOnHover,
                 updateTriggers: {
                     getLineWidth: selectedDataZone,
                 },
-
+            }),
+            new GeoJsonLayer({
+                id: 'destination',
+                data: dataZones,
+                opacity: 1,
+                filled: true,
+                getFillColor: [0, 0, 0, 0],
+                getLineWidth: f => {return (f.id === selectedDestination) ? 2 : 0 },
+                lineWidthUnits: "pixels",
+                getLineColor: destinationColor,
+                stroked: true,
+                updateTriggers: {
+                    getLineWidth: selectedDestination,
+                },
             })
         ];
 
@@ -125,6 +139,9 @@ const mapStateToProps = (state) => {
         selectedDataZone: state.selectedDataZone,
         tooltip: state.mapTooltip,
         locIdx: state.locIdx,
+        selectedDestination: state.selectedDestination,
+        destinationColor: state.destinationColor,
+        originColor: state.originColor,
     }
 };
 
@@ -139,4 +156,4 @@ const mapDispatchToProps = (dispatch) => {
 export default connect(
     mapStateToProps,
     mapDispatchToProps
-)(withStyles(styles, {defaultTheme: mapTheme.theme})(DeprivationMap));
+)(withStyles(styles, {defaultTheme: mapTheme.theme})(OriginMap));

@@ -4,7 +4,7 @@ import { withStyles, createMuiTheme} from '@material-ui/core/styles';
 import {Grid, Paper, Typography} from '@material-ui/core';
 import Map from "./Map";
 import DefaultMap from "./DefaultMap";
-import DeprivationMap from "./DeprivationMap";
+import OriginMap from "./OriginMap";
 import DestinationMap from "./DestinationMap";
 import InboundAccessibilityMap from "./InboundAccessibilityMap";
 import OutboundAccessibilityMap from "./OutboundAccessibilityMap";
@@ -27,7 +27,7 @@ class MapTile extends Component {
 
     getName(mapType) {
         switch (mapType){
-            case mapTypes.DEPRIVATION:
+            case mapTypes.ORIGIN:
                 return "Origin / Deprivation";
             case mapTypes.DESTINATION:
                 return "Destination";
@@ -42,8 +42,8 @@ class MapTile extends Component {
 
     getMap(mapType){
         switch (mapType){
-            case mapTypes.DEPRIVATION:
-                return <DeprivationMap />;
+            case mapTypes.ORIGIN:
+                return <OriginMap />;
             case mapTypes.DESTINATION:
                 return <DestinationMap />;
             case mapTypes.INBOUND:
