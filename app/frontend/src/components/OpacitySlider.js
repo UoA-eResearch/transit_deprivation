@@ -33,7 +33,7 @@ class OpacitySlider extends Component {
                 </Typography>
                 <Slider
                     className={classes.mapOpacitySlider}
-                    defaultValue={0.8}
+                    defaultValue={1.0}
                     onChange={this.handleOpacityChange}
                     aria-labelledby="continuous-slider"
                     valueLabelDisplay="auto"

@@ -38,9 +38,11 @@ export default {
     // TODO: we might need more descriptive names if we add additional layers/second map
     destinationColor: [240, 32, 1],
     originColor: [0, 211, 255],
+    destinationLineWidth: 3,
+    originLineWidth: 3,
     mapColorScheme: "BlueGreen",
     mapHoveredObject: null,
-    mapOpacity: 0.8,
+    mapOpacity: 1.0,
     mapMinValue: 0.0,
     mapMaxValue: 1.0,
     mapViewState: {
