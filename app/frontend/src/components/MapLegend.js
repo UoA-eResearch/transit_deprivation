@@ -20,7 +20,7 @@ const styles = (theme) => ({
         width: "320px",
         color: theme.palette.text.secondary,
         background: theme.palette.background.paper,
-        padding: theme.spacing(2)
+        padding: theme.spacing(1)
 
     },
     colorBarTicks: {
@@ -39,37 +39,37 @@ const styles = (theme) => ({
 
 class MapLegend extends Component {
 
-    label = () => {
-        const { view } = this.props;
-        let l = "";
-        switch (view){
-            case "mean":
-                l = "Mean Travel Time (minutes)"
-                break;
-            case "stdev":
-                l = "Standard Deviation in Travel Time (minutes)"
-                break;
-            case "avail":
-                l = "Availability (%)"
-                break;
-            default:
-                break;
-        }
-        return l;
-    }
+    // label = () => {
+    //     const { view } = this.props;
+    //     let l = "";
+    //     switch (view){
+    //         case "mean":
+    //             l = "Mean Travel Time (minutes)"
+    //             break;
+    //         case "stdev":
+    //             l = "Standard Deviation in Travel Time (minutes)"
+    //             break;
+    //         case "avail":
+    //             l = "Accessibility (%)"
+    //             break;
+    //         default:
+    //             break;
+    //     }
+    //     return l;
+    // }
 
     render() {
-        const { classes, minValue, maxValue, view, colorScheme, opacity } = this.props;
+        const { classes, minValue, maxValue, label, colorScheme, opacity } = this.props;
         let width = 300;
         let height = 8;
         let xpad = 5;
 
         let vmin = minValue;
         let vmax = maxValue;
-        if (view === "avail") {
-            vmin = minValue * 100;
-            vmax = maxValue * 100;
-        }
+        // if (view === "avail") {
+        //     vmin = minValue * 100;
+        //     vmax = maxValue * 100;
+        // }
 
         let mapColorSchemeInterpolator = mapColorSchemeNameToInterpolator(colorScheme);
         let colorScale = scaleSequential([0, 1], mapColorSchemeInterpolator);
@@ -82,7 +82,7 @@ class MapLegend extends Component {
                 id={"map-legend"}
                 className={classes.mapLegend}
             >
-                <svg id="map-legend" width="320" height="60" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                <svg id="map-legend" width="318" height="28" version="1.1" xmlns="http://www.w3.org/2000/svg">
                     <defs>
                         <linearGradient id="Gradient">
                             {
@@ -121,17 +121,17 @@ class MapLegend extends Component {
                             </g>
                         ))
                     }
-                    <g
-                        key={"label"}
-                        transform={`translate(${xpad + width/2}, ${height + 50})`}
-                    >
-                        <text
-                            id="map-legend"
-                            key={"label"}
-                            className={classes.colorBarLabel}
-                            fill={"currentColor"}
-                        >{this.label}</text>
-                    </g>
+                    {/*<g*/}
+                    {/*    key={"label"}*/}
+                    {/*    transform={`translate(${xpad + width/2}, ${height + 50})`}*/}
+                    {/*>*/}
+                    {/*    <text*/}
+                    {/*        id="map-legend"*/}
+                    {/*        key={"label"}*/}
+                    {/*        className={classes.colorBarLabel}*/}
+                    {/*        fill={"currentColor"}*/}
+                    {/*    >{label}</text>*/}
+                    {/*</g>*/}
                 </svg>
             </Paper>
         );
@@ -140,8 +140,6 @@ class MapLegend extends Component {
 
 const mapStateToProps = (state) => {
     return {
-        minValue: state.mapMinValue,
-        maxValue: state.mapMaxValue,
         colorScheme: state.mapColorScheme,
         opacity: state.mapOpacity,
     }

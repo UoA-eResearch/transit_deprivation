@@ -124,7 +124,7 @@ module.exports = {
         }
         acc_C.divide(nt, false);
 
-        return [acc_B.tolist(), acc_C.tolist()]
+        return [acc_B.tolist(), acc_C.tolist(), result]
     }
 }
 

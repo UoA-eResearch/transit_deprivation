@@ -167,6 +167,7 @@ class OutboundAccessibilityMap extends Component {
                         />
                     )}
                     <MapTooltip />
+                    <MapLegend minValue={0} maxValue={100} label={"Accessibility"}/>
                 </DeckGL>
             </div>
         )

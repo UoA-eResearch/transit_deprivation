@@ -25,8 +25,12 @@ inbound = nj.array(inbound, 'float64'); // A->B
 outbound = nj.array(outbound, 'float64'); // B->C
 
 let nl = outbound.shape[0];
-let [acc_B, acc_C] = plan.multileg(inbound, outbound, tMax, tDest, tDelta);
+let [acc_B, acc_C, result] = plan.multileg(inbound, outbound, tMax, tDest, tDelta);
 
-for (let i=0; i < nl; i++){
-    console.log(i, acc_C[i]);
-}
+// for (let i=0; i < nl; i++){
+//     console.log(i, acc_C[i]);
+// }
+
+let origin = 2003;
+trips = result.slice(null, [origin, origin+1, 1]);
+console.log(trips.flatten().tolist());

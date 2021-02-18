@@ -170,11 +170,12 @@ export function computeBC(){
             const originIdx = locIdx[selectedDataZone];
 
             // get outbound accessibility scores for hovered location
-            const acc_C = plan.planBC(originIdx, tRemain, outbound, tMax, tDest, tDelta)
+            const [acc_C, trips ] = plan.planBC(originIdx, tRemain, outbound, tMax, tDest, tDelta)
             let avail_C = {"values": acc_C.tolist(), "min": 0, "max": 1};
 
             dispatch(setBC({
                 "avail": avail_C,
+                "trips": trips
             }));
         }
     }

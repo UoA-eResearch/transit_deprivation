@@ -59,11 +59,15 @@ class OriginMap extends Component {
 
         // You must initialize an empty deck.gl layer to prevent flashing
         map.addLayer(
+            new MapboxLayer({ id: "origin", deck }),
+            firstSymbolId
+        );
+        map.addLayer(
             new MapboxLayer({ id: "destination", deck }),
             firstSymbolId
         );
         map.addLayer(
-            new MapboxLayer({ id: "origin", deck }),
+            new MapboxLayer({ id: "base", deck }),
             firstSymbolId
         );
     }
@@ -82,8 +86,7 @@ class OriginMap extends Component {
     // new version
     getColor = (v) => {
 
-        const { dataZoneStats } = this.props;
-        const colorScheme = "BlueGreen";
+        const { dataZoneStats, colorScheme } = this.props;
         const mapColorSchemeInterpolator = mapColorSchemeNameToInterpolator(colorScheme);
 
         const vmin = dataZoneStats.IMD18.min;
@@ -100,12 +103,17 @@ class OriginMap extends Component {
     };
 
     render() {
-        const { classes, dataZones, mapViewState, mapOpacity, selectedDataZone, selectedDestination,
-            destinationColor, originColor, destinationLineWidth, originLineWidth } = this.props;
+        const { classes, dataZones, dataZoneStats, mapViewState, mapOpacity, selectedDataZone, selectedDestination,
+            destinationColor, originColor, destinationLineWidth, originLineWidth, colorScheme } = this.props;
+
+        // const vmin = dataZoneStats.IMD18.min;
+        // const vmax = dataZoneStats.IMD18.max;
+        const vmin = 0;
+        const vmax = 100;
 
         const layers = [
             new GeoJsonLayer({
-                id: 'origin',
+                id: 'base',
                 data: dataZones,
                 opacity: mapOpacity,
                 filled: true,
@@ -121,7 +129,7 @@ class OriginMap extends Component {
                 pickable: true,
                 // onHover: this.handleMapOnHover,
                 updateTriggers: {
-                    getLineWidth: selectedDataZone,
+                    getFillColor: colorScheme,
                 },
             }),
             new GeoJsonLayer({
@@ -137,7 +145,21 @@ class OriginMap extends Component {
                 updateTriggers: {
                     getLineWidth: selectedDestination,
                 },
-            })
+            }),
+            new GeoJsonLayer({
+                id: 'origin',
+                data: dataZones,
+                opacity: mapOpacity,
+                filled: false,
+                getLineWidth: f => {return (f.id === selectedDataZone) ? originLineWidth : 0 },
+                lineWidthUnits: "pixels",
+                getLineColor: originColor,
+                stroked: true,
+                updateTriggers: {
+                    getLineWidth: selectedDataZone,
+                },
+            }),
+
         ];
 
         return(
@@ -166,6 +188,7 @@ class OriginMap extends Component {
                         />
                     )}
                     <MapTooltip />
+                    <MapLegend minValue={vmin} maxValue={vmax} label={"Deprivation"}/>
                 </DeckGL>
             </div>
         )
@@ -185,7 +208,8 @@ const mapStateToProps = (state) => {
         destinationColor: state.destinationColor,
         originColor: state.originColor,
         destinationLineWidth: state.destinationLineWidth,
-        originLineWidth: state.originLineWidth
+        originLineWidth: state.originLineWidth,
+        colorScheme: state.mapColorScheme
     }
 };
 
