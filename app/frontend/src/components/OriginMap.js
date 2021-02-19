@@ -12,7 +12,7 @@ import { StaticMap } from 'react-map-gl';
 import DeckGL from '@deck.gl/react';
 import { GeoJsonLayer } from '@deck.gl/layers';
 import {MapboxLayer} from '@deck.gl/mapbox';
-import MapTooltip  from './MapTooltip';
+import MapTooltip  from './DestinationMapTooltip';
 import MapLegend from './MapLegend';
 import { color } from "d3";
 import * as mapTheme from "./mapTheme";

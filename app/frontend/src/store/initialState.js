@@ -51,11 +51,7 @@ export default {
         pitch: 0,
         bearing: 0
     },
-    mapTooltip: {
-        showHover: false,
-    },
     selectedDataZone: null,
-    hoveredDataZone: null,
 
     // indexes
     idxLoc: akl_idx_loc["default"], // array index to location id

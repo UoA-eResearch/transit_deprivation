@@ -8,7 +8,7 @@ import { GeoJsonLayer } from '@deck.gl/layers';
 import {MapboxLayer} from '@deck.gl/mapbox';
 import * as destinationTypes from './destinationTypes';
 import * as mapTheme from "./mapTheme";
-import MapTooltip from "./MapTooltip";
+import DestinationMapTooltip from "./DestinationMapTooltip";
 
 const styles = (theme) => ({
     map: {
@@ -26,7 +26,10 @@ class DestinationMap extends Component {
 
     constructor(props) {
         super(props);
-        this.state = {glContext: null};
+        this.state = {
+            glContext: null,
+            hoverInfo: null,
+        };
         this.deckRef = React.createRef();
         this.mapRef = React.createRef();
         this.onMapLoad = this.onMapLoad.bind(this);
@@ -85,6 +88,7 @@ class DestinationMap extends Component {
         setMapViewState(vs);
     };
 
+
     render() {
         const { classes, mapViewState, mapOpacity, dataZones, destinationDataset, destinations, selectedDestination,
             selectedDataZone, destinationColor, originColor, destinationLineWidth, originLineWidth } = this.props;
@@ -105,7 +109,6 @@ class DestinationMap extends Component {
                 getLineColor: destinationColor,
                 stroked: true,
                 pickable: true,
-                // onHover: this.handleMapOnHover,
                 updateTriggers: {
                     getLineWidth: selectedDestination,
                 },
@@ -129,14 +132,10 @@ class DestinationMap extends Component {
                 new GeoJsonLayer({
                     id: 'points',
                     data: destinations[destinationDataset],
-                    pointRadiusMinPixels: 5,
+                    pointRadiusMinPixels: 6,
                     getFillColor: destinationColor,
-                    // pickable: true,
-                    // onClick: (event, info) => {
-                    //     console.log('points');
-                    //     // info.handled = true;
-                    //     // this.handleGeoJsonLayerOnClick(event);
-                    // },
+                    pickable: true,
+                    onHover: info => this.setState({hoverInfo: info}),
                 })
             )
         }
@@ -166,7 +165,7 @@ class DestinationMap extends Component {
                             preventStyleDiffing={true}
                         />
                     )}
-                    <MapTooltip />
+                    <DestinationMapTooltip hoverInfo={this.state.hoverInfo}/>
                 </DeckGL>
             </div>
         )
