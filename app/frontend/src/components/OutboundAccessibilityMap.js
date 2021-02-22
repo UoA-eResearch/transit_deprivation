@@ -16,6 +16,8 @@ import MapLegend from './MapLegend';
 import { color } from "d3";
 import {getInterpolatedColor, getNormalisedValue} from "../utils/mapUtil";
 import * as mapTheme from "./mapTheme";
+import OutboundMapTooltip from "./OutboundMapTooltip";
+import DestinationMapTooltip from "./DestinationMapTooltip";
 
 const styles = (theme) => ({
     map: {
@@ -33,7 +35,10 @@ class OutboundAccessibilityMap extends Component {
 
     constructor(props) {
         super(props);
-        this.state = {glContext: null};
+        this.state = {
+            glContext: null,
+            hoverInfo: null,
+        };
         this.deckRef = React.createRef();
         this.mapRef = React.createRef();
         this.onMapLoad = this.onMapLoad.bind(this);
@@ -68,6 +73,10 @@ class OutboundAccessibilityMap extends Component {
             new MapboxLayer({ id: "origin", deck }),
             firstSymbolId
         );
+        map.addLayer(
+            new MapboxLayer({ id: "routes", deck }),
+            firstSymbolId
+        );
     }
 
     getColor = (location) => {
@@ -97,8 +106,8 @@ class OutboundAccessibilityMap extends Component {
     };
 
     render() {
-        const { classes, dataZones, mapViewState, mapOpacity, BC, view, colorScheme, selectedDestination, selectedDataZone,
-            destinationColor, originColor, destinationLineWidth, originLineWidth} = this.props;
+        const { classes, dataZones, routes, mapViewState, mapOpacity, BC, view, colorScheme, selectedDestination,
+            selectedDataZone, destinationColor, originColor, destinationLineWidth, originLineWidth} = this.props;
 
         const layers = [
             new GeoJsonLayer({
@@ -110,7 +119,9 @@ class OutboundAccessibilityMap extends Component {
                 getFillColor: f => this.getColor(f.id),
                 updateTriggers: {
                     getFillColor: [BC, view, colorScheme],
-                }
+                },
+                pickable: true,
+                onHover: info => this.setState({hoverInfo: info}),
             }),
             new GeoJsonLayer({
                 id: 'destination',
@@ -139,6 +150,15 @@ class OutboundAccessibilityMap extends Component {
                     getLineWidth: selectedDataZone,
                 },
             }),
+            new GeoJsonLayer({
+                id: 'routes',
+                data: routes,
+                opacity: mapOpacity,
+                getLineWidth: 1,
+                lineWidthScale: 10,
+                // stroked: true,
+                getLineColor: [0, 0, 0],
+            }),
         ];
 
         return(
@@ -166,7 +186,7 @@ class OutboundAccessibilityMap extends Component {
                             preventStyleDiffing={true}
                         />
                     )}
-                    <MapTooltip />
+                    <OutboundMapTooltip hoverInfo={this.state.hoverInfo}/>
                     <MapLegend minValue={0} maxValue={100} label={"Accessibility"}/>
                 </DeckGL>
             </div>
@@ -179,6 +199,7 @@ const mapStateToProps = (state) => {
         mapViewState: state.mapViewState,
         mapOpacity: state.mapOpacity,
         dataZones: state.dataZones,
+        routes: state.routes,
         dataZoneStats: state.dataZoneStats,
         selectedDataZone: state.selectedDataZone,
         tooltip: state.mapTooltip,

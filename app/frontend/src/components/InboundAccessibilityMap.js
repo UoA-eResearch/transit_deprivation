@@ -68,6 +68,10 @@ class InboundAccessibilityMap extends Component {
             new MapboxLayer({ id: "origin", deck }),
             firstSymbolId
         );
+        map.addLayer(
+            new MapboxLayer({ id: "routes", deck }),
+            firstSymbolId
+        );
     }
 
     getColor = (location) => {
@@ -97,7 +101,7 @@ class InboundAccessibilityMap extends Component {
     };
 
     render() {
-        const { classes, dataZones, mapOpacity, mapViewState, AB, view, colorScheme, selectedDestination,
+        const { classes, dataZones, routes, mapOpacity, mapViewState, AB, view, colorScheme, selectedDestination,
             selectedDataZone, destinationColor, originColor, destinationLineWidth, originLineWidth} = this.props;
 
         const layers = [
@@ -137,6 +141,15 @@ class InboundAccessibilityMap extends Component {
                 updateTriggers: {
                     getLineWidth: selectedDataZone,
                 },
+            }),
+            new GeoJsonLayer({
+                id: 'routes',
+                data: routes,
+                opacity: mapOpacity,
+                getLineWidth: 1,
+                lineWidthScale: 10,
+                // stroked: true,
+                getLineColor: [0, 0, 0],
             }),
         ];
 
@@ -189,7 +202,8 @@ const mapStateToProps = (state) => {
         destinationColor: state.destinationColor,
         originColor: state.originColor,
         destinationLineWidth: state.destinationLineWidth,
-        originLineWidth: state.originLineWidth
+        originLineWidth: state.originLineWidth,
+        routes: state.routes,
     }
 };
 

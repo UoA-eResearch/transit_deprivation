@@ -73,12 +73,7 @@ class DestinationMap extends Component {
     handleGeoJsonLayerOnClick = (event, info) => {
         const { getLocationDT, setDestinationDataZone } = this.props;
 
-        // for poly:
-        const location = event.object.id;
-
-        // for points
-        // const location = event.object.properties.DZ2018
-
+        const location = event.object.properties.DZ2018
         setDestinationDataZone(location);
         getLocationDT(location); // get location destination-time data and compute stats
     };
@@ -136,6 +131,10 @@ class DestinationMap extends Component {
                     getFillColor: destinationColor,
                     pickable: true,
                     onHover: info => this.setState({hoverInfo: info}),
+                    onClick: (event, info) => {
+                        info.handled = true;
+                        this.handleGeoJsonLayerOnClick(event);
+                    },
                 })
             )
         }

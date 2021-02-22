@@ -1,11 +1,12 @@
 import {min, max} from "d3";
 
 // Data
-import * as data_zones from "./data/akl/akl_polygons_id.json"
-import * as clinics from "./data/akl/akl_clinics.json"
-import * as akl_idx_loc from "./data/akl/akl_idx_loc.json"
-import * as akl_loc_idx from "./data/akl/akl_loc_idx.json"
-import * as akl_idx_t from "./data/akl/akl_idx_t.json"
+import * as data_zones from "./data/akl/akl_polygons_id.json";
+import * as routes from "./data/akl/akl_routes.json";
+import * as clinics from "./data/akl/akl_clinics.json";
+import * as akl_idx_loc from "./data/akl/akl_idx_loc.json";
+import * as akl_loc_idx from "./data/akl/akl_loc_idx.json";
+import * as akl_idx_t from "./data/akl/akl_idx_t.json";
 
 import * as destinationTypes from "../components/destinationTypes";
 import {DESTINATION_DIABETES_CLINICS} from "../components/destinationTypes";
@@ -21,6 +22,7 @@ function calcStats(data){
 export default {
     // geojson data
     dataZones: data_zones["default"],
+    routes: routes["default"],
     destinations: {
         [destinationTypes.DESTINATION_DIABETES_CLINICS]: clinics["default"],
     },
