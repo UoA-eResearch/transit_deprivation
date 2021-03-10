@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import { connect } from 'react-redux';
 import { withStyles, createMuiTheme} from '@material-ui/core/styles';
-import { Paper, Grid, Typography } from '@material-ui/core';
+import { Divider, Paper, Grid, Typography } from '@material-ui/core';
 import DatasetSelector from "./DatasetSelector";
 import TimeLimitSlider from "./TimeLimitSlider";
 import DestinationTimeSlider from "./DestinationTimeSlider";
@@ -54,10 +54,30 @@ class App extends Component {
                     </Grid>
                     <Grid item>
                         <Paper className={classes.paper}>
-                            <Typography variant="h5" gutterBottom>Data</Typography>
-                            <DatasetSelector />
-                            <DestinationBasemapSelector />
-                            <OriginBasemapSelector />
+                            <Grid container direction="column" spacing={2}>
+                                <Grid item>
+                                    <Typography variant="h5" gutterBottom>Data</Typography>
+                                </Grid>
+                                <Grid item>
+                                    <DatasetSelector />
+                                </Grid>
+                                <Grid item>
+                                    <Divider />
+                                </Grid>
+                                <Grid item>
+                                    <DestinationBasemapSelector />
+                                </Grid>
+                                <Grid item>
+                                    <Divider />
+                                </Grid>
+                                <Grid item>
+                                    <OriginBasemapSelector />
+                                </Grid>
+                            </Grid>
+
+
+                            <Divider />
+
                         </Paper>
                     </Grid>
                     <Grid item>
