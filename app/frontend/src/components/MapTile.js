@@ -52,7 +52,7 @@ class MapTile extends Component {
     getDescription(mapType) {
         switch (mapType){
             case mapTypes.ORIGIN:
-                return "Click on the map to select a starting location";
+                return "Click on the map to select a starting location. Trips will originate from here and end at the selected destination.";
             case mapTypes.DESTINATION:
                 return "Click on the map to select a destination. Set the time spent there and the total time available using the sliders under Controls";
             case mapTypes.INBOUND:

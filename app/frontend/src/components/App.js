@@ -1,16 +1,13 @@
 import React, {Component} from 'react';
 import { connect } from 'react-redux';
 import { withStyles, createMuiTheme} from '@material-ui/core/styles';
-import { Divider, Paper, Grid, Typography } from '@material-ui/core';
-import DatasetSelector from "./DatasetSelector";
-import TimeLimitSlider from "./TimeLimitSlider";
-import DestinationTimeSlider from "./DestinationTimeSlider";
-import OpacitySlider from "./OpacitySlider";
+import { Paper, Grid, Typography } from '@material-ui/core';
 import MapTile from "./MapTile";
 import * as mapTypes from "./mapTypes";
-import MapColorSchemeSelector from "./MapColorSchemeSelector";
-import DestinationBasemapSelector from "./DestinationBasemapSelector";
-import OriginBasemapSelector from "./OriginBasemapSelector";
+import ViewPanel from "./ViewPanel";
+import DataPanel from "./DataPanel";
+import ControlPanel from "./ControlPanel";
+import MapPanel from "./MapPanel";
 
 const theme = createMuiTheme({
     palette: {
@@ -53,66 +50,16 @@ class App extends Component {
                         </Paper>
                     </Grid>
                     <Grid item>
-                        <Paper className={classes.paper}>
-                            <Grid container direction="column" spacing={2}>
-                                <Grid item>
-                                    <Typography variant="h5" gutterBottom>Data</Typography>
-                                </Grid>
-                                <Grid item>
-                                    <DatasetSelector />
-                                </Grid>
-                                <Grid item>
-                                    <Divider />
-                                </Grid>
-                                <Grid item>
-                                    <DestinationBasemapSelector />
-                                </Grid>
-                                <Grid item>
-                                    <Divider />
-                                </Grid>
-                                <Grid item>
-                                    <OriginBasemapSelector />
-                                </Grid>
-                            </Grid>
-
-
-                            <Divider />
-
-                        </Paper>
+                        <DataPanel />
                     </Grid>
                     <Grid item>
-                        <Paper className={classes.paper}>
-                            <Typography variant="h5" gutterBottom>Controls</Typography>
-                            <TimeLimitSlider />
-                            <DestinationTimeSlider />
-                        </Paper>
+                        <ControlPanel />
                     </Grid>
                     <Grid item>
-                        <Paper className={classes.paper}>
-                            <Typography variant="h5" gutterBottom>View</Typography>
-                            <OpacitySlider />
-                            <MapColorSchemeSelector />
-                        </Paper>
+                        <ViewPanel />
                     </Grid>
                 </Grid>
-                <Grid container item direction="column" xs={8} spacing={3}>
-                    <Grid container item direction="row" spacing={3}>
-                        <Grid item xs={6}>
-                            <MapTile mapType={mapTypes.DESTINATION}/>
-                        </Grid>
-                        <Grid item xs={6}>
-                            <MapTile mapType={mapTypes.INBOUND}/>
-                        </Grid>
-                    </Grid>
-                    <Grid container item direction="row" spacing={3}>
-                        <Grid item xs={6}>
-                            <MapTile mapType={mapTypes.ORIGIN}/>
-                        </Grid>
-                        <Grid item xs={6}>
-                            <MapTile mapType={mapTypes.OUTBOUND}/>
-                        </Grid>
-                    </Grid>
-                </Grid>
+                <MapPanel />
             </Grid>
         );
     }

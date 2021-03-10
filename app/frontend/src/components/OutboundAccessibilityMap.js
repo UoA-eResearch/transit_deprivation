@@ -77,6 +77,8 @@ class OutboundAccessibilityMap extends Component {
             new MapboxLayer({ id: "routes", deck }),
             firstSymbolId
         );
+
+
     }
 
     getColor = (location) => {
@@ -107,7 +109,8 @@ class OutboundAccessibilityMap extends Component {
 
     render() {
         const { classes, dataZones, routes, mapViewState, mapOpacity, BC, view, colorScheme, selectedDestination,
-            selectedDataZone, destinationColor, originColor, destinationLineWidth, originLineWidth} = this.props;
+                selectedDataZone, destinationColor, originColor, destinationLineWidth, originLineWidth,
+                showTransitNetwork } = this.props;
 
         const layers = [
             new GeoJsonLayer({
@@ -157,9 +160,13 @@ class OutboundAccessibilityMap extends Component {
                 getLineWidth: 1,
                 lineWidthScale: 10,
                 // stroked: true,
-                getLineColor: [0, 0, 0],
+                getLineColor: showTransitNetwork ? [0, 0, 0] : [0, 0, 0, 0],
+                updateTriggers: {
+                    getLineColor: showTransitNetwork
+                }
             }),
         ];
+
 
         return(
             <div className={classes.map}>
@@ -187,7 +194,7 @@ class OutboundAccessibilityMap extends Component {
                         />
                     )}
                     <OutboundMapTooltip hoverInfo={this.state.hoverInfo}/>
-                    <MapLegend minValue={0} maxValue={100} label={"Trip %"}/>
+                    { (BC !== null) ? <MapLegend minValue={0} maxValue={100} label={"Percentage of trips"}/> : null}
                 </DeckGL>
             </div>
         )
@@ -211,7 +218,8 @@ const mapStateToProps = (state) => {
         destinationColor: state.destinationColor,
         originColor: state.originColor,
         destinationLineWidth: state.destinationLineWidth,
-        originLineWidth: state.originLineWidth
+        originLineWidth: state.originLineWidth,
+        showTransitNetwork: state.showTransitNetwork,
     }
 };
 

@@ -62,6 +62,7 @@ export default {
         bearing: 0
     },
     selectedDataZone: null,
+    showTransitNetwork: false,
 
     // indexes
     idxLoc: akl_idx_loc["default"], // array index to location id

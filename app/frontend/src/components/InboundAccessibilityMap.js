@@ -102,7 +102,8 @@ class InboundAccessibilityMap extends Component {
 
     render() {
         const { classes, dataZones, routes, mapOpacity, mapViewState, AB, view, colorScheme, selectedDestination,
-            selectedDataZone, destinationColor, originColor, destinationLineWidth, originLineWidth} = this.props;
+                selectedDataZone, destinationColor, originColor, destinationLineWidth, originLineWidth, showTransitNetwork,
+            } = this.props;
 
         const layers = [
             new GeoJsonLayer({
@@ -149,7 +150,10 @@ class InboundAccessibilityMap extends Component {
                 getLineWidth: 1,
                 lineWidthScale: 10,
                 // stroked: true,
-                getLineColor: [0, 0, 0],
+                getLineColor: showTransitNetwork ? [0, 0, 0] : [0, 0, 0, 0],
+                updateTriggers: {
+                    getLineColor: showTransitNetwork
+                }
             }),
         ];
 
@@ -179,7 +183,7 @@ class InboundAccessibilityMap extends Component {
                         />
                     )}
                     <MapTooltip />
-                    <MapLegend minValue={0} maxValue={100} label={"Trip %"}/>
+                    { (AB !== null) ? <MapLegend minValue={0} maxValue={100} label={"Percentage of trips"}/> : null}
                 </DeckGL>
             </div>
         )
@@ -204,6 +208,7 @@ const mapStateToProps = (state) => {
         destinationLineWidth: state.destinationLineWidth,
         originLineWidth: state.originLineWidth,
         routes: state.routes,
+        showTransitNetwork: state.showTransitNetwork,
     }
 };
 

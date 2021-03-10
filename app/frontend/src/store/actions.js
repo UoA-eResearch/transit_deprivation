@@ -39,6 +39,13 @@ export function setTimeLimit(timeLimit) {
     }
 }
 
+export function setShowTransitNetwork(show){
+    return {
+        type: types.SET_SHOW_TRANSIT_NETWORK,
+        show
+    }
+}
+
 export function setTimeAtDestination(time) {
     return {
         type: types.SET_TIME_AT_DESTINATION,

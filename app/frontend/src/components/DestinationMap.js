@@ -164,7 +164,7 @@ class DestinationMap extends Component {
                 new GeoJsonLayer({
                     id: 'points',
                     data: destinations[destinationDataset],
-                    pointRadiusMinPixels: 6,
+                    pointRadiusMinPixels: 5,
                     getFillColor: destinationColor,
                     pickable: true,
                     onHover: info => this.setState({hoverInfo: info}),

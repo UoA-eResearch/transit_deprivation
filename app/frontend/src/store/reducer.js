@@ -68,6 +68,9 @@ const reducer = createReducer(initialState, (builder) => {
             }
 
         })
+        .addCase(types.SET_SHOW_TRANSIT_NETWORK, (state, action) => {
+            state.showTransitNetwork = action.show;
+        })
         .addDefaultCase((state, action) => {})
 });
 export default reducer;
