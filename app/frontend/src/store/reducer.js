@@ -14,6 +14,12 @@ const reducer = createReducer(initialState, (builder) => {
         .addCase(types.SET_DESTINATION_DATASET, (state, action) => {
             state.destinationDataset = action.destinationDataset;
         })
+        .addCase(types.SET_DESTINATION_BASEMAP, (state, action) => {
+            state.destinationBasemap = action.destinationBasemap;
+        })
+        .addCase(types.SET_ORIGIN_BASEMAP, (state, action) => {
+            state.originBasemap = action.originBasemap;
+        })
         .addCase(types.SET_TIME_LIMIT, (state, action) => {
             state.timeLimit = action.timeLimit;
         })

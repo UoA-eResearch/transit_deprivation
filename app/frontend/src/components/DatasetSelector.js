@@ -32,36 +32,33 @@ class DatasetSelector extends Component {
         const { classes, destinationDataset, view } = this.props;
 
         const infoStr = {
-            "None": "No destination dataset selected",
-            "Diabetes Clinics": "This dataset contains the location diabetes treatment centers in the Auckland Region."
+            [destinationTypes.DESTINATION_NONE]: "No destination dataset selected",
+            [destinationTypes.DESTINATION_DIABETES_CLINICS]: "This dataset contains the location diabetes treatment centers in the Auckland Region."
         }
 
         return (
             <Grid container direction="column" spacing={2}>
-                <Grid item>
-                    <Typography variant="h5">Data</Typography>
-                </Grid>
-                <Grid container item direction="row" spacing={3} alignItems="center">
-                    <Grid item>
-                        <Typography>Travel Time View</Typography>
-                    </Grid>
-                    <Grid item>
-                        <Select
-                            className={classes.viewSelector}
-                            value={view}
-                            onChange={this.handleViewChange}
-                        >
-                            <MenuItem value={"avail"}>Accessibility</MenuItem>
-                            {/*<MenuItem value={"mean"}>Mean</MenuItem>*/}
-                            {/*<MenuItem value={"stdev"}>Standard Deviation</MenuItem>*/}
-                        </Select>
-                    </Grid>
-                </Grid>
+                {/*<Grid container item direction="row" spacing={3} alignItems="center">*/}
+                {/*    <Grid item>*/}
+                {/*        <Typography>Travel Time View</Typography>*/}
+                {/*    </Grid>*/}
+                {/*    <Grid item>*/}
+                {/*        <Select*/}
+                {/*            className={classes.viewSelector}*/}
+                {/*            value={view}*/}
+                {/*            onChange={this.handleViewChange}*/}
+                {/*        >*/}
+                {/*            <MenuItem value={"avail"}>Accessibility</MenuItem>*/}
+                {/*            /!*<MenuItem value={"mean"}>Mean</MenuItem>*!/*/}
+                {/*            /!*<MenuItem value={"stdev"}>Standard Deviation</MenuItem>*!/*/}
+                {/*        </Select>*/}
+                {/*    </Grid>*/}
+                {/*</Grid>*/}
                 <Grid container item direction="row" spacing={3} alignItems="center">
                     <Grid item>
                         <Typography>Destinations</Typography>
                     </Grid>
-                    <Grid item style={{marginLeft:32}}>
+                    <Grid item style={{marginLeft:0}}>
                         <Select
                             className={classes.datasetSelector}
                             value={destinationDataset}

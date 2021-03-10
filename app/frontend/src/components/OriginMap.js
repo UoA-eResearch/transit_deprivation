@@ -16,6 +16,7 @@ import MapTooltip  from './DestinationMapTooltip';
 import MapLegend from './MapLegend';
 import { color } from "d3";
 import * as mapTheme from "./mapTheme";
+import * as basemapTypes from "./basemapTypes";
 
 const styles = (theme) => ({
     map: {
@@ -83,14 +84,13 @@ class OriginMap extends Component {
         return [c.r, c.g, c.b, c.opacity];
     }
 
-    // new version
-    getColor = (v) => {
+    getColor = (v, property) => {
 
         const { dataZoneStats, colorScheme } = this.props;
         const mapColorSchemeInterpolator = mapColorSchemeNameToInterpolator(colorScheme);
 
-        const vmin = dataZoneStats.IMD18.min;
-        const vmax = dataZoneStats.IMD18.max;
+        const vmin = dataZoneStats[property].min;
+        const vmax = dataZoneStats[property].max;
 
         const nv = (v - vmin) / Math.max((vmax - vmin), 1);
         return this.getInterpolatedColor(nv, mapColorSchemeInterpolator);
@@ -104,12 +104,17 @@ class OriginMap extends Component {
 
     render() {
         const { classes, dataZones, dataZoneStats, mapViewState, mapOpacity, selectedDataZone, selectedDestination,
-            destinationColor, originColor, destinationLineWidth, originLineWidth, colorScheme } = this.props;
+            destinationColor, originColor, destinationLineWidth, originLineWidth, colorScheme, basemap } = this.props;
 
-        // const vmin = dataZoneStats.IMD18.min;
-        // const vmax = dataZoneStats.IMD18.max;
-        const vmin = 0;
-        const vmax = 100;
+        const property = basemapTypes.basemapToProperty[basemap].property;
+        const label = basemapTypes.basemapToProperty[basemap].label;
+
+        let vmin = 0;
+        let vmax = 100;
+        if (property !== null){
+            vmin = dataZoneStats[property].min;
+            vmax = dataZoneStats[property].max;
+        }
 
         const layers = [
             new GeoJsonLayer({
@@ -117,7 +122,9 @@ class OriginMap extends Component {
                 data: dataZones,
                 opacity: mapOpacity,
                 filled: true,
-                getFillColor: f => this.getColor(f.properties.IMD18),
+                getFillColor: (f) => {
+                    return (property === null) ? [0, 0, 0, 0] : this.getColor(f.properties[property], property)
+                },
                 onClick: (event, info) => {
                     info.handled = true;
                     this.handleGeoJsonLayerOnClick(event);
@@ -129,7 +136,8 @@ class OriginMap extends Component {
                 pickable: true,
                 // onHover: this.handleMapOnHover,
                 updateTriggers: {
-                    getFillColor: colorScheme,
+                    getFillColor: [colorScheme, basemap],
+
                 },
             }),
             new GeoJsonLayer({
@@ -188,7 +196,7 @@ class OriginMap extends Component {
                         />
                     )}
                     <MapTooltip />
-                    <MapLegend minValue={vmin} maxValue={vmax} label={"Deprivation"}/>
+                    {(property === null) ? null : <MapLegend minValue={vmin} maxValue={vmax} label={label}/>}
                 </DeckGL>
             </div>
         )
@@ -202,6 +210,7 @@ const mapStateToProps = (state) => {
         dataZones: state.dataZones,
         dataZoneStats: state.dataZoneStats,
         selectedDataZone: state.selectedDataZone,
+        basemap: state.originBasemap,
         tooltip: state.mapTooltip,
         locIdx: state.locIdx,
         selectedDestination: state.selectedDestination,

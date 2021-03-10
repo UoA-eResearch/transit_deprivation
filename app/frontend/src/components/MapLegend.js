@@ -17,7 +17,7 @@ const styles = (theme) => ({
     mapLegend: {
         x: 0,
         y: 0,
-        width: "320px",
+        width: "350px",
         color: theme.palette.text.secondary,
         background: theme.palette.background.paper,
         padding: theme.spacing(1)
@@ -60,9 +60,10 @@ class MapLegend extends Component {
 
     render() {
         const { classes, minValue, maxValue, label, colorScheme, opacity } = this.props;
-        let width = 300;
-        let height = 8;
-        let xpad = 5;
+        let width = 330;
+        let height = 10;
+        let xpad = 10;
+        let ypad = 0;
 
         let vmin = minValue;
         let vmax = maxValue;
@@ -82,7 +83,7 @@ class MapLegend extends Component {
                 id={"map-legend"}
                 className={classes.mapLegend}
             >
-                <svg id="map-legend" width="318" height="28" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                <svg id="map-legend" width="350" height="55" version="1.1" xmlns="http://www.w3.org/2000/svg">
                     <defs>
                         <linearGradient id="Gradient">
                             {
@@ -96,7 +97,7 @@ class MapLegend extends Component {
                     </defs>
                     <rect
                         x={xpad}
-                        y="0"
+                        y={ypad}
                         width={width}
                         height={height}
                         stroke="transparent"
@@ -115,23 +116,23 @@ class MapLegend extends Component {
                                     key={`tickValue-${index}`}
                                     className={classes.colorBarTicks}
                                     fill={"currentColor"}
-                                    style={{transform: `translateY(${height + 20}px)`}}>
+                                    style={{transform: `translateY(${ypad + height + 20}px)`}}>
                                     { value }
                                 </text>
                             </g>
                         ))
                     }
-                    {/*<g*/}
-                    {/*    key={"label"}*/}
-                    {/*    transform={`translate(${xpad + width/2}, ${height + 50})`}*/}
-                    {/*>*/}
-                    {/*    <text*/}
-                    {/*        id="map-legend"*/}
-                    {/*        key={"label"}*/}
-                    {/*        className={classes.colorBarLabel}*/}
-                    {/*        fill={"currentColor"}*/}
-                    {/*    >{label}</text>*/}
-                    {/*</g>*/}
+                    <g
+                        key={"label"}
+                        transform={`translate(${xpad + width/2}, ${ypad + height + 42})`}
+                    >
+                        <text
+                            id="map-legend"
+                            key={"label"}
+                            className={classes.colorBarLabel}
+                            fill={"currentColor"}
+                        >{label}</text>
+                    </g>
                 </svg>
             </Paper>
         );

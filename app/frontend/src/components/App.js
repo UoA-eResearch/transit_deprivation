@@ -9,6 +9,8 @@ import OpacitySlider from "./OpacitySlider";
 import MapTile from "./MapTile";
 import * as mapTypes from "./mapTypes";
 import MapColorSchemeSelector from "./MapColorSchemeSelector";
+import DestinationBasemapSelector from "./DestinationBasemapSelector";
+import OriginBasemapSelector from "./OriginBasemapSelector";
 
 const theme = createMuiTheme({
     palette: {
@@ -42,17 +44,20 @@ class App extends Component {
                             <Typography variant="h4" gutterBottom>
                                 Transit & Deprivation
                             </Typography>
-                            <Typography paragraph style={{whiteSpace: 'pre-line'}}>
-                                {"This tool will visualise the travel time between origins and destinations in the Auckland Region when using public transport. \n\n" +
-                                "Click on the map to view the travel time from there to the rest of Auckland. To clear the map, select an empty location, such as the ocean. \n\n" +
-                                "You can visualise how accessibility changes with the amount of time available by using the time limit slider in the control settings below."
+                            <Typography variant="body1" style={{whiteSpace: 'pre-line'}}>
+                                {
+                                    "This tool visualises the impact of deprivation on accessibility via public transport in Auckland\n\n" +
+                                    "Start by selecting a destination data set in the Data panel below. Then use the Destination panel to select a location of interest and the Origin panel to select a starting location\n\n"
                                 }
                             </Typography>
                         </Paper>
                     </Grid>
                     <Grid item>
                         <Paper className={classes.paper}>
+                            <Typography variant="h5" gutterBottom>Data</Typography>
                             <DatasetSelector />
+                            <DestinationBasemapSelector />
+                            <OriginBasemapSelector />
                         </Paper>
                     </Grid>
                     <Grid item>
@@ -60,6 +65,11 @@ class App extends Component {
                             <Typography variant="h5" gutterBottom>Controls</Typography>
                             <TimeLimitSlider />
                             <DestinationTimeSlider />
+                        </Paper>
+                    </Grid>
+                    <Grid item>
+                        <Paper className={classes.paper}>
+                            <Typography variant="h5" gutterBottom>View</Typography>
                             <OpacitySlider />
                             <MapColorSchemeSelector />
                         </Paper>

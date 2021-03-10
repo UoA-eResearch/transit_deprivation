@@ -187,7 +187,7 @@ class OutboundAccessibilityMap extends Component {
                         />
                     )}
                     <OutboundMapTooltip hoverInfo={this.state.hoverInfo}/>
-                    <MapLegend minValue={0} maxValue={100} label={"Accessibility"}/>
+                    <MapLegend minValue={0} maxValue={100} label={"Trip %"}/>
                 </DeckGL>
             </div>
         )

@@ -9,13 +9,19 @@ import * as akl_loc_idx from "./data/akl/akl_loc_idx.json";
 import * as akl_idx_t from "./data/akl/akl_idx_t.json";
 
 import * as destinationTypes from "../components/destinationTypes";
+import * as basemapTypes from "../components/basemapTypes";
 import {DESTINATION_DIABETES_CLINICS} from "../components/destinationTypes";
 
 function calcStats(data){
 
-    const stats = {
-            "IMD18": {"min": min(data, d => d.properties.IMD18), "max": max(data, d => d.properties.IMD18)},
+    const stats = {};
+    for (var key in basemapTypes.basemapToProperty){
+        let p = basemapTypes.basemapToProperty[key].property;
+        if (p !== null){
+            stats[p] = {"min": min(data, d => d.properties[p]), "max": max(data, d => d.properties[p])};
         }
+    }
+
     return stats
 }
 
@@ -30,6 +36,8 @@ export default {
 
     // filter/selection values
     destinationDataset: destinationTypes.DESTINATION_DIABETES_CLINICS,
+    destinationBasemap: basemapTypes.BASEMAP_NONE,
+    originBasemap: basemapTypes.BASEMAP_NONE,
     selectedDestination: null,
     view: "avail",
     timeLimit: 120,

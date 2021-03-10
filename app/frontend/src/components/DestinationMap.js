@@ -9,6 +9,10 @@ import {MapboxLayer} from '@deck.gl/mapbox';
 import * as destinationTypes from './destinationTypes';
 import * as mapTheme from "./mapTheme";
 import DestinationMapTooltip from "./DestinationMapTooltip";
+import * as basemapTypes from "../components/basemapTypes";
+import {mapColorSchemeNameToInterpolator} from "../utils/colorScheme";
+import {color} from "d3";
+import MapLegend from "./MapLegend";
 
 const styles = (theme) => ({
     map: {
@@ -83,10 +87,40 @@ class DestinationMap extends Component {
         setMapViewState(vs);
     };
 
+    getColor = (v, property) => {
+
+        const { dataZoneStats, colorScheme } = this.props;
+        const mapColorSchemeInterpolator = mapColorSchemeNameToInterpolator(colorScheme);
+
+        const vmin = dataZoneStats[property].min;
+        const vmax = dataZoneStats[property].max;
+
+        const nv = (v - vmin) / Math.max((vmax - vmin), 1);
+        return this.getInterpolatedColor(nv, mapColorSchemeInterpolator);
+
+    };
+
+    getInterpolatedColor(value, interpolator){
+        let c = interpolator(value);
+        c = color(c).copy({opacity: 255})
+        return [c.r, c.g, c.b, c.opacity];
+    }
 
     render() {
-        const { classes, mapViewState, mapOpacity, dataZones, destinationDataset, destinations, selectedDestination,
-            selectedDataZone, destinationColor, originColor, destinationLineWidth, originLineWidth } = this.props;
+
+        const { classes, mapViewState, mapOpacity, dataZones, dataZoneStats, destinationDataset, destinations,
+            selectedDestination, selectedDataZone, destinationColor, originColor, destinationLineWidth, originLineWidth,
+            basemap } = this.props;
+
+        const property = basemapTypes.basemapToProperty[basemap].property;
+        const label = basemapTypes.basemapToProperty[basemap].label;
+
+        let vmin = 0;
+        let vmax = 100;
+        if (property !== null){
+            vmin = dataZoneStats[property].min;
+            vmax = dataZoneStats[property].max;
+        }
 
         const layers = [
             new GeoJsonLayer({
@@ -94,7 +128,9 @@ class DestinationMap extends Component {
                 data: dataZones,
                 opacity: mapOpacity,
                 filled: true,
-                getFillColor: [0, 0, 0, 0],
+                getFillColor: (f) => {
+                    return (property === null) ? [0, 0, 0, 0] : this.getColor(f.properties[property], property)
+                },
                 onClick: (event, info) => {
                     info.handled = true;
                     this.handleGeoJsonLayerOnClick(event);
@@ -106,6 +142,7 @@ class DestinationMap extends Component {
                 pickable: true,
                 updateTriggers: {
                     getLineWidth: selectedDestination,
+                    getFillColor: basemap
                 },
             }),
             new GeoJsonLayer({
@@ -165,6 +202,7 @@ class DestinationMap extends Component {
                         />
                     )}
                     <DestinationMapTooltip hoverInfo={this.state.hoverInfo}/>
+                    {(property === null) ? null : <MapLegend minValue={vmin} maxValue={vmax} label={label}/>}
                 </DeckGL>
             </div>
         )
@@ -174,16 +212,19 @@ class DestinationMap extends Component {
 const mapStateToProps = (state) => {
     return {
         dataZones: state.dataZones,
+        dataZoneStats: state.dataZoneStats,
         mapOpacity: state.mapOpacity,
         mapViewState: state.mapViewState,
         destinations: state.destinations,
         destinationDataset: state.destinationDataset,
+        basemap: state.destinationBasemap,
         selectedDestination: state.selectedDestination,
         selectedDataZone: state.selectedDataZone,
         destinationColor: state.destinationColor,
         originColor: state.originColor,
         destinationLineWidth: state.destinationLineWidth,
-        originLineWidth: state.originLineWidth
+        originLineWidth: state.originLineWidth,
+        colorScheme: state.mapColorScheme
     }
 };
 

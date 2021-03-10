@@ -18,6 +18,20 @@ export function setDestinationDataset(destinationDataset) {
     }
 }
 
+export function setDestinationBasemap(destinationBasemap) {
+    return {
+        type: types.SET_DESTINATION_BASEMAP,
+        destinationBasemap
+    }
+}
+
+export function setOriginBasemap(originBasemap) {
+    return {
+        type: types.SET_ORIGIN_BASEMAP,
+        originBasemap
+    }
+}
+
 export function setTimeLimit(timeLimit) {
     return {
         type: types.SET_TIME_LIMIT,
