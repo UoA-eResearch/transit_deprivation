@@ -39,44 +39,22 @@ const styles = (theme) => ({
 
 class MapLegend extends Component {
 
-    // label = () => {
-    //     const { view } = this.props;
-    //     let l = "";
-    //     switch (view){
-    //         case "mean":
-    //             l = "Mean Travel Time (minutes)"
-    //             break;
-    //         case "stdev":
-    //             l = "Standard Deviation in Travel Time (minutes)"
-    //             break;
-    //         case "avail":
-    //             l = "Accessibility (%)"
-    //             break;
-    //         default:
-    //             break;
-    //     }
-    //     return l;
-    // }
-
     render() {
-        const { classes, minValue, maxValue, label, colorScheme, opacity } = this.props;
+        const { classes, vmin, vmax, label, colorScheme, name, opacity } = this.props;
         let width = 330;
         let height = 10;
         let xpad = 10;
         let ypad = 0;
 
-        let vmin = minValue;
-        let vmax = maxValue;
-        // if (view === "avail") {
-        //     vmin = minValue * 100;
-        //     vmax = maxValue * 100;
-        // }
-
         let mapColorSchemeInterpolator = mapColorSchemeNameToInterpolator(colorScheme);
+
         let colorScale = scaleSequential([0, 1], mapColorSchemeInterpolator);
         let tickScale = scaleLinear().domain([0, 1]).range([vmin, vmax]);
-        let tickValues = tickScale.ticks().map(value => Math.round(tickScale(value)));
+        // let tickValues = tickScale.ticks().map(value => Math.round(tickScale(value)));
+        let tickValues = tickScale.ticks().map(value => Number(tickScale(value).toPrecision(2)));
         let tickOffset = width / (tickValues.length - 1);
+
+        const gradientId = `${name}_gradient`;
 
         return (
             <Paper
@@ -85,7 +63,7 @@ class MapLegend extends Component {
             >
                 <svg id="map-legend" width="350" height="55" version="1.1" xmlns="http://www.w3.org/2000/svg">
                     <defs>
-                        <linearGradient id="Gradient">
+                        <linearGradient id={gradientId}>
                             {
                                 tickScale.ticks().map((value, index) => (
                                     // console.log(`${index} ${value} ${colorScale(value)}`)
@@ -102,7 +80,7 @@ class MapLegend extends Component {
                         height={height}
                         stroke="transparent"
                         strokeWidth="1"
-                        fill="url(#Gradient)"
+                        fill={`url(#${gradientId})`}
                     />
                     {
                         tickValues.map((value, index) => (
@@ -141,7 +119,7 @@ class MapLegend extends Component {
 
 const mapStateToProps = (state) => {
     return {
-        colorScheme: state.mapColorScheme,
+        // colorScheme: state.mapColorScheme,
         opacity: state.mapOpacity,
     }
 };

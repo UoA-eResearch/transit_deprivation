@@ -87,13 +87,10 @@ class DestinationMap extends Component {
         setMapViewState(vs);
     };
 
-    getColor = (v, property) => {
+    getColor = (v, colorScheme, vmin, vmax) => {
 
-        const { dataZoneStats, colorScheme } = this.props;
+        // const { } = this.props;
         const mapColorSchemeInterpolator = mapColorSchemeNameToInterpolator(colorScheme);
-
-        const vmin = dataZoneStats[property].min;
-        const vmax = dataZoneStats[property].max;
 
         const nv = (v - vmin) / Math.max((vmax - vmin), 1);
         return this.getInterpolatedColor(nv, mapColorSchemeInterpolator);
@@ -115,8 +112,10 @@ class DestinationMap extends Component {
         const property = basemapTypes.basemapToProperty[basemap].property;
         const label = basemapTypes.basemapToProperty[basemap].label;
 
+        const colorScheme = "Blues";
         let vmin = 0;
         let vmax = 100;
+
         if (property !== null){
             vmin = dataZoneStats[property].min;
             vmax = dataZoneStats[property].max;
@@ -129,7 +128,7 @@ class DestinationMap extends Component {
                 opacity: mapOpacity,
                 filled: true,
                 getFillColor: (f) => {
-                    return (property === null) ? [0, 0, 0, 0] : this.getColor(f.properties[property], property)
+                    return (property === null) ? [0, 0, 0, 0] : this.getColor(f.properties[property], colorScheme, vmin, vmax)
                 },
                 onClick: (event, info) => {
                     info.handled = true;
@@ -202,7 +201,8 @@ class DestinationMap extends Component {
                         />
                     )}
                     <DestinationMapTooltip hoverInfo={this.state.hoverInfo}/>
-                    {(property === null) ? null : <MapLegend minValue={vmin} maxValue={vmax} label={label}/>}
+                    {(property === null) ? null : <MapLegend vmin={vmin} vmax={vmax} label={label}
+                                                             colorScheme={colorScheme} name={"destination"}/>}
                 </DeckGL>
             </div>
         )
@@ -224,7 +224,6 @@ const mapStateToProps = (state) => {
         originColor: state.originColor,
         destinationLineWidth: state.destinationLineWidth,
         originLineWidth: state.originLineWidth,
-        colorScheme: state.mapColorScheme
     }
 };
 

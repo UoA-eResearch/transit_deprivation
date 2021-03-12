@@ -21,7 +21,6 @@ class DestinationBasemapSelector extends Component {
 
     handleDestinationBasemapChange = event => {
         const { setDestinationBasemap } = this.props;
-
         setDestinationBasemap(event.target.value);
     }
 
@@ -37,8 +36,6 @@ class DestinationBasemapSelector extends Component {
 
     render() {
         const { classes, basemap } = this.props;
-
-
 
         return (
             <Grid container direction="column" spacing={2}>

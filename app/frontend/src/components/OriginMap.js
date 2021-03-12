@@ -84,14 +84,9 @@ class OriginMap extends Component {
         return [c.r, c.g, c.b, c.opacity];
     }
 
-    getColor = (v, property) => {
+    getColor = (v, vmin, vmax, colorScheme) => {
 
-        const { dataZoneStats, colorScheme } = this.props;
         const mapColorSchemeInterpolator = mapColorSchemeNameToInterpolator(colorScheme);
-
-        const vmin = dataZoneStats[property].min;
-        const vmax = dataZoneStats[property].max;
-
         const nv = (v - vmin) / Math.max((vmax - vmin), 1);
         return this.getInterpolatedColor(nv, mapColorSchemeInterpolator);
 
@@ -104,7 +99,9 @@ class OriginMap extends Component {
 
     render() {
         const { classes, dataZones, dataZoneStats, mapViewState, mapOpacity, selectedDataZone, selectedDestination,
-            destinationColor, originColor, destinationLineWidth, originLineWidth, colorScheme, basemap } = this.props;
+            destinationColor, originColor, destinationLineWidth, originLineWidth, basemap } = this.props;
+
+        const colorScheme = "BlueGreen";
 
         const property = basemapTypes.basemapToProperty[basemap].property;
         const label = basemapTypes.basemapToProperty[basemap].label;
@@ -123,7 +120,7 @@ class OriginMap extends Component {
                 opacity: mapOpacity,
                 filled: true,
                 getFillColor: (f) => {
-                    return (property === null) ? [0, 0, 0, 0] : this.getColor(f.properties[property], property)
+                    return (property === null) ? [0, 0, 0, 0] : this.getColor(f.properties[property], vmin, vmax, colorScheme)
                 },
                 onClick: (event, info) => {
                     info.handled = true;
@@ -196,7 +193,8 @@ class OriginMap extends Component {
                         />
                     )}
                     <MapTooltip />
-                    {(property === null) ? null : <MapLegend minValue={vmin} maxValue={vmax} label={label}/>}
+                    {(property === null) ? null : <MapLegend vmin={vmin} vmax={vmax} label={label}
+                                                             colorScheme={colorScheme} name={"origin"}/>}
                 </DeckGL>
             </div>
         )
@@ -218,7 +216,6 @@ const mapStateToProps = (state) => {
         originColor: state.originColor,
         destinationLineWidth: state.destinationLineWidth,
         originLineWidth: state.originLineWidth,
-        colorScheme: state.mapColorScheme
     }
 };
 

@@ -37,7 +37,7 @@ export default {
     // filter/selection values
     destinationDataset: destinationTypes.DESTINATION_DIABETES_CLINICS,
     destinationBasemap: basemapTypes.BASEMAP_NONE,
-    originBasemap: basemapTypes.BASEMAP_NONE,
+    originBasemap: basemapTypes.BASEMAP_DEPRIVATION,
     selectedDestination: null,
     view: "avail",
     timeLimit: 120,
@@ -50,7 +50,6 @@ export default {
     originColor: [0, 211, 255],
     destinationLineWidth: 2,
     originLineWidth: 2,
-    mapColorScheme: "BlueGreen",
     mapHoveredObject: null,
     mapOpacity: 1.0,
     mapViewState: {

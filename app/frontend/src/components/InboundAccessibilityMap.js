@@ -74,9 +74,9 @@ class InboundAccessibilityMap extends Component {
         );
     }
 
-    getColor = (location) => {
+    getColor = (location, colorScheme) => {
 
-        const { AB, locIdx, colorScheme, view } = this.props;
+        const { AB, locIdx, view } = this.props;
         const mapColorSchemeInterpolator = mapColorSchemeNameToInterpolator(colorScheme);
         const defaultColor = [0, 0, 0, 0];
 
@@ -101,9 +101,11 @@ class InboundAccessibilityMap extends Component {
     };
 
     render() {
-        const { classes, dataZones, routes, mapOpacity, mapViewState, AB, view, colorScheme, selectedDestination,
+        const { classes, dataZones, routes, mapOpacity, mapViewState, AB, view, selectedDestination,
                 selectedDataZone, destinationColor, originColor, destinationLineWidth, originLineWidth, showTransitNetwork,
             } = this.props;
+
+        const colorScheme = "Viridis";
 
         const layers = [
             new GeoJsonLayer({
@@ -112,7 +114,7 @@ class InboundAccessibilityMap extends Component {
                 opacity: mapOpacity,
                 filled: true,
                 stroked: false,
-                getFillColor: f => this.getColor(f.id),
+                getFillColor: f => this.getColor(f.id, colorScheme),
                 updateTriggers: {
                     getFillColor: [AB, view, colorScheme],
                 }
@@ -147,7 +149,7 @@ class InboundAccessibilityMap extends Component {
                 id: 'routes',
                 data: routes,
                 opacity: mapOpacity,
-                getLineWidth: 1,
+                getLineWidth: 2,
                 lineWidthScale: 10,
                 // stroked: true,
                 getLineColor: showTransitNetwork ? [0, 0, 0] : [0, 0, 0, 0],
@@ -183,7 +185,8 @@ class InboundAccessibilityMap extends Component {
                         />
                     )}
                     <MapTooltip />
-                    { (AB !== null) ? <MapLegend minValue={0} maxValue={100} label={"Percentage of trips"}/> : null}
+                    { (AB !== null) ? <MapLegend vmin={0} vmax={100} label={"Percentage of trips"}
+                                                 colorScheme={colorScheme} name={"inbound"}/> : null}
                 </DeckGL>
             </div>
         )
@@ -201,7 +204,6 @@ const mapStateToProps = (state) => {
         locIdx: state.locIdx,
         AB: state.AB,
         view: state.view,
-        colorScheme: state.mapColorScheme,
         selectedDestination: state.selectedDestination,
         destinationColor: state.destinationColor,
         originColor: state.originColor,
