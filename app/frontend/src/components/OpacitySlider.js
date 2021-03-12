@@ -12,7 +12,7 @@ const theme = createMuiTheme({
 
 const styles = (theme) => ({
     mapOpacitySlider: {
-        minWidth: "200px"
+        minWidth: "220px"
     },
 });
 

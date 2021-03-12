@@ -47,11 +47,11 @@ export default {
     // map state
     // TODO: we might need more descriptive names if we add additional layers/second map
     destinationColor: [240, 32, 1],
-    originColor: [0, 211, 255],
+    originColor: [255, 169, 10],
     destinationLineWidth: 2,
     originLineWidth: 2,
     mapHoveredObject: null,
-    mapOpacity: 1.0,
+    mapOpacity: 0.8,
     mapViewState: {
         latitude: -36.8485, // auckland
         longitude: 174.7633,

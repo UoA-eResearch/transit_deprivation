@@ -38,9 +38,9 @@ class ViewPanel extends Component {
                     <Grid item>
                         <OpacitySlider />
                     </Grid>
-                    <Grid item>
-                        <MapColorSchemeSelector />
-                    </Grid>
+                    {/*<Grid item>*/}
+                    {/*    <MapColorSchemeSelector />*/}
+                    {/*</Grid>*/}
                 </Grid>
             </Paper>
         );

@@ -2,8 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { withStyles, createMuiTheme } from '@material-ui/core/styles';
 import {Typography} from '@material-ui/core';
-import * as mapTypes from "./mapTypes";
-import * as destinationTypes from "./destinationTypes"
+import chroma from "chroma-js";
 var tinycolor = require("tinycolor2");
 
 
@@ -32,7 +31,7 @@ class OutboundMapTooltip extends Component {
     constructor(props){
         super(props);
         this.svgSize = 200;
-        this.segments = 20;
+        this.segments = 24*6;
         this.margin = 0;
         this.radius = 80;
         this.width = this.radius;
@@ -41,8 +40,9 @@ class OutboundMapTooltip extends Component {
 
     polarToCartesian = (x, y, r, degrees) => {
         const radians = degrees * Math.PI / 180.0;
-        return [x + (r * Math.cos(radians)),
-            y + (r * Math.sin(radians))]
+        const phase = -Math.PI / 2;
+        return [x + (r * Math.cos(radians + phase)),
+            y + (r * Math.sin(radians + phase))]
     }
 
     segmentPath = (x, y, r0, r1, d0, d1) => {
@@ -61,15 +61,15 @@ class OutboundMapTooltip extends Component {
         ].join('')
     }
 
-    segment = (n) => {
+    segment = (value, n) => {
 
+        const [mask, ratio] = value;
         const center = this.svgSize/2;
         const degrees = 360 / this.segments;
         const start = degrees * n;
         const end = (degrees * (n + 1 - this.margin) + (this.margin == 0 ? 1 : 0));
         const path = this.segmentPath(center, center, this.radius, this.radius-this.width, start, end);
-        // const fill = chroma.lch(80,150,start + degrees/2).alpha(1);
-        const fill = tinycolor("white");
+        const fill = mask ? chroma('blue').alpha(255 * value) : chroma("grey");
 
         // return (<path d={path} style={`fill:${fill};stroke:none`} />);
         return <path d={path} style={{fill:`${fill}`, stroke:`none`}} />
@@ -78,10 +78,25 @@ class OutboundMapTooltip extends Component {
     range = (n) => [...Array(n).keys()]
 
     renderTrips = (trips) =>  {
+
+        const interval = 6; // 60 minutes over 10 minute intervals
+        const start = 7 * interval; // 7 am
+        const end = start + trips.length;
+
+        let values = Array(24*interval).fill(Array(2).fill(0)); // 24hrs
+
+        let tripIdx = 0;
+        for (let i=0; i < values.length; i++){
+            if (i >= start && i < end){
+                values[i] = [1, trips[tripIdx]]; // mask, value
+                tripIdx += 1;
+            }
+        }
+
         return (
-            // <div>{trips.sum()}</div>
+            // <div>{sum}</div>
             <svg id="trips" height={this.svgSize} viewBox={`0 0 ${this.svgSize} ${this.svgSize}`}>
-                {this.range(this.segments).map(this.segment)}
+                {values.map(this.segment)}
             </svg>
         )
     }
@@ -93,7 +108,12 @@ class OutboundMapTooltip extends Component {
             const {x, y} = hoverInfo;
 
             const originIdx = locIdx[hoverInfo.object.id];
-            const trips = BC.trips.slice(null, [originIdx, originIdx+1, 1]);
+            const trips = BC.trips.slice(null, [originIdx, originIdx+1, 1]).tolist();
+
+            // summary of trips vector:
+            // there is a set of trips from the origin that can reach the destination and spend the required time there
+            // of these trips, there are some that can also reach a 3rd (outbound) location
+            // the trips vector now shows the ratio of inbound trips that can reach a selected outbound location
 
             return (
                 <div className={classes.tooltip} style={{top: y, left: x, width: this.svgSize,}}>
