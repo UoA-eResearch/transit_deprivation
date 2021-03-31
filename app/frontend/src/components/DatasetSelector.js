@@ -2,7 +2,8 @@ import React, {Component} from 'react';
 import { connect } from 'react-redux';
 import { withStyles, createMuiTheme} from '@material-ui/core/styles';
 import { Grid, Select, MenuItem, Typography} from '@material-ui/core';
-import { setEtaView, setDestinationDataset } from "../store/actions";
+import { setView, setDestinationDataset } from "../store/actions";
+import * as destinationTypes from "./destinationTypes";
 
 const theme = createMuiTheme({
     palette: {
@@ -12,14 +13,14 @@ const theme = createMuiTheme({
 
 const styles = (theme) => ({
     datasetSelector: {},
-    etaViewSelector: {}
+    viewSelector: {}
 });
 
 class DatasetSelector extends Component {
 
-    handleEtaViewChange = event => {
-        const { setEtaView } = this.props;
-        setEtaView(event.target.value);
+    handleViewChange = event => {
+        const { setView } = this.props;
+        setView(event.target.value);
     }
 
     handleDestinationDatasetChange = event => {
@@ -28,46 +29,43 @@ class DatasetSelector extends Component {
     }
 
     render() {
-        const { classes, destinationDataset, etaView } = this.props;
+        const { classes, destinationDataset, view } = this.props;
 
         const infoStr = {
-            "None": "No destination dataset selected",
-            "Diabetes Clinics": "This dataset contains the location diabetes treatment centers in the Auckland Region."
+            [destinationTypes.DESTINATION_NONE]: "No destination dataset selected",
+            [destinationTypes.DESTINATION_DIABETES_CLINICS]: "This dataset contains the location diabetes treatment centers in the Auckland Region."
         }
 
         return (
             <Grid container direction="column" spacing={2}>
-                <Grid item>
-                    <Typography variant="h5">Data</Typography>
-                </Grid>
-                <Grid container item direction="row" spacing={3} alignItems="center">
-                    <Grid item>
-                        <Typography>Travel Time View</Typography>
-                    </Grid>
-                    <Grid item>
-                        <Select
-                            className={classes.etaViewSelector}
-                            value={etaView}
-                            onChange={this.handleEtaViewChange}
-                        >
-                            <MenuItem value={"avail"}>Availability</MenuItem>
-                            <MenuItem value={"mean"}>Mean</MenuItem>
-                            <MenuItem value={"stdev"}>Standard Deviation</MenuItem>
-                        </Select>
-                    </Grid>
-                </Grid>
+                {/*<Grid container item direction="row" spacing={3} alignItems="center">*/}
+                {/*    <Grid item>*/}
+                {/*        <Typography>Travel Time View</Typography>*/}
+                {/*    </Grid>*/}
+                {/*    <Grid item>*/}
+                {/*        <Select*/}
+                {/*            className={classes.viewSelector}*/}
+                {/*            value={view}*/}
+                {/*            onChange={this.handleViewChange}*/}
+                {/*        >*/}
+                {/*            <MenuItem value={"avail"}>Accessibility</MenuItem>*/}
+                {/*            /!*<MenuItem value={"mean"}>Mean</MenuItem>*!/*/}
+                {/*            /!*<MenuItem value={"stdev"}>Standard Deviation</MenuItem>*!/*/}
+                {/*        </Select>*/}
+                {/*    </Grid>*/}
+                {/*</Grid>*/}
                 <Grid container item direction="row" spacing={3} alignItems="center">
                     <Grid item>
                         <Typography>Destinations</Typography>
                     </Grid>
-                    <Grid item style={{marginLeft:32}}>
+                    <Grid item style={{marginLeft:0}}>
                         <Select
                             className={classes.datasetSelector}
                             value={destinationDataset}
                             onChange={this.handleDestinationDatasetChange}
                         >
-                            <MenuItem value={"None"}>None</MenuItem>
-                            <MenuItem value={"Diabetes Clinics"}>Diabetes Clinics</MenuItem>
+                            <MenuItem value={destinationTypes.DESTINATION_NONE}>{destinationTypes.DESTINATION_NONE}</MenuItem>
+                            <MenuItem value={destinationTypes.DESTINATION_DIABETES_CLINICS}>{destinationTypes.DESTINATION_DIABETES_CLINICS}</MenuItem>
                         </Select>
                     </Grid>
                 </Grid>
@@ -83,14 +81,14 @@ class DatasetSelector extends Component {
 
 const mapStateToProps = (state) => {
     return {
-        etaView: state.etaView,
+        view: state.view,
         destinationDataset: state.destinationDataset,
     }
 };
 
 const mapDispatchToProps = (dispatch) => {
     return ({
-        setEtaView: (measureType) => { dispatch(setEtaView(measureType)) },
+        setView: (measureType) => { dispatch(setView(measureType)) },
         setDestinationDataset: (dataset) => { dispatch(setDestinationDataset(dataset))}
     });
 }

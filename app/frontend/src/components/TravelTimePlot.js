@@ -23,8 +23,8 @@ const styles = (theme) => ({
 
 class TravelTimePlot extends Component {
     render() {
-        const { data, query, locIdx, idxT, fullEta, valid, etaView} = this.props;
-        const eta = (valid && fullEta) ? fullEta[etaView]["values"] : null;
+        const { data, query, locIdx, idxT, fullEta, valid, view} = this.props;
+        const eta = (valid && fullEta) ? fullEta[view]["values"] : null;
 
         let points = [[0, 0]];
         if (eta != null && typeof query !== 'undefined' && query.id in eta){
@@ -100,7 +100,7 @@ const mapStateToProps = (state) => {
         idxT: state.idxT,
         valid: state.valid,
         fullEta: state.eta,
-        etaView: state.etaView,
+        view: state.view,
     }
 };
 

@@ -1,12 +1,13 @@
 import * as types from './actionTypes'
 import { mean, deviation, max, min } from "d3";
+var plan = require('./plan');
 
 const DT_SERVER = process.env.REACT_APP_DTServer || "http://0.0.0.0:8081";
 
-export function setEtaView(etaView) {
+export function setView(view) {
     return {
-        type: types.SET_ETA_VIEW,
-        etaView
+        type: types.SET_VIEW,
+        view
     }
 }
 
@@ -17,10 +18,38 @@ export function setDestinationDataset(destinationDataset) {
     }
 }
 
+export function setDestinationBasemap(destinationBasemap) {
+    return {
+        type: types.SET_DESTINATION_BASEMAP,
+        destinationBasemap
+    }
+}
+
+export function setOriginBasemap(originBasemap) {
+    return {
+        type: types.SET_ORIGIN_BASEMAP,
+        originBasemap
+    }
+}
+
 export function setTimeLimit(timeLimit) {
     return {
         type: types.SET_TIME_LIMIT,
         timeLimit
+    }
+}
+
+export function setShowTransitNetwork(show){
+    return {
+        type: types.SET_SHOW_TRANSIT_NETWORK,
+        show
+    }
+}
+
+export function setShowOutboundHover(show){
+    return {
+        type: types.SET_SHOW_OUTBOUND_HOVER,
+        show
     }
 }
 
@@ -35,20 +64,6 @@ export function setMapOpacity(mapOpacity) {
     return {
         type: types.SET_MAP_OPACITY,
         mapOpacity
-    }
-}
-
-export function setMapMinValue(mapMinValue) {
-    return {
-        type: types.SET_MAP_MIN_VALUE,
-        mapMinValue
-    }
-}
-
-export function setMapMaxValue(mapMaxValue) {
-    return {
-        type: types.SET_MAP_MAX_VALUE,
-        mapMaxValue
     }
 }
 
@@ -67,9 +82,43 @@ export function setMapViewState(mapViewState) {
 }
 
 export function setSelectedDataZone(selectedDataZone) {
+    console.log('setting origin:', selectedDataZone);
     return {
         type: types.SET_SELECTED_DATA_ZONE,
         selectedDataZone
+    }
+}
+
+export function setDestinationDataZone(dz) {
+    console.log('setting destination:', dz);
+    return {
+        type: types.SET_DESTINATION_DATAZONE,
+        dz
+    }
+}
+
+export function setHoveredDataZone(hoveredDataZone) {
+    return {
+        type: types.SET_HOVERED_DATA_ZONE,
+        hoveredDataZone
+    }
+}
+
+export function updateSelectedDataZone(selectedDataZone){
+    return (dispatch, getState) => {
+        dispatch(setSelectedDataZone(selectedDataZone));
+        if (getState().AB !== null){
+            dispatch(computeBC());
+        }
+    }
+}
+
+export function updateHover(hoveredDataZone){
+    return (dispatch, getState) => {
+        dispatch(setHoveredDataZone(hoveredDataZone));
+        if (getState().AB !== null){
+            dispatch(computeBC());
+        }
     }
 }
 
@@ -80,93 +129,158 @@ export function setMapTooltip(mapTooltip) {
     }
 }
 
-export function setETA(eta) {
+export function setAB(AB) {
     return {
-        type: types.SET_ETA,
-        eta
+        type: types.SET_AB,
+        AB
     }
 }
 
-export function resetETA() {
+export function setBC(BC) {
+    return {
+        type: types.SET_BC,
+        BC
+    }
+}
+
+export function reset() {
     return (dispatch, getState) => {
-        dispatch(setETA(null));
+        dispatch(setAB(null));
+        dispatch(setBC(null));
         dispatch(setLocationInboundData(null));
         dispatch(setLocationOutboundData(null));
+        dispatch(setSelectedDataZone(null));
+        dispatch(setHoveredDataZone(null));
     }
 }
 
-export function computeETA() {
+export function computeAB(){
     return (dispatch, getState) => {
-        const data = getState().locationOutboundData;
-        const timeAtDestination = getState().timeAtDestination;
-        const timeLimit = getState().timeLimit - timeAtDestination;
-        const idxLoc = getState().idxLoc;
-        if (data === null) {
-            return;
-        }
 
-        const nloc = data.length;
-        const ntimes = data[0].length;
+        // constraints
+        const tMax = getState().timeLimit;
+        const tDest = getState().timeAtDestination;
+        const tDelta = 10; // step size (minutes) in time dimension
 
-        let times = {};
+        // convert travel time data to numjs ndarrays
+        const inbound = getState().locationInboundData; // A->B
 
-        // find valid journeys given the time constraint
-        let t = null;
-        for (let i = 0; i < nloc; i++) {
-            times[i] = [];
-            for (let j = 0; j < ntimes; j++) {
-                t = data[i][j]
-                if (t > -1 && t < timeLimit) {
-                    times[i].push(t);
-                }
-            }
-        }
+        // get inbound accessibility scores for selected location
+        const [acc_B, tRemain] = plan.planAB(inbound, tMax, tDest);
 
-        // compute stats from origin to each destinations
-        let mean_ = {"values": {}, "min": 0, "max": 1};
-        let stdev = {"values": {}, "min": 0, "max": 1};
-        let avail = {"values": {}, "min": 0, "max": 1}; // ratio of trips that meet the time limit criteria
+        let avail_B = {"values": acc_B.tolist(), "min": 0, "max": 1};
 
-        let loc = null;
-        for (let i = 0; i < nloc; i++) {
-            loc = idxLoc[i]; // convert DT matrix index to datazone location id
+        dispatch(setAB({
+            "avail": avail_B, "tRemain": tRemain,
+        }));
 
-            if (times[i].length > 0) {
+        dispatch(computeBC());
 
-                // mean
-                mean_["values"][loc] = mean(times[i]);
-
-                // stdev
-                if (times[i].length >= 2) {
-                    stdev["values"][loc] = deviation(times[i])
-                }
-
-                // avail
-                avail["values"][loc] = times[i].length / ntimes;
-
-            }
-            //console.log(`${i}: ${loc}, mean: ${mean[loc]} stdev: ${stdev[loc]}`)
-        }
-
-        // calculate min, max required for normalisation
-        mean_["max"] = max(Object.values(mean_["values"]));
-        mean_["min"] = min(Object.values(mean_["values"]));
-
-        stdev["max"] = max(Object.values(stdev["values"]));
-        stdev["min"] = min(Object.values(stdev["values"]));
-
-        avail["max"] = max(Object.values(avail["values"]));
-        avail["min"] = min(Object.values(avail["values"]));
-
-        let eta = {
-            "avail": avail,
-            "mean": mean_,
-            "stdev": stdev,
-        };
-
-        dispatch(setETA(eta));
     }
 }
+
+export function computeBC(){
+    return (dispatch, getState) => {
+        const AB = getState().AB;
+        const selectedDataZone = getState().selectedDataZone;
+
+        // if (AB !== null && selectedDataZone !== null && selectedDataZone !== undefined && ('id' in selectedDataZone)){
+        if (AB !== null && selectedDataZone !== null && selectedDataZone !== undefined){
+            console.log('computing outbound accessibility from origin', selectedDataZone);
+
+            // constraints
+            const tMax = getState().timeLimit;
+            const tDest = getState().timeAtDestination;
+            const tDelta = getState().timeDelta;
+            const tRemain = AB.tRemain;
+            const locIdx = getState().locIdx;
+            const outbound = getState().locationOutboundData; // B->C
+            const originIdx = locIdx[selectedDataZone];
+
+            // get outbound accessibility scores for selected origin
+            const [acc_C, trips ] = plan.planBC(originIdx, tRemain, outbound, tMax, tDest, tDelta)
+            let avail_C = {"values": acc_C.tolist(), "min": 0, "max": 1};
+
+            dispatch(setBC({
+                "avail": avail_C,
+                "trips": trips
+            }));
+        }
+    }
+}
+
+// export function computeETA() {
+//     return (dispatch, getState) => {
+//         const data = getState().locationOutboundData;
+//         const timeAtDestination = getState().timeAtDestination;
+//         const timeLimit = getState().timeLimit - timeAtDestination;
+//         const idxLoc = getState().idxLoc;
+//         if (data === null) {
+//             return;
+//         }
+//
+//         const nloc = data.length;
+//         const ntimes = data[0].length;
+//
+//         let times = {};
+//
+//         // find valid journeys given the time constraint
+//         let t = null;
+//         for (let i = 0; i < nloc; i++) {
+//             times[i] = [];
+//             for (let j = 0; j < ntimes; j++) {
+//                 t = data[i][j]
+//                 if (t > -1 && t < timeLimit) {
+//                     times[i].push(t);
+//                 }
+//             }
+//         }
+//
+//         // compute stats from origin to each destinations
+//         let mean_ = {"values": {}, "min": 0, "max": 1};
+//         let stdev = {"values": {}, "min": 0, "max": 1};
+//         let avail = {"values": {}, "min": 0, "max": 1}; // ratio of trips that meet the time limit criteria
+//
+//         let loc = null;
+//         for (let i = 0; i < nloc; i++) {
+//             loc = idxLoc[i]; // convert DT matrix index to datazone location id
+//
+//             if (times[i].length > 0) {
+//
+//                 // mean
+//                 mean_["values"][loc] = mean(times[i]);
+//
+//                 // stdev
+//                 if (times[i].length >= 2) {
+//                     stdev["values"][loc] = deviation(times[i])
+//                 }
+//
+//                 // avail
+//                 avail["values"][loc] = times[i].length / ntimes;
+//
+//             }
+//             //console.log(`${i}: ${loc}, mean: ${mean[loc]} stdev: ${stdev[loc]}`)
+//         }
+//
+//         // calculate min, max required for normalisation
+//         mean_["max"] = max(Object.values(mean_["values"]));
+//         mean_["min"] = min(Object.values(mean_["values"]));
+//
+//         stdev["max"] = max(Object.values(stdev["values"]));
+//         stdev["min"] = min(Object.values(stdev["values"]));
+//
+//         avail["max"] = max(Object.values(avail["values"]));
+//         avail["min"] = min(Object.values(avail["values"]));
+//
+//         let eta = {
+//             "avail": avail,
+//             "mean": mean_,
+//             "stdev": stdev,
+//         };
+//
+//         dispatch(setETA(eta));
+//     }
+// }
 
 export function setLocationInboundData(data) {
     return {
@@ -190,6 +304,8 @@ export function getLocationDT(location) {
         let region = "akl";
         let url = DT_SERVER+`/transit?region=${region}&location=${location}&direction=inbound`;
 
+        console.log('getting data for destination:', location);
+
         const inbound = fetch(url)
             .then(response => response.json())
             .then((data) => {
@@ -210,7 +326,7 @@ export function getLocationDT(location) {
             })
 
         Promise.all([inbound, outbound]).then(()=>{
-                dispatch(computeETA());
+                dispatch(computeAB());
         });
     }
 }

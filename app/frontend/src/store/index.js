@@ -4,6 +4,7 @@ import thunk from 'redux-thunk';
 import reducer from './reducer';
 
 export default function configureStore() {
-    let store = createStore(reducer, applyMiddleware(thunk, logger));
+    // let store = createStore(reducer, applyMiddleware(thunk, logger));
+    let store = createStore(reducer, applyMiddleware(thunk));
     return store;
 }

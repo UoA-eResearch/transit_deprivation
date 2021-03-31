@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { withStyles, createMuiTheme } from '@material-ui/core/styles';
-import { Select, MenuItem, Typography} from '@material-ui/core';
+import { Grid, Select, MenuItem, Typography} from '@material-ui/core';
 import { setMapColorScheme } from "../store/actions";
 
 const theme = createMuiTheme({
@@ -26,20 +26,22 @@ class MapColorSchemeSelector extends Component {
     render() {
         const { classes, colorScheme } = this.props;
         return (
-            <div>
-                <Typography gutterBottom>
-                    Colour Scheme
-                </Typography>
-                <Select
-                    className={classes.mapColorSchemeSelector}
-                    value={colorScheme}
-                    onChange={this._handleMapColorSchemeChange}
-                >
-                    <MenuItem value={"BlueGreen"}>BlueGreen</MenuItem>
-                    <MenuItem value={"Viridis"}>Viridis</MenuItem>
-                    <MenuItem value={"Turbo"}>Turbo</MenuItem>
-                </Select>
-            </div>
+            <Grid container direction="row" spacing={3} alignItems="center">
+                <Grid item>
+                    <Typography>Colour Scheme</Typography>
+                </Grid>
+                <Grid item>
+                    <Select
+                        className={classes.mapColorSchemeSelector}
+                        value={colorScheme}
+                        onChange={this._handleMapColorSchemeChange}
+                    >
+                        <MenuItem value={"BlueGreen"}>BlueGreen</MenuItem>
+                        <MenuItem value={"Viridis"}>Viridis</MenuItem>
+                        <MenuItem value={"Turbo"}>Turbo</MenuItem>
+                    </Select>
+                </Grid>
+            </Grid>
         );
     }
 }
