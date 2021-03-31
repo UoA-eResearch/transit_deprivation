@@ -3,8 +3,11 @@ import { connect } from 'react-redux';
 import { withStyles, createMuiTheme } from '@material-ui/core/styles';
 import {Typography} from '@material-ui/core';
 import chroma from "chroma-js";
-var tinycolor = require("tinycolor2");
+import Plotly from 'plotly.js-basic-dist';
+import createPlotlyComponent from "react-plotly.js/factory";
+const Plot = createPlotlyComponent(Plotly);
 
+var tinycolor = require("tinycolor2");
 
 const theme = createMuiTheme({
     palette: {
@@ -17,10 +20,12 @@ const styles = (theme) => ({
         pointerEvents: "none",
         position: "absolute",
         zIndex: 9,
-        padding: "8px",
-        background: "#000",
-        color: "#fff",
+        //padding: "1px",
+        //paddingBottom: "0px",
+        //background: "#777f80",
+        //color: "#fff",
         overflowY: "hidden",
+        borderRadius: "10px",
     },
 });
 
@@ -69,7 +74,7 @@ class OutboundMapTooltip extends Component {
         const start = degrees * n;
         const end = (degrees * (n + 1 - this.margin) + (this.margin == 0 ? 1 : 0));
         const path = this.segmentPath(center, center, this.radius, this.radius-this.width, start, end);
-        const fill = mask ? chroma('blue').alpha(255 * value) : chroma("grey");
+        const fill = mask ? chroma.gl(0, 0, 1, ratio) : chroma("grey");
 
         // return (<path d={path} style={`fill:${fill};stroke:none`} />);
         return <path d={path} style={{fill:`${fill}`, stroke:`none`}} />
@@ -102,24 +107,46 @@ class OutboundMapTooltip extends Component {
     }
 
     render() {
-        const {classes, hoverInfo, BC, selectedDataZone, locIdx} = this.props;
+        const {classes, hoverInfo, BC, selectedDataZone, locIdx, idxT, showOutboundHover} = this.props;
 
-        if (hoverInfo && hoverInfo.object && selectedDataZone !== null && BC !== null){
+        if (showOutboundHover && hoverInfo && hoverInfo.object && selectedDataZone !== null && BC !== null){
             const {x, y} = hoverInfo;
 
             const originIdx = locIdx[hoverInfo.object.id];
-            const trips = BC.trips.slice(null, [originIdx, originIdx+1, 1]).tolist();
+            const trips = BC.trips.slice(null, [originIdx, originIdx+1, 1]).flatten().tolist();
 
             // summary of trips vector:
             // there is a set of trips from the origin that can reach the destination and spend the required time there
             // of these trips, there are some that can also reach a 3rd (outbound) location
             // the trips vector now shows the ratio of inbound trips that can reach a selected outbound location
 
+            // plot date fromatting
+            // https://github.com/d3/d3-time-format#locale_format
             return (
-                <div className={classes.tooltip} style={{top: y, left: x, width: this.svgSize,}}>
-                    {this.renderTrips(trips)}
+                <div className={classes.tooltip} style={{top: y, left: x}}>
+                    {/*{this.renderTrips(trips)}*/}
+                    <Plot
+                        data={[
+                            {
+                                x: this.range(trips.length).map(x => idxT[x]),
+                                y: trips.map(x => x * 100),
+                                type: 'scatter',
+                                line: {shape: 'spline'},
+                                mode: 'lines',
+                                marker: {color: '#2dcee0'},
+                            },
+                        ]}
+                        layout={ {width: 375, height: 100,
+                            margin: {
+                                l:55, r:10, b: 25, t: 15, pad: 0
+                            },
+                            xaxis: {showgrid: false, tickformat: "%I %p"},
+                            yaxis: {title: {text: 'Trip %', font: {family: 'Roboto', size: 13}}, showgrid: false, range: [-5, 105]},
+                        }}
+                    />
                 </div>
-            )
+            );
+
         } else {
             return null;
         }
@@ -131,7 +158,9 @@ const mapStateToProps = (state) => {
     return {
         BC : state.BC,
         locIdx: state.locIdx,
-        selectedDataZone: state.selectedDataZone
+        idxT: state.idxT,
+        selectedDataZone: state.selectedDataZone,
+        showOutboundHover: state.showOutboundHover,
 
     }
 };

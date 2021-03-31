@@ -5,7 +5,7 @@ import {Grid, Paper, Switch, Typography} from '@material-ui/core';
 import {setShowTransitNetwork, setTimeAtDestination} from "../store/actions";
 import TransitNetworkSwitch from "./TransitNetworkSwitch";
 import OpacitySlider from "./OpacitySlider";
-import MapColorSchemeSelector from "./MapColorSchemeSelector";
+import OutboundHoverSwitch from "./OutboundHoverSwitch";
 
 const theme = createMuiTheme({
     palette: {
@@ -33,14 +33,14 @@ class ViewPanel extends Component {
                         <Typography variant="h5" gutterBottom>View</Typography>
                     </Grid>
                     <Grid item>
+                        <OutboundHoverSwitch />
+                    </Grid>
+                    <Grid item>
                         <TransitNetworkSwitch />
                     </Grid>
                     <Grid item>
                         <OpacitySlider />
                     </Grid>
-                    {/*<Grid item>*/}
-                    {/*    <MapColorSchemeSelector />*/}
-                    {/*</Grid>*/}
                 </Grid>
             </Paper>
         );

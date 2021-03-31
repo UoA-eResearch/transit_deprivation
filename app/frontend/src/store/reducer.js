@@ -71,6 +71,9 @@ const reducer = createReducer(initialState, (builder) => {
         .addCase(types.SET_SHOW_TRANSIT_NETWORK, (state, action) => {
             state.showTransitNetwork = action.show;
         })
+        .addCase(types.SET_SHOW_OUTBOUND_HOVER, (state, action) => {
+            state.showOutboundHover = action.show;
+        })
         .addDefaultCase((state, action) => {})
 });
 export default reducer;

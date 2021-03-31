@@ -46,6 +46,13 @@ export function setShowTransitNetwork(show){
     }
 }
 
+export function setShowOutboundHover(show){
+    return {
+        type: types.SET_SHOW_OUTBOUND_HOVER,
+        show
+    }
+}
+
 export function setTimeAtDestination(time) {
     return {
         type: types.SET_TIME_AT_DESTINATION,

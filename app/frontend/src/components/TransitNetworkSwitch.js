@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import { connect } from 'react-redux';
 import { withStyles, createMuiTheme} from '@material-ui/core/styles';
 import { Grid, Switch, Typography} from '@material-ui/core';
-import {setShowTransitNetwork, setTimeAtDestination} from "../store/actions";
+import {setShowTransitNetwork} from "../store/actions";
 
 const theme = createMuiTheme({
     palette: {
@@ -19,7 +19,6 @@ class TransitNetworkSwitch extends Component {
     handleChange = (event, value) => {
         const {setShowTransitNetwork} = this.props;
         setShowTransitNetwork(value);
-        console.log(value);
     }
 
     render() {

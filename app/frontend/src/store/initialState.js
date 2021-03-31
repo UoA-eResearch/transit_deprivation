@@ -62,6 +62,7 @@ export default {
     },
     selectedDataZone: null,
     showTransitNetwork: false,
+    showOutboundHover: true,
 
     // indexes
     idxLoc: akl_idx_loc["default"], // array index to location id

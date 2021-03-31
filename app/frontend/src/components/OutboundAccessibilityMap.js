@@ -161,8 +161,8 @@ class OutboundAccessibilityMap extends Component {
                 opacity: mapOpacity,
                 getLineWidth: 2,
                 lineWidthScale: 10,
-                // stroked: true,
-                getLineColor: showTransitNetwork ? [0, 0, 0] : [0, 0, 0, 0],
+                visible: showTransitNetwork,
+                getLineColor: [164, 164, 164, 32],
                 updateTriggers: {
                     getLineColor: showTransitNetwork
                 }
