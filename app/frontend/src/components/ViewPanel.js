@@ -1,8 +1,7 @@
 import React, {Component} from 'react';
 import { connect } from 'react-redux';
 import { withStyles, createMuiTheme} from '@material-ui/core/styles';
-import {Grid, Paper, Switch, Typography} from '@material-ui/core';
-import {setShowTransitNetwork, setTimeAtDestination} from "../store/actions";
+import {Grid, Paper, Typography} from '@material-ui/core';
 import TransitNetworkSwitch from "./TransitNetworkSwitch";
 import OpacitySlider from "./OpacitySlider";
 import OutboundHoverSwitch from "./OutboundHoverSwitch";

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { withStyles, createMuiTheme } from '@material-ui/core/styles';
+import { withStyles } from '@material-ui/core/styles';
 import {getLocationDT, setMapViewState, setDestinationDataZone} from "../store/actions";
 import { StaticMap } from 'react-map-gl';
 import DeckGL from '@deck.gl/react';

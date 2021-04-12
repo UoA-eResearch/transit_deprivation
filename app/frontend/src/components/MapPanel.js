@@ -18,7 +18,6 @@ const styles = (theme) => ({
 class MapPanel extends Component {
 
     render() {
-        const { classes } = this.props;
 
         return (
             <Grid container item direction="column" xs={8} spacing={3}>

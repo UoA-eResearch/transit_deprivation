@@ -4,7 +4,6 @@ import { withStyles, createMuiTheme} from '@material-ui/core/styles';
 import { Grid, Select, MenuItem, Typography} from '@material-ui/core';
 import { setOriginBasemap } from "../store/actions";
 import * as basemapTypes from "../components/basemapTypes";
-import * as mapTypes from "./mapTypes";
 
 const theme = createMuiTheme({
     palette: {
@@ -50,7 +49,7 @@ class OriginBasemapSelector extends Component {
                             onChange={this.handleOriginBasemapChange}
                         >
                             {Object.keys(basemapTypes.basemapToProperty).map((key) => (
-                                <MenuItem value={key}>{key}</MenuItem>
+                                <MenuItem key={key} value={key}>{key}</MenuItem>
                             ))}
                         </Select>
                     </Grid>

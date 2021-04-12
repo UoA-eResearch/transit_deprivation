@@ -22,7 +22,7 @@ class OutboundHoverSwitch extends Component {
     }
 
     render() {
-        const { classes, show } = this.props;
+        const { show } = this.props;
 
         return (
             <Grid container direction="row" spacing={1} alignItems="center">

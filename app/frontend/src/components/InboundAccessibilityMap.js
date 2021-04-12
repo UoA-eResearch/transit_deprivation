@@ -1,11 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { withStyles, createMuiTheme } from '@material-ui/core/styles';
+import { withStyles } from '@material-ui/core/styles';
 import { mapColorSchemeNameToInterpolator } from "../utils/colorScheme";
-import { updateHover,
-         setMapTooltip,
-         setMapViewState,
-         } from "../store/actions";
+import { setMapTooltip, setMapViewState } from "../store/actions";
+
 // mapping
 import { StaticMap } from 'react-map-gl';
 import DeckGL from '@deck.gl/react';
@@ -13,7 +11,6 @@ import { GeoJsonLayer } from '@deck.gl/layers';
 import {MapboxLayer} from '@deck.gl/mapbox';
 import MapTooltip  from './DestinationMapTooltip';
 import MapLegend from './MapLegend';
-import { color } from "d3";
 import {getInterpolatedColor, getNormalisedValue} from "../utils/mapUtil";
 import * as mapTheme from "./mapTheme";
 

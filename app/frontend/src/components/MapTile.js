@@ -2,16 +2,11 @@ import React, {Component} from 'react';
 import { connect } from 'react-redux';
 import { withStyles, createMuiTheme} from '@material-ui/core/styles';
 import {Grid, Paper, Typography} from '@material-ui/core';
-import Map from "./Map";
-import DefaultMap from "./DefaultMap";
 import OriginMap from "./OriginMap";
 import DestinationMap from "./DestinationMap";
 import InboundAccessibilityMap from "./InboundAccessibilityMap";
 import OutboundAccessibilityMap from "./OutboundAccessibilityMap";
 import * as mapTypes from "./mapTypes";
-import TimeLimitSlider from "./TimeLimitSlider";
-import DestinationTimeSlider from "./DestinationTimeSlider";
-import * as basemapTypes from "../components/basemapTypes";
 
 const theme = createMuiTheme({
     palette: {
@@ -32,8 +27,6 @@ const styles = (theme) => ({
 class MapTile extends Component {
 
     getName(mapType) {
-
-        const { basemap } = this.props;
 
         switch (mapType){
             case mapTypes.ORIGIN:
@@ -75,7 +68,7 @@ class MapTile extends Component {
             case mapTypes.OUTBOUND:
                 return <OutboundAccessibilityMap />;
             default:
-                return <DefaultMap />;
+                return null;
         }
     }
 
@@ -102,7 +95,7 @@ class MapTile extends Component {
 }
 
 const mapStateToProps = (state) => {
-    return {basemap: state.destinationBasemap}
+    return {}
 };
 
 const mapDispatchToProps = (dispatch) => {

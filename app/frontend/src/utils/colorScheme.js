@@ -18,6 +18,8 @@ export function mapColorSchemeNameToInterpolator(name) {
         case "Turbo":
             interp = interpolateTurbo;
             break;
+        default:
+            interp = interpolateViridis;
     }
     return(interp);
 }

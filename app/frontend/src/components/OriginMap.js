@@ -1,12 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { withStyles, createMuiTheme } from '@material-ui/core/styles';
+import { withStyles } from '@material-ui/core/styles';
 import { mapColorSchemeNameToInterpolator } from "../utils/colorScheme";
-import {
-    updateHover,
-    setMapTooltip,
-    setMapViewState, updateSelectedDataZone,
-} from "../store/actions";
+import { setMapTooltip, setMapViewState, updateSelectedDataZone } from "../store/actions";
 // mapping
 import { StaticMap } from 'react-map-gl';
 import DeckGL from '@deck.gl/react';

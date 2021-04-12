@@ -1,5 +1,4 @@
 import * as types from './actionTypes'
-import { mean, deviation, max, min } from "d3";
 var plan = require('./plan');
 
 const DT_SERVER = process.env.REACT_APP_DTServer || "http://0.0.0.0:8081";
@@ -82,7 +81,7 @@ export function setMapViewState(mapViewState) {
 }
 
 export function setSelectedDataZone(selectedDataZone) {
-    console.log('setting origin:', selectedDataZone);
+    // console.log('setting origin:', selectedDataZone);
     return {
         type: types.SET_SELECTED_DATA_ZONE,
         selectedDataZone
@@ -90,7 +89,7 @@ export function setSelectedDataZone(selectedDataZone) {
 }
 
 export function setDestinationDataZone(dz) {
-    console.log('setting destination:', dz);
+    // console.log('setting destination:', dz);
     return {
         type: types.SET_DESTINATION_DATAZONE,
         dz
@@ -160,7 +159,6 @@ export function computeAB(){
         // constraints
         const tMax = getState().timeLimit;
         const tDest = getState().timeAtDestination;
-        const tDelta = 10; // step size (minutes) in time dimension
 
         // convert travel time data to numjs ndarrays
         const inbound = getState().locationInboundData; // A->B
@@ -186,7 +184,7 @@ export function computeBC(){
 
         // if (AB !== null && selectedDataZone !== null && selectedDataZone !== undefined && ('id' in selectedDataZone)){
         if (AB !== null && selectedDataZone !== null && selectedDataZone !== undefined){
-            console.log('computing outbound accessibility from origin', selectedDataZone);
+            // console.log('computing outbound accessibility from origin', selectedDataZone);
 
             // constraints
             const tMax = getState().timeLimit;
@@ -304,7 +302,7 @@ export function getLocationDT(location) {
         let region = "akl";
         let url = DT_SERVER+`/transit?region=${region}&location=${location}&direction=inbound`;
 
-        console.log('getting data for destination:', location);
+        // console.log('getting data for destination:', location);
 
         const inbound = fetch(url)
             .then(response => response.json())

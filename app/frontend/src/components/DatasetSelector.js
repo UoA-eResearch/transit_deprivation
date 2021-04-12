@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import { connect } from 'react-redux';
 import { withStyles, createMuiTheme} from '@material-ui/core/styles';
 import { Grid, Select, MenuItem, Typography} from '@material-ui/core';
-import { setView, setDestinationDataset } from "../store/actions";
+import { setDestinationDataset } from "../store/actions";
 import * as destinationTypes from "./destinationTypes";
 
 const theme = createMuiTheme({
@@ -18,18 +18,13 @@ const styles = (theme) => ({
 
 class DatasetSelector extends Component {
 
-    handleViewChange = event => {
-        const { setView } = this.props;
-        setView(event.target.value);
-    }
-
     handleDestinationDatasetChange = event => {
         const { setDestinationDataset } = this.props;
         setDestinationDataset(event.target.value);
     }
 
     render() {
-        const { classes, destinationDataset, view } = this.props;
+        const { classes, destinationDataset } = this.props;
 
         const infoStr = {
             [destinationTypes.DESTINATION_NONE]: "No destination dataset selected",
@@ -38,22 +33,6 @@ class DatasetSelector extends Component {
 
         return (
             <Grid container direction="column" spacing={2}>
-                {/*<Grid container item direction="row" spacing={3} alignItems="center">*/}
-                {/*    <Grid item>*/}
-                {/*        <Typography>Travel Time View</Typography>*/}
-                {/*    </Grid>*/}
-                {/*    <Grid item>*/}
-                {/*        <Select*/}
-                {/*            className={classes.viewSelector}*/}
-                {/*            value={view}*/}
-                {/*            onChange={this.handleViewChange}*/}
-                {/*        >*/}
-                {/*            <MenuItem value={"avail"}>Accessibility</MenuItem>*/}
-                {/*            /!*<MenuItem value={"mean"}>Mean</MenuItem>*!/*/}
-                {/*            /!*<MenuItem value={"stdev"}>Standard Deviation</MenuItem>*!/*/}
-                {/*        </Select>*/}
-                {/*    </Grid>*/}
-                {/*</Grid>*/}
                 <Grid container item direction="row" spacing={3} alignItems="center">
                     <Grid item>
                         <Typography>Destinations</Typography>
@@ -81,14 +60,12 @@ class DatasetSelector extends Component {
 
 const mapStateToProps = (state) => {
     return {
-        view: state.view,
         destinationDataset: state.destinationDataset,
     }
 };
 
 const mapDispatchToProps = (dispatch) => {
     return ({
-        setView: (measureType) => { dispatch(setView(measureType)) },
         setDestinationDataset: (dataset) => { dispatch(setDestinationDataset(dataset))}
     });
 }

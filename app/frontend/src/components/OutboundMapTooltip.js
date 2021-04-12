@@ -1,13 +1,10 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { withStyles, createMuiTheme } from '@material-ui/core/styles';
-import {Typography} from '@material-ui/core';
 import chroma from "chroma-js";
 import Plotly from 'plotly.js-basic-dist';
 import createPlotlyComponent from "react-plotly.js/factory";
 const Plot = createPlotlyComponent(Plotly);
-
-var tinycolor = require("tinycolor2");
 
 const theme = createMuiTheme({
     palette: {
@@ -72,7 +69,7 @@ class OutboundMapTooltip extends Component {
         const center = this.svgSize/2;
         const degrees = 360 / this.segments;
         const start = degrees * n;
-        const end = (degrees * (n + 1 - this.margin) + (this.margin == 0 ? 1 : 0));
+        const end = (degrees * (n + 1 - this.margin) + (this.margin === 0 ? 1 : 0));
         const path = this.segmentPath(center, center, this.radius, this.radius-this.width, start, end);
         const fill = mask ? chroma.gl(0, 0, 1, ratio) : chroma("grey");
 
@@ -166,8 +163,7 @@ const mapStateToProps = (state) => {
 };
 
 const mapDispatchToProps = (dispatch) => {
-    return ({
-    });
+    return ({});
 }
 
 export default connect(

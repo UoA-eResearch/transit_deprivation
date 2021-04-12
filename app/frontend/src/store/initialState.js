@@ -10,7 +10,6 @@ import * as akl_idx_t from "./data/akl/akl_idx_t.json";
 
 import * as destinationTypes from "../components/destinationTypes";
 import * as basemapTypes from "../components/basemapTypes";
-import {DESTINATION_DIABETES_CLINICS} from "../components/destinationTypes";
 
 function calcStats(data){
 
@@ -25,6 +24,7 @@ function calcStats(data){
     return stats
 }
 
+/* eslint import/no-anonymous-default-export: [2, {"allowObject": true}] */
 export default {
     // geojson data
     dataZones: data_zones["default"],

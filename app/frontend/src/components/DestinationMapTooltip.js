@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { withStyles, createMuiTheme } from '@material-ui/core/styles';
 import {Typography} from '@material-ui/core';
-import * as mapTypes from "./mapTypes";
 import * as destinationTypes from "./destinationTypes"
 
 
@@ -28,7 +27,7 @@ class DestinationMapTooltip extends Component {
 
     render() {
         const {classes, hoverInfo, destinationDataset} = this.props;
-        if (hoverInfo && hoverInfo.object && destinationDataset != destinationTypes.DESTINATION_NONE){
+        if (hoverInfo && hoverInfo.object && destinationDataset !== destinationTypes.DESTINATION_NONE){
             const {x, y} = hoverInfo;
             const f = hoverInfo.object.properties;
 
