@@ -11,15 +11,51 @@ export const BASEMAP_DEPRIVATION_INCOME = "IMD - Income Rank";
 
 export const basemapToProperty = {
     [BASEMAP_NONE]: {"property": null},
-    [BASEMAP_POPULATION]: {"property": "Census18_P", "info": "Census 2018 Population", "label": "Census 2018 Population"},
-    [BASEMAP_DEPRIVATION]: {"property": "IMD18", "info": "Index of Multiple Deprivation (IMD)", "label": "IMD Rank (lower is better)"},
-    [BASEMAP_DEPRIVATION_EDUCATION]: {"property": "Education", "info": "IMD Education Rank", "label": "IMD Education Rank (lower is better)"},
-    [BASEMAP_DEPRIVATION_ACCESS]: {"property": "Access", "info": "IMD Access Rank", "label": "IMD Access Rank (lower is better)"},
-    [BASEMAP_DEPRIVATION_CRIME]: {"property": "Crime", "info": "IMD Crime Rank", "label": "IMD Crime Rank (lower is better)"},
-    [BASEMAP_DEPRIVATION_EMPLOYMENT]: {"property": "Employment", "info": "IMD Employment Rank", "label": "IMD Employment Rank (lower is better)"},
-    [BASEMAP_DEPRIVATION_HEALTH]: {"property": "Health", "info": "IMD Health Rank", "label": "IMD Health Rank (lower is better)"},
-    [BASEMAP_DEPRIVATION_HOUSING]: {"property": "Housing", "info": "IMD Housing Rank", "label": "IMD Housing Rank (lower is better)"},
-    [BASEMAP_DEPRIVATION_INCOME]: {"property": "Income", "info": "IMD Income Rank", "label": "IMD Income Rank (lower is better)"},
+    [BASEMAP_POPULATION]: {
+        "property": "Census18_P",
+        "info": "Census 2018 Population",
+        "label": "Census 2018 Population"
+    },
+    [BASEMAP_DEPRIVATION]: {
+        "property": "IMD18",
+        "info": "A weighted aggregate of deprivation measures in employment, income, crime, housing, health, education and access to essential services",
+        "label": "IMD Rank (lower is better)"
+    },
+    [BASEMAP_DEPRIVATION_EDUCATION]: {
+        "property": "Education",
+        "info": "Includes school leavers < 17 years old, school leavers without NCEA L2 and those not enrolling in tertiary studies, working age people without qualifications, youth not in education employment or training",
+        "label": "IMD Education Rank (lower is better)"
+    },
+    [BASEMAP_DEPRIVATION_ACCESS]: {
+        "property": "Access",
+        "info": "Distance to 3 nearest: GPs or A&Ms, supermarkets, service stations, primary or intermediate schools, early childhood education centers",
+        "label": "IMD Access Rank (lower is better)"
+    },
+    [BASEMAP_DEPRIVATION_CRIME]: {
+        "property": "Crime",
+        "info": "Victimisation rates for homicide and related offences, assault, sexual assault, abduction and kidnapping, robbery, extortion and related offences, unlawful entry with intent/burglary, breaking and entering, theft and related offences",
+        "label": "IMD Crime Rank (lower is better)"
+    },
+    [BASEMAP_DEPRIVATION_EMPLOYMENT]: {
+        "property": "Employment",
+        "info": "Number of working age people receiving daily gross payments of < $45 for Jobseeker Support (excluding sole parents)",
+        "label": "IMD Employment Rank (lower is better)"
+    },
+    [BASEMAP_DEPRIVATION_HEALTH]: {
+        "property": "Health",
+        "info": "Standardised mortality ratio, hospitalisations related to selected respiratory diseases, emergency hospital admissions, people registered as having selected cancers",
+        "label": "IMD Health Rank (lower is better)"
+    },
+    [BASEMAP_DEPRIVATION_HOUSING]: {
+        "property": "Housing",
+        "info": "Number of persons living in households which are rented, overcrowded, damp or that do not have all the amenities listed on the census dwelling form",
+        "label": "IMD Housing Rank (lower is better)"
+    },
+    [BASEMAP_DEPRIVATION_INCOME]: {
+        "property": "Income",
+        "info": "Dollars per 1000 population for Working for Families payments, income tested benefits including sole parents receiving Jobseeker Support with daily gross payments of $45 or more",
+        "label": "IMD Income Rank (lower is better)"
+    },
 }
 
 // [x] Access: 5721

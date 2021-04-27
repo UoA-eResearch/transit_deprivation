@@ -47,7 +47,7 @@ class Footer extends Component {
                 {/*    </Typography>*/}
                 {/*</Grid>*/}
                 <Grid item>
-                    <Typography>
+                    <Typography variant="body2">
                         Favicon "route" by Viktor Fedyuk (Tim P) from the Noun Project
                     </Typography>
                 </Grid>

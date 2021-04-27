@@ -21,6 +21,15 @@ const styles = (theme) => ({
     },
     mapTileDescription: {
         // padding: theme.spacing(2),
+    },
+    link: {
+        color: theme.palette.text.secondary,
+        background: 'none!important',
+        border: 'none',
+        padding: '0!important',
+        textDecoration: 'none',
+        cursor: 'pointer',
+        fontWeight: 'bolder',
     }
 });
 
@@ -65,7 +74,7 @@ class MapTile extends Component {
 
     getTitleRow(mapType){
 
-        const {inbound, outbound} = this.props;
+        const {inbound, outbound, classes} = this.props;
 
         switch (mapType){
             case mapTypes.ORIGIN:
@@ -91,9 +100,9 @@ class MapTile extends Component {
                                 <Typography variant="h6" style={{paddingTop:10}}>{this.getName(mapType)}</Typography>
                             </Grid>
                             <Grid item>
-                                <a onClick={this.downloadInbound}>
+                                <button className={classes.link} onClick={this.downloadInbound}>
                                     <Typography variant="caption">Download</Typography>
-                                </a>
+                                </button>
                             </Grid>
                         </Grid>
                     );
@@ -116,9 +125,9 @@ class MapTile extends Component {
                                 <Typography variant="h6" style={{paddingTop:10}}>{this.getName(mapType)}</Typography>
                             </Grid>
                             <Grid item>
-                                <a onClick={this.downloadOutbound}>
+                                <button className={classes.link} onClick={this.downloadOutbound}>
                                     <Typography variant="caption">Download</Typography>
-                                </a>
+                                </button>
                             </Grid>
                         </Grid>
                     );

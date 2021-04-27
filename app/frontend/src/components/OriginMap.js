@@ -97,7 +97,7 @@ class OriginMap extends Component {
         const { classes, dataZones, dataZoneStats, mapViewState, mapOpacity, selectedDataZone, selectedDestination,
             destinationColor, originColor, destinationLineWidth, originLineWidth, basemap } = this.props;
 
-        const colorScheme = "BlueGreen";
+        const colorScheme = "Purples";
 
         const property = basemapTypes.basemapToProperty[basemap].property;
         const label = basemapTypes.basemapToProperty[basemap].label;

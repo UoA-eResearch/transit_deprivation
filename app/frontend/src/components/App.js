@@ -26,6 +26,11 @@ const styles = (theme) => ({
         color: theme.palette.text.secondary,
         background: theme.palette.background.paper
     },
+    link: {
+        textDecoration: 'none',
+        color: theme.palette.text.secondary,
+        fontWeight: 'bolder',
+    }
 });
 
 class App extends Component {
@@ -43,8 +48,12 @@ class App extends Component {
                             <Typography variant="body1" style={{whiteSpace: 'pre-line', marginTop: theme.spacing(2)}}>
                                 {
                                     "This tool visualises the impact of deprivation on accessibility via public transport in Auckland\n\n" +
-                                    "Start by selecting a destination data set in the Data panel below. Then use the Destination panel to select a location of interest and the Origin panel to select a starting location\n\n"
+                                    "Start by selecting a destination data set in the Data panel below. Then use the Destination panel to select a location of interest and the Origin panel to select a starting location\n\n" +
+                                    "Basemap geometry and data sets are sourced from the "
                                 }
+                                <a className={classes.link} href={'https://www.fmhs.auckland.ac.nz/en/soph/about/our-departments/epidemiology-and-biostatistics/research/hgd/research-themes/imd18.html'}>
+                                    2018 Index of Multiple Deprivation
+                                </a>
                             </Typography>
                         </Paper>
                     </Grid>
