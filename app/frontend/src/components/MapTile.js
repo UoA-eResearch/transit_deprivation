@@ -26,6 +26,12 @@ const styles = (theme) => ({
 
 class MapTile extends Component {
 
+    constructor(props) {
+        super(props);
+        this.downloadOutbound = this.downloadOutbound.bind(this);
+        this.downloadInbound = this.downloadInbound.bind(this);
+    }
+
     getName(mapType) {
 
         switch (mapType){
@@ -57,6 +63,124 @@ class MapTile extends Component {
         }
     }
 
+    getTitleRow(mapType){
+
+        const {inbound, outbound} = this.props;
+
+        switch (mapType){
+            case mapTypes.ORIGIN:
+                return (
+                    <Grid item>
+                        <Typography variant="h6" style={{paddingTop:10}}>{this.getName(mapType)}</Typography>
+                    </Grid>
+                );
+            case mapTypes.DESTINATION:
+                return (
+                    <Grid item>
+                        <Typography variant="h6" style={{paddingTop:10}}>{this.getName(mapType)}</Typography>
+                    </Grid>
+                );
+            case mapTypes.INBOUND:
+                if (inbound !== null){
+                    return (
+                        <Grid container item direction="row" justify="space-between">
+                            <Grid item>
+                                <div style={{paddingLeft:60}}/>
+                            </Grid>
+                            <Grid item>
+                                <Typography variant="h6" style={{paddingTop:10}}>{this.getName(mapType)}</Typography>
+                            </Grid>
+                            <Grid item>
+                                <a onClick={this.downloadInbound}>
+                                    <Typography variant="caption">Download</Typography>
+                                </a>
+                            </Grid>
+                        </Grid>
+                    );
+                } else {
+                    return (
+                        <Grid item>
+                            <Typography variant="h6" style={{paddingTop:10}}>{this.getName(mapType)}</Typography>
+                        </Grid>
+                    );
+                }
+
+            case mapTypes.OUTBOUND:
+                if (outbound !== null){
+                    return (
+                        <Grid container item direction="row" justify="space-between">
+                            <Grid item>
+                                <div style={{paddingLeft:60}}/>
+                            </Grid>
+                            <Grid item>
+                                <Typography variant="h6" style={{paddingTop:10}}>{this.getName(mapType)}</Typography>
+                            </Grid>
+                            <Grid item>
+                                <a onClick={this.downloadOutbound}>
+                                    <Typography variant="caption">Download</Typography>
+                                </a>
+                            </Grid>
+                        </Grid>
+                    );
+                } else {
+                    return (
+                        <Grid item>
+                            <Typography variant="h6" style={{paddingTop:10}}>{this.getName(mapType)}</Typography>
+                        </Grid>
+                    );
+                }
+
+            default:
+                return null;
+        }
+    }
+
+    exportCSVFile(csv, exportedFilename) {
+
+        let blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        if (navigator.msSaveBlob) { // IE 10+
+            navigator.msSaveBlob(blob, exportedFilename);
+        } else {
+            let link = document.createElement("a");
+            if (link.download !== undefined) { // feature detection
+                // Browsers that support HTML5 download attribute
+                let url = URL.createObjectURL(blob);
+                link.setAttribute("href", url);
+                link.setAttribute("download", exportedFilename);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        }
+    }
+
+    convertToCSV(values, ids, name) {
+        let str = `DZ2018, ${name} \r\n`;
+        for (let i = 0; i < values.length; i++) {
+            str += `${ids[i]}, ${values[i]} \r\n`;
+        }
+        return str;
+    }
+
+    downloadOutbound(){
+
+        const {outbound, idxLoc} = this.props;
+        if (outbound !== null){
+            console.log(outbound.avail.values);
+            let csv = this.convertToCSV(outbound.avail.values, idxLoc, 'Outbound_Accessibility');
+            this.exportCSVFile(csv, 'outbound.csv');
+        }
+    }
+
+    downloadInbound(){
+        const {inbound, idxLoc} = this.props;
+        if (inbound !== null){
+            let csv = this.convertToCSV(inbound.avail.values, idxLoc, 'Inbound_Accessibility');
+            this.exportCSVFile(csv, 'inbound.csv');
+        }
+    }
+
     getMap(mapType){
         switch (mapType){
             case mapTypes.ORIGIN:
@@ -73,7 +197,9 @@ class MapTile extends Component {
     }
 
     render() {
-        const { classes, mapType } = this.props;
+
+        const { classes, mapType} = this.props;
+
         return (
             <Paper className={classes.map}>
                 <Grid container direction="column" spacing={0}>
@@ -81,9 +207,7 @@ class MapTile extends Component {
                         {this.getMap(mapType)}
                     </Grid>
                     <Grid item container direction="row" justify="center">
-                        <Grid item>
-                            <Typography variant="h6" style={{paddingTop:10}}>{this.getName(mapType)}</Typography>
-                        </Grid>
+                        {this.getTitleRow(mapType)}
                         <Grid item container direction="row">
                             <Typography variant="body1">{this.getDescription(mapType)}</Typography>
                         </Grid>
@@ -95,7 +219,11 @@ class MapTile extends Component {
 }
 
 const mapStateToProps = (state) => {
-    return {}
+    return {
+        inbound: state.AB,
+        outbound: state.BC,
+        idxLoc: state.idxLoc,
+    }
 };
 
 const mapDispatchToProps = (dispatch) => {

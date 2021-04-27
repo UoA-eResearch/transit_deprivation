@@ -40,12 +40,12 @@ class Footer extends Component {
                     <Grid item>
                         <img src={mbieLogo} height="100" alt="Ministry of Business, Innovation and Employment"/>
                     </Grid>
-                </Grid>F
-                <Grid item>
-                    <Typography>
-                        Contact xyz@auckland.ac.nz
-                    </Typography>
                 </Grid>
+                {/*<Grid item>*/}
+                {/*    <Typography>*/}
+                {/*        Contact xyz@auckland.ac.nz*/}
+                {/*    </Typography>*/}
+                {/*</Grid>*/}
                 <Grid item>
                     <Typography>
                         Favicon "route" by Viktor Fedyuk (Tim P) from the Noun Project

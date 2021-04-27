@@ -9,6 +9,9 @@ const theme = createMuiTheme({
     palette: {
         type: "light",
     },
+    table: {
+
+    }
 });
 
 const styles = (theme) => ({
