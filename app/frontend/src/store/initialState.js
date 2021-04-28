@@ -3,10 +3,14 @@ import {min, max} from "d3";
 // Data
 import * as data_zones from "./data/akl/akl_polygons_id.json";
 import * as routes from "./data/akl/akl_routes.json";
-import * as clinics from "./data/akl/akl_clinics.json";
 import * as akl_idx_loc from "./data/akl/akl_idx_loc.json";
 import * as akl_loc_idx from "./data/akl/akl_loc_idx.json";
 import * as akl_idx_t from "./data/akl/akl_idx_t.json";
+
+import * as clinics from "./data/akl/akl_clinics.json";
+import * as primary_schools from "./data/akl/akl_primary_schools.json";
+import * as intermediate_schools from "./data/akl/akl_intermediate_schools.json";
+import * as secondary_schools from "./data/akl/akl_secondary_schools.json";
 
 import * as destinationTypes from "../components/destinationTypes";
 import * as basemapTypes from "../components/basemapTypes";
@@ -20,7 +24,6 @@ function calcStats(data){
             stats[p] = {"min": min(data, d => d.properties[p]), "max": max(data, d => d.properties[p])};
         }
     }
-
     return stats
 }
 
@@ -31,8 +34,10 @@ export default {
     routes: routes["default"],
     destinations: {
         [destinationTypes.DESTINATION_DIABETES_CLINICS]: clinics["default"],
+        [destinationTypes.DESTINATION_PRIMARY_SCHOOLS]: primary_schools["default"],
+        [destinationTypes.DESTINATION_INTERMEDIATE_SCHOOLS]: intermediate_schools["default"],
+        [destinationTypes.DESTINATION_SECONDARY_SCHOOLS]: secondary_schools["default"],
     },
-    // clinics: clinics["default"],
 
     // filter/selection values
     destinationDataset: destinationTypes.DESTINATION_DIABETES_CLINICS,

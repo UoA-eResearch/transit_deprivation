@@ -26,11 +26,6 @@ class DatasetSelector extends Component {
     render() {
         const { classes, destinationDataset } = this.props;
 
-        const infoStr = {
-            [destinationTypes.DESTINATION_NONE]: "No destination dataset selected",
-            [destinationTypes.DESTINATION_DIABETES_CLINICS]: "This dataset contains the location diabetes treatment centers in the Auckland Region."
-        }
-
         return (
             <Grid container direction="column" spacing={2}>
                 <Grid container item direction="row" spacing={3} alignItems="center">
@@ -43,14 +38,16 @@ class DatasetSelector extends Component {
                             value={destinationDataset}
                             onChange={this.handleDestinationDatasetChange}
                         >
-                            <MenuItem value={destinationTypes.DESTINATION_NONE}>{destinationTypes.DESTINATION_NONE}</MenuItem>
-                            <MenuItem value={destinationTypes.DESTINATION_DIABETES_CLINICS}>{destinationTypes.DESTINATION_DIABETES_CLINICS}</MenuItem>
+                            {Object.keys(destinationTypes.destinationToProperty).map((key) => (
+                                <MenuItem key={key} value={key}>{key}</MenuItem>
+                            ))}
+
                         </Select>
                     </Grid>
                 </Grid>
                 <Grid item>
                     <Typography variant="body1" paragraph style={{whiteSpace: 'pre-line'}}>
-                        {infoStr[destinationDataset]}
+                        {destinationTypes.destinationToProperty[destinationDataset].info}
                     </Typography>
                 </Grid>
             </Grid>

@@ -158,22 +158,20 @@ class DestinationMap extends Component {
                 },
             }),
         ];
-        if (destinationDataset !== destinationTypes.DESTINATION_NONE){
-            layers.push(
-                new GeoJsonLayer({
-                    id: 'points',
-                    data: destinations[destinationDataset],
-                    pointRadiusMinPixels: 5,
-                    getFillColor: destinationColor,
-                    pickable: true,
-                    onHover: info => this.setState({hoverInfo: info}),
-                    onClick: (event, info) => {
-                        info.handled = true;
-                        this.handleGeoJsonLayerOnClick(event);
-                    },
-                })
-            )
-        }
+        layers.push(
+            new GeoJsonLayer({
+                id: 'points',
+                data: destinations[destinationDataset],
+                pointRadiusMinPixels: 5,
+                getFillColor: destinationColor,
+                pickable: true,
+                onHover: info => this.setState({hoverInfo: info}),
+                onClick: (event, info) => {
+                    info.handled = true;
+                    this.handleGeoJsonLayerOnClick(event);
+                },
+            })
+        )
 
         return(
             <div className={classes.map}>
