@@ -1,11 +1,11 @@
 import React, {Component} from 'react';
 import { connect } from 'react-redux';
-import { withStyles, createMuiTheme} from '@material-ui/core/styles';
+import { withStyles, createTheme} from '@material-ui/core/styles';
 import { Grid, Select, MenuItem, Typography} from '@material-ui/core';
 import { setDestinationDataset } from "../store/actions";
 import * as destinationTypes from "./destinationTypes";
 
-const theme = createMuiTheme({
+const theme = createTheme({
     palette: {
         type: "light",
     },
@@ -24,10 +24,10 @@ class DatasetSelector extends Component {
     }
 
     render() {
-        const { classes, destinationDataset } = this.props;
+        const { forwardedRef, classes, destinationDataset } = this.props;
 
         return (
-            <Grid container direction="column" spacing={2}>
+            <Grid container direction="column" spacing={2} ref={forwardedRef}>
                 <Grid container item direction="row" spacing={3} alignItems="center">
                     <Grid item>
                         <Typography>Destinations</Typography>

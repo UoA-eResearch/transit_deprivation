@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import { connect } from 'react-redux';
-import { withStyles, createMuiTheme} from '@material-ui/core/styles';
+import { withStyles, createTheme} from '@material-ui/core/styles';
 import {Grid, Paper, Typography} from '@material-ui/core';
 import OriginMap from "./OriginMap";
 import DestinationMap from "./DestinationMap";
@@ -8,7 +8,7 @@ import InboundAccessibilityMap from "./InboundAccessibilityMap";
 import OutboundAccessibilityMap from "./OutboundAccessibilityMap";
 import * as mapTypes from "./mapTypes";
 
-const theme = createMuiTheme({
+const theme = createTheme({
     palette: {
         type: "light",
     },
@@ -92,7 +92,7 @@ class MapTile extends Component {
             case mapTypes.INBOUND:
                 if (inbound !== null){
                     return (
-                        <Grid container item direction="row" justify="space-between">
+                        <Grid container item direction="row" justifyContent="space-between">
                             <Grid item>
                                 <div style={{paddingLeft:60}}/>
                             </Grid>
@@ -117,7 +117,7 @@ class MapTile extends Component {
             case mapTypes.OUTBOUND:
                 if (outbound !== null){
                     return (
-                        <Grid container item direction="row" justify="space-between">
+                        <Grid container item direction="row" justifyContent="space-between">
                             <Grid item>
                                 <div style={{paddingLeft:60}}/>
                             </Grid>

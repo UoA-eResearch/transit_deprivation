@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { withStyles, createMuiTheme } from '@material-ui/core/styles';
+import { withStyles, createTheme } from '@material-ui/core/styles';
 import { Paper } from '@material-ui/core';
 import { mapColorSchemeNameToInterpolator } from "../utils/colorScheme";
 import { scaleSequential, scaleLinear } from "d3";
 // color helpers
 var tinycolor = require("tinycolor2");
 
-const theme = createMuiTheme({
+const theme = createTheme({
     palette: {
         type: "light",
     },

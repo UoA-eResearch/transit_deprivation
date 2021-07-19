@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { withStyles, createMuiTheme } from '@material-ui/core/styles';
+import { withStyles, createTheme } from '@material-ui/core/styles';
 import {Grid, Typography} from '@material-ui/core';
 import * as destinationTypes from "./destinationTypes"
 
 
-const theme = createMuiTheme({
+const theme = createTheme({
     palette: {
         type: "light",
     },

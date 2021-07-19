@@ -1,11 +1,11 @@
 import React, {Component} from 'react';
 import { connect } from 'react-redux';
-import { withStyles, createMuiTheme} from '@material-ui/core/styles';
+import { withStyles, createTheme} from '@material-ui/core/styles';
 import { Grid, Select, MenuItem, Typography} from '@material-ui/core';
 import { setOriginBasemap } from "../store/actions";
 import * as basemapTypes from "../components/basemapTypes";
 
-const theme = createMuiTheme({
+const theme = createTheme({
     palette: {
         type: "light",
     },

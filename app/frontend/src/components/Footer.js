@@ -1,13 +1,13 @@
 import React, {Component} from 'react';
 import { connect } from 'react-redux';
-import { withStyles, createMuiTheme} from '@material-ui/core/styles';
+import { withStyles, createTheme} from '@material-ui/core/styles';
 import {Grid, Typography} from '@material-ui/core';
 import uoaLogo from "../images/uoa.png";
 import vicLogo from "../images/vic.png";
 import ucLogo from "../images/uc.jpg";
 import mbieLogo from "../images/mbie.png";
 
-const theme = createMuiTheme({
+const theme = createTheme({
     palette: {
         type: "light",
     },
@@ -27,7 +27,7 @@ class Footer extends Component {
 
         return (
             <Grid container item direction="column" spacing={3} alignItems="center" className={classes.footer}>
-                <Grid item container direction="row" spacing={3} justify="space-around">
+                <Grid item container direction="row" spacing={3} justifyContent="space-around">
                     <Grid item>
                         <img src={uoaLogo} height="100" alt="University of Auckland"/>
                     </Grid>

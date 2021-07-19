@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import { connect } from 'react-redux';
-import { withStyles, createMuiTheme} from '@material-ui/core/styles';
+import { withStyles, createTheme} from '@material-ui/core/styles';
 import { Paper, Grid, Typography } from '@material-ui/core';
 import ViewPanel from "./ViewPanel";
 import DataPanel from "./DataPanel";
@@ -8,7 +8,7 @@ import ControlPanel from "./ControlPanel";
 import MapPanel from "./MapPanel";
 import Footer from "./Footer";
 
-const theme = createMuiTheme({
+const theme = createTheme({
     palette: {
         type: "light",
     },
@@ -38,7 +38,7 @@ class App extends Component {
     render() {
         const { classes } = this.props;
         return (
-            <Grid className={classes.root} container spacing={3} justify="center" alignItems="flex-start">
+            <Grid className={classes.root} container spacing={3} justifyContent="center" alignItems="flex-start">
                 <Grid item container direction="column" xs={4} spacing={3}>
                     <Grid item>
                         <Paper className={classes.paper}>
