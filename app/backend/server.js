@@ -8,6 +8,8 @@ var fs = require('fs');
 const port = process.env.PORT;
 const appHost = process.env.APP_HOST;
 const appPort = process.env.APP_PORT;
+//const origin = `http://${appHost}:${appPort}`
+const origin = "*"
 
 const server = http.createServer(function (req, res) {
     let u = url.parse(req.url, true);
@@ -18,7 +20,7 @@ const server = http.createServer(function (req, res) {
             if (err) {
                 res.writeHead(404, {
                     "Content-Type": "text/html",
-                    "Access-Control-Allow-Origin": `http://${appHost}:${appPort}`,
+                    "Access-Control-Allow-Origin": origin,
                     "Access-Control-Allow-Methods": "GET",
                     "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept"
                 });
@@ -26,7 +28,7 @@ const server = http.createServer(function (req, res) {
             }
             res.writeHead(200, {
                 "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": `http://${appHost}:${appPort}`,
+                "Access-Control-Allow-Origin": origin,
                 "Access-Control-Allow-Methods": "GET",
                 "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept"
             });
@@ -36,7 +38,7 @@ const server = http.createServer(function (req, res) {
     } else {
         res.writeHead(404, {
             "Content-Type": "text/html",
-            "Access-Control-Allow-Origin": `http://${appHost}:${appPort}`,
+            "Access-Control-Allow-Origin": origin,
             "Access-Control-Allow-Methods": "GET",
             "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept"
         });
@@ -46,6 +48,6 @@ const server = http.createServer(function (req, res) {
 
 server.listen(port, () => {
     const address = server.address();
-    console.log(`Server listening on port ${address.port} for requests from ${appHost}:${appPort}`);
+    console.log(`Server listening on port ${address.port} for requests from ${origin}`);
 });
 
