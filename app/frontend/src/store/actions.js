@@ -302,6 +302,7 @@ export function getLocationDT(location) {
         let region = "akl";
         let url = DT_SERVER+`/transit?region=${region}&location=${location}&direction=inbound`;
 
+        console.log(url);
         // console.log('getting data for destination:', location);
 
         const inbound = fetch(url)

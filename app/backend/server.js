@@ -8,7 +8,7 @@ var fs = require('fs');
 const port = process.env.PORT;
 const appHost = process.env.APP_HOST;
 const appPort = process.env.APP_PORT;
-//const origin = `http://${appHost}:${appPort}`
+//const origin = `${appHost}:${appPort}`
 const origin = "*"
 
 const server = http.createServer(function (req, res) {
