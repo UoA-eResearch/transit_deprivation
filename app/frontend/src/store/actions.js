@@ -300,7 +300,7 @@ export function getLocationDT(location) {
      */
     return (dispatch, getState) => {
         let region = "akl";
-        let url = DT_SERVER+`/transit?region=${region}&location=${location}&direction=inbound`;
+        let url = DT_SERVER+`/data/inbound/${region}/${location}.json`;
 
         console.log(url);
         // console.log('getting data for destination:', location);
@@ -314,7 +314,7 @@ export function getLocationDT(location) {
                 console.error(error)
             })
 
-        url = DT_SERVER+`/transit?region=${region}&location=${location}&direction=outbound`;
+        url = DT_SERVER+`/data/outbound/${region}/${location}.json`;
         const outbound = fetch(url)
             .then(response => response.json())
             .then((data) => {
